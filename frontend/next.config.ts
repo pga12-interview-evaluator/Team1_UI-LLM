@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   typedRoutes: true,
+  serverExternalPackages: ["pdf-parse", "mammoth"],
   images: { remotePatterns: [] },
   // Security headers that do not need a per-request nonce live here; CSP is set in src/proxy.ts.
   async headers() {

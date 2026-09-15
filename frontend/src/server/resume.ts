@@ -9,7 +9,9 @@ export async function extractResumeText(file: File): Promise<string> {
   const name = file.name.toLowerCase();
   const bytes = Buffer.from(await file.arrayBuffer());
   if (name.endsWith(".pdf")) {
-    const pdfParse = (await import("pdf-parse")).default;
+    // Import the lib entry directly: pdf-parse 1.1.1's index.js runs a debug block when
+    // `module.parent` is null (ESM/Next import) and tries to read a test fixture → ENOENT.
+    const pdfParse = (await import("pdf-parse/lib/pdf-parse.js")).default;
     const parsed = await pdfParse(bytes);
     return parsed.text;
   }
