@@ -38,6 +38,8 @@ export function candidateView(session: RealSession): CandidateSessionView {
     accommodations_applied: [...session.accommodations],
     current_turn: session.evaluating ? null : session.current_turn,
     elapsed_seconds: Math.round(elapsed),
+    interview_purpose:
+      session.interview_input.interview_purpose === "hiring" ? "hiring" : "mock_practice",
   };
   return candidateSessionViewSchema.parse(view);
 }

@@ -38,6 +38,7 @@ const view = (over: Partial<CandidateSessionView> = {}): CandidateSessionView =>
   accommodations_applied: [],
   current_turn: turn(),
   elapsed_seconds: 120,
+  interview_purpose: "mock_practice",
   ...over,
 });
 

@@ -58,9 +58,11 @@ export function PausedScreen({
 export function ClosingScreen({
   turn,
   language,
+  token,
 }: {
   turn: CandidateTurnDto | null;
   language: string;
+  token?: string;
 }) {
   const t = useT();
   return (
@@ -72,11 +74,13 @@ export function ClosingScreen({
         </p>
         <p className="text-ink-muted text-sm">{t.interview.closing.canClose}</p>
         <div className="mt-4 flex flex-wrap gap-3">
+          {token ? (
+            <Link className="action-link" href={`/i/${encodeURIComponent(token)}/review`}>
+              See your review
+            </Link>
+          ) : null}
           <Link className="action-link" href="/">
             Back to workspace
-          </Link>
-          <Link className="action-link" href="/console/sessions">
-            Review interviews
           </Link>
         </div>
       </CardBody>
@@ -87,18 +91,30 @@ export function ClosingScreen({
 export function EscalatedScreen({
   language,
   message,
+  token,
 }: {
   language: string;
   message: string | null;
+  token?: string;
 }) {
   const t = useT();
   return (
     <Card>
       <CardHeader title={t.interview.escalated.title} />
-      <CardBody>
+      <CardBody className="flex flex-col gap-3">
         <p className="text-[17px] leading-relaxed" lang={language} aria-live="polite">
           {message ?? t.interview.escalated.body}
         </p>
+        {token ? (
+          <div className="mt-2 flex flex-wrap gap-3">
+            <Link className="action-link" href={`/i/${encodeURIComponent(token)}/review`}>
+              See your review
+            </Link>
+            <Link className="action-link" href="/">
+              Back to workspace
+            </Link>
+          </div>
+        ) : null}
       </CardBody>
     </Card>
   );

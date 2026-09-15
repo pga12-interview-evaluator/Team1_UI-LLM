@@ -71,6 +71,7 @@ export function candidateView(session: MockSession): CandidateSessionView {
     accommodations_applied: [...session.accommodations],
     current_turn: session.current_turn,
     elapsed_seconds: Math.round(elapsed),
+    interview_purpose: "mock_practice",
   };
 }
 
@@ -116,6 +117,12 @@ export async function candidateRoute(request: Request, segments: string[]): Prom
   if (!action && method === "GET") return json(candidateView(session));
 
   if (action === "events" && method === "GET") return eventsStream(session);
+  if (action === "review" && method === "GET") {
+    // Demo: a fixed, clearly-labelled review so the page can be exercised without a model.
+    if (!["closed", "escalated", "reported"].includes(session.status))
+      return error(409, "not_finished", "Your review is ready once the interview has ended.");
+    return json(demoReview(session.session_id));
+  }
 
   if (method !== "POST") return error(405, "method_not_allowed", "Method not allowed.");
 
@@ -450,4 +457,89 @@ export async function consoleRoute(request: Request, segments: string[]): Promis
   }
 
   return error(404, "not_found", "Unknown route.");
+}
+
+function demoReview(sessionId: string) {
+  const answer = {
+    answer_id: "A_Q2_0",
+    question_id: "Q2",
+    question: "Walk me through the monthly close you ran and one number you moved.",
+    kind: "main question",
+    answer:
+      "I owned the accruals step of the close. I built a tracker that cut the close from nine to five days over three months.",
+    scores: [
+      {
+        competency_id: "C1",
+        name: "Month-end close and accruals",
+        score: 3,
+        evidence_grade: "specific",
+        evidence: ["owned accruals step", "nine to five days over three months"],
+        missing: ["how the baseline of nine days was measured"],
+      },
+    ],
+    watch_outs: [
+      {
+        label: "Gave a number without its baseline, window or source",
+        quote: "nine to five days",
+        severity: 1,
+      },
+    ],
+    good_moves: [
+      {
+        label: "Honestly narrowed the claim to what you actually did",
+        quote: "I owned the accruals step",
+      },
+    ],
+    follow_up_asked: "How was the nine-day baseline measured, and over which months?",
+    speech: {
+      words: 24,
+      duration_sec: 14,
+      words_per_minute: 103,
+      filler_count: 0,
+      fillers_per_100_words: 0,
+      top_fillers: [],
+    },
+    presence: null,
+  };
+  return {
+    session_id: sessionId,
+    job_title: "FP&A Analyst",
+    seniority: "mid",
+    started_at: new Date(Date.now() - 12 * 60_000).toISOString(),
+    ended_at: new Date().toISOString(),
+    duration_minutes: 12,
+    questions_answered: 1,
+    report: {
+      overall_score: 3.0,
+      recommendation: "positive_signal_with_follow_up",
+      headline: "Good, with a few claims still to back up (demo data)",
+      rationale: "Demo review: fixed content, not generated from your answers.",
+      competencies: [
+        {
+          competency_id: "C1",
+          name: "Month-end close and accruals",
+          weight: 35,
+          score: 3,
+          confidence: "medium",
+          demonstrated_up_to: "L2",
+          bar: "L2",
+          gap: null,
+        },
+      ],
+      strengths: ["You gave a first-person, specific example with a before and after."],
+      gaps: ["The nine-day baseline was not sourced."],
+      practice_suggestions: ["Bring the before-number and its source for any result you mention."],
+      unverified_claims: [],
+    },
+    report_error: null,
+    answers: [answer],
+    speech_summary: {
+      total_words: 24,
+      average_words_per_minute: 103,
+      fillers_per_100_words: 0,
+      notes: ["Average pace 103 words/min — on the slow side; aim for 120–160."],
+    },
+    presence_summary: null,
+    presence_status: "no_data",
+  };
 }

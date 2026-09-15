@@ -66,7 +66,7 @@ export function InterviewShell({ token }: { token: string }) {
   }, [applied.join(","), media.stream]);
 
   useEffect(() => {
-    if (ui.kind === "closing") completeSession(token);
+    if (ui.kind === "closing" || ui.kind === "escalated") completeSession(token);
     if ((ui.kind === "closing" || ui.kind === "escalated") && media.stream) media.release();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ui.kind]);
@@ -174,10 +174,17 @@ function Body({
         <EscalatedScreen
           language={language}
           message={ui.view.current_turn?.candidate_message ?? null}
+          token={ui.view.interview_purpose === "mock_practice" ? token : undefined}
         />
       );
     case "closing":
-      return <ClosingScreen turn={ui.turn} language={language} />;
+      return (
+        <ClosingScreen
+          turn={ui.turn}
+          language={language}
+          token={ui.view.interview_purpose === "mock_practice" ? token : undefined}
+        />
+      );
     case "paused":
       return (
         <>

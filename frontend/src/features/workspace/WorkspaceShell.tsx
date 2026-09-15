@@ -5,14 +5,14 @@ import type { ReactNode } from "react";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { publicEnv } from "@/lib/config/env";
 const nav: {
-  href: "/" | "/setup" | "/recordings" | "/guide" | "/console";
+  href: "/" | "/setup" | "/recordings" | "/review" | "/guide";
   label: string;
   icon: IconName;
 }[] = [
   { href: "/", label: "Overview", icon: "grid" },
   { href: "/setup", label: "Interview studio", icon: "mic" },
   { href: "/recordings", label: "Recordings", icon: "video" },
-  { href: "/console", label: "Review & insights", icon: "chart" },
+  { href: "/review", label: "Review & insights", icon: "chart" },
   { href: "/guide", label: "Preparation guide", icon: "book" },
 ];
 export function Brand() {

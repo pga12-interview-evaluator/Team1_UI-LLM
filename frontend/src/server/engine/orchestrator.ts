@@ -628,6 +628,7 @@ export async function transcribeMedia(session: RealSession, mediaRef: string): P
   session.media_refs[mediaRef] = {
     turn_index: stored?.turn_index ?? session.turn_index,
     transcript: result.text,
+    duration_sec: Number.isFinite(result.duration_sec) ? result.duration_sec : null,
   };
   db().audio.delete(mediaRef);
   return result.text;

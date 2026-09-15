@@ -81,7 +81,10 @@ export interface RealSession {
   evaluations: EvaluationSummary[]; // console projection
   budget_audit: Record<string, unknown>[];
   answer_ids: Record<string, string>; // turn_index -> answer_id
-  media_refs: Record<string, { turn_index: number; transcript: string | null }>;
+  media_refs: Record<
+    string,
+    { turn_index: number; transcript: string | null; duration_sec?: number | null }
+  >;
   report_raw: Record<string, unknown> | null;
   human_decision: HumanDecision | null;
   gemini_log: {

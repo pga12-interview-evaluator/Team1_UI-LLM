@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { request, upload, uploadOptional, newIdempotencyKey } from "./client";
+import { practiceReviewSchema } from "./schemas/review";
 import {
   candidateSessionViewSchema,
   framesAckSchema,
@@ -110,6 +111,15 @@ export const candidateApi = {
       framesAckSchema,
     );
     return ack ?? "disabled";
+  },
+
+  /** Post-interview practice review (mock-practice sessions only; 409 until the session has ended). */
+  getReview(token: string, signal?: AbortSignal) {
+    return request(`/candidate/sessions/${encodeURIComponent(token)}/review`, {
+      schema: practiceReviewSchema,
+      signal,
+      retries: 0,
+    });
   },
 
   eventsUrl(token: string): string {

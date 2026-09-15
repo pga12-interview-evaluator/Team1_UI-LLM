@@ -84,6 +84,8 @@ export const candidateSessionViewSchema = z
     current_turn: candidateTurnDtoSchema.nullable(),
     /** Server-authoritative elapsed clock; the client never computes time modes. */
     elapsed_seconds: z.number().nonnegative(),
+    /** Practice sessions get a post-interview review; hiring candidates never see scores. */
+    interview_purpose: z.enum(["hiring", "mock_practice"]).default("mock_practice"),
   })
   .strict();
 export type CandidateSessionView = z.infer<typeof candidateSessionViewSchema>;

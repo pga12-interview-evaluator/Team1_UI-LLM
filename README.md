@@ -27,6 +27,7 @@ cd frontend && npm install && npm run dev                                  # htt
 |---|---|
 | `/setup` | Create a practice interview from a resume + target role |
 | `/i/<token>` | Candidate interview studio (voice or text, camera preview, screen share, local recording) |
+| `/i/<token>/review` · `/review` | Practice review after the interview: per-answer scores and evidence, what to work on, speech and camera coaching (never scored) |
 | `/console` | Reviewer console — any work email + `CONSOLE_DEV_PASSWORD` |
 | `/api/v1/console/health` | Backend health (Gemini key, Whisper and body-language service reachability) |
 

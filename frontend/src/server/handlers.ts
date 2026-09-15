@@ -25,6 +25,7 @@ import {
 import { whisperHealthy } from "./whisper";
 import { bodyLanguageHealthy, pushFrames } from "./bodyLanguage";
 import { captureEnabled } from "./engine/behavioralFlow";
+import { buildPracticeReview } from "./engine/review";
 
 /* ---------------- shared ---------------- */
 
@@ -142,6 +143,7 @@ export async function candidateRoute(request: Request, segments: string[]): Prom
 
   if (!action && method === "GET") return json(candidateView(session));
   if (action === "events" && method === "GET") return eventsStream(session);
+  if (action === "review" && method === "GET") return reviewRoute(session);
   if (method !== "POST") return error(405, "method_not_allowed", "Method not allowed.");
   // Camera frames stream in every second; they must not queue behind a Gemini call on the session lock.
   if (action === "frames") return framesRoute(request, session);
@@ -217,6 +219,30 @@ export async function candidateRoute(request: Request, segments: string[]): Prom
       save(session);
       return fromError(caught);
     }
+  });
+}
+
+/**
+ * GET …/review — the candidate's own practice review. Mock-practice sessions only (a hiring
+ * candidate never sees scores); available once the session has ended. Generates the 04 report
+ * on first open; if that fails the per-answer evaluation still comes back.
+ */
+async function reviewRoute(session: RealSession): Promise<NextResponse> {
+  if (session.interview_input.interview_purpose !== "mock_practice")
+    return error(403, "not_practice", "Reviews are available for practice interviews only.");
+  if (!["closed", "escalated", "reported"].includes(session.status))
+    return error(409, "not_finished", "Your review is ready once the interview has ended.");
+  return withLock(session.session_id, async () => {
+    let reportError: string | null = null;
+    if (!session.report_raw) {
+      try {
+        await engine.generateReport(session);
+      } catch (caught) {
+        reportError = caught instanceof Error ? caught.message : String(caught);
+      }
+    }
+    const report = session.report_raw ? projectReport(session) : null;
+    return json(buildPracticeReview(session, report, reportError));
   });
 }
 
