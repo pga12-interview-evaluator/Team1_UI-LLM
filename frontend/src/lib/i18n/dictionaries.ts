@@ -51,6 +51,8 @@ export const en = {
     testMic: "Speak to test your microphone",
     levelLabel: "Input level",
     cameraOff: "Continue with camera off",
+    cameraSkipped:
+      "Camera is not available, so the interview will run with your microphone only.",
     proceed: "Everything looks fine — continue",
     textOnly: "Continue with typed answers only",
   },

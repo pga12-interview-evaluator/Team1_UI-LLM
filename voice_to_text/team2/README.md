@@ -14,5 +14,9 @@ What the app takes from it (merged into `../voice_to_text.py`, served by `../ser
 | `whisper.load_model("small")` | env `WHISPER_MODEL=small` (default `base` for CPU speed) |
 | `condition_on_previous_text=True` | **not adopted** — causes repeat-loop hallucinations on long answers; kept `False` |
 
+`requirements.txt` here is Team 2's list as delivered (`openai-whisper`, `PyAudio`, `transliterate`,
+`sounddevice`). The service uses `../requirements.txt` (pinned); `sounddevice` and `transliterate`
+are not needed by the app — the notebook records with PyAudio and never imports `transliterate`.
+
 The notebook itself is not executed by the app; PyAudio mic capture is replaced by the browser
 sending 16 kHz WAV to `POST /transcribe`.

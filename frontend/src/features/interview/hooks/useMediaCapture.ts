@@ -63,46 +63,51 @@ export function useMediaCapture({
       setState((s) => ({ ...s, microphone: "unavailable", camera: "unavailable" }));
       return;
     }
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: wantMicrophone ? { echoCancellation: true, noiseSuppression: true } : false,
-        video: wantCamera
-          ? { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: "user" }
-          : false,
-      });
-      if (version !== acquireVersion.current) {
-        stream.getTracks().forEach((t) => t.stop());
-        return;
+    // Microphone and camera are requested separately so a missing or blocked camera can never
+    // take the microphone down with it: an interview can run mic-only, never camera-only.
+    const request = async (constraints: MediaStreamConstraints) => {
+      try {
+        return { stream: await navigator.mediaDevices.getUserMedia(constraints), error: null };
+      } catch (error) {
+        return { stream: null, error: (error as DOMException).name || "UnknownError" };
       }
-      streamRef.current?.getTracks().forEach((t) => t.stop());
-      streamRef.current = stream;
-      setState((s) => ({
-        ...s,
-        stream,
-        microphone: wantMicrophone
-          ? stream.getAudioTracks().length
-            ? "granted"
-            : "unavailable"
-          : s.microphone,
-        camera: wantCamera
-          ? stream.getVideoTracks().length
-            ? "granted"
-            : "unavailable"
-          : s.camera,
-        error: null,
-      }));
-    } catch (error) {
-      if (version !== acquireVersion.current) return;
-      const name = (error as DOMException).name;
-      const denied = name === "NotAllowedError" || name === "SecurityError";
-      setState((s) => ({
-        ...s,
-        microphone: wantMicrophone ? (denied ? "denied" : "unavailable") : s.microphone,
-        camera: wantCamera ? (denied ? "denied" : "unavailable") : s.camera,
-        error: name,
-      }));
-      track({ name: "candidate.media_error", reason: name });
+    };
+    const statusOf = (
+      result: { stream: MediaStream | null; error: string | null },
+      hasTrack: boolean,
+    ): MediaPermission => {
+      if (result.stream) return hasTrack ? "granted" : "unavailable";
+      return result.error === "NotAllowedError" || result.error === "SecurityError"
+        ? "denied"
+        : "unavailable";
+    };
+    const mic = wantMicrophone
+      ? await request({ audio: { echoCancellation: true, noiseSuppression: true } })
+      : null;
+    const cam = wantCamera
+      ? await request({
+          video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: "user" },
+        })
+      : null;
+    const tracks = [...(mic?.stream?.getTracks() ?? []), ...(cam?.stream?.getTracks() ?? [])];
+    if (version !== acquireVersion.current) {
+      tracks.forEach((t) => t.stop());
+      return;
     }
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    const stream = tracks.length ? new MediaStream(tracks) : null;
+    streamRef.current = stream;
+    const micStatus = mic ? statusOf(mic, Boolean(mic.stream?.getAudioTracks().length)) : null;
+    const camStatus = cam ? statusOf(cam, Boolean(cam.stream?.getVideoTracks().length)) : null;
+    const firstError = mic?.error ?? cam?.error ?? null;
+    setState((s) => ({
+      ...s,
+      stream,
+      microphone: micStatus ?? s.microphone,
+      camera: camStatus ?? s.camera,
+      error: firstError,
+    }));
+    if (firstError) track({ name: "candidate.media_error", reason: firstError });
   }, [wantCamera, wantMicrophone]);
 
   // Input level meter (visual only; never uploaded, never used for anything else).

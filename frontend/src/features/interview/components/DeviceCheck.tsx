@@ -54,12 +54,17 @@ export function DeviceCheck({ token, view }: { token: string; view: CandidateSes
   };
 
   const micOk = media.microphone === "granted";
+  // Only the microphone gates "Continue": a missing or blocked camera just means camera off.
   const problem =
-    media.microphone === "denied" || media.camera === "denied"
+    media.microphone === "denied"
       ? t.device.denied
       : media.microphone === "unavailable" && wantMic
         ? t.device.notFound
         : null;
+  const cameraProblem =
+    wantCamera && (media.camera === "denied" || media.camera === "unavailable")
+      ? t.device.cameraSkipped
+      : null;
 
   return (
     <Card className="mx-auto w-full max-w-2xl">
@@ -118,6 +123,7 @@ export function DeviceCheck({ token, view }: { token: string; view: CandidateSes
           </div>
         </div>
         {problem ? <Alert tone="warn">{problem}</Alert> : null}
+        {!problem && cameraProblem ? <Alert tone="info">{cameraProblem}</Alert> : null}
         {error ? <Alert tone="bad">{error}</Alert> : null}
         {problem ? (
           <Button variant="secondary" onClick={media.acquire}>
