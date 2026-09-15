@@ -1,49 +1,55 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Badge } from "@/components/ui";
+import { Alert, Badge } from "@/components/ui";
 import { Icon } from "@/components/ui/Icon";
 import { WorkspaceShell } from "@/features/workspace/WorkspaceShell";
-import { completeSession, readHistory, type PracticeSession } from "@/features/workspace/history";
+import { readHistory } from "@/features/workspace/history";
 import { candidateApi } from "@/lib/api/candidate";
+import type { PracticeSessionList } from "@/lib/api/schemas/review";
 
 const ENDED = new Set(["closed", "escalated", "reported"]);
+const NEVER_STARTED = new Set(["awaiting_consent", "device_check", "ready", "disclosed"]);
 
-interface Row extends PracticeSession {
-  /** Live status from the server; null while loading or when the link is no longer valid. */
-  live: string | null;
-  jobTitle: string | null;
-}
+type Row = PracticeSessionList["items"][number];
 
 /**
- * Lists the practice interviews this browser started. Local history only remembers the token;
- * the server says whether each interview has ended, so a review link is never shown for a
- * session that is still running (and never hidden for one that was stopped early).
+ * Practice interviews to review. The server is the source of truth (practice mode has no
+ * accounts, so it lists every practice session on this machine); browser history only adds
+ * links this browser started that the server no longer knows about.
  */
 export function ReviewLibrary() {
   const [rows, setRows] = useState<Row[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
-    const history = readHistory();
-    // Browser storage is unavailable during SSR; hydrate it once after mounting.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setRows(history.map((s) => ({ ...s, live: null, jobTitle: null })));
-    void Promise.all(
-      history.map(async (session) => {
-        try {
-          const view = await candidateApi.getSession(session.token, controller.signal);
-          if (ENDED.has(view.status)) completeSession(session.token);
-          return { ...session, live: view.status, jobTitle: view.job_title };
-        } catch {
-          return { ...session, live: "unavailable", jobTitle: null };
-        }
-      }),
-    ).then((resolved) => {
-      if (!controller.signal.aborted) setRows(resolved);
-    });
+    candidateApi
+      .listPracticeSessions(controller.signal)
+      .then((list) => {
+        const known = new Set(list.items.map((item) => item.token));
+        const local: Row[] = readHistory()
+          .filter((s) => !known.has(s.token))
+          .map((s) => ({
+            token: s.token,
+            job_title: s.role,
+            candidate_label: "",
+            status: s.status === "completed" ? "closed" : "unknown",
+            created_at: s.createdAt,
+            ended_at: null,
+            questions_answered: 0,
+          }));
+        setRows([...list.items, ...local]);
+      })
+      .catch((caught) => {
+        if (controller.signal.aborted) return;
+        setError(caught instanceof Error ? caught.message : "Could not load your interviews.");
+        setRows([]);
+      });
     return () => controller.abort();
   }, []);
+
+  const visible = (rows ?? []).filter((row) => !NEVER_STARTED.has(row.status));
 
   return (
     <WorkspaceShell
@@ -58,30 +64,36 @@ export function ReviewLibrary() {
           allowed them. Camera and speech notes never affect your score.
         </p>
       </div>
+      {error ? <Alert tone="bad">{error}</Alert> : null}
       {rows === null ? (
         <p role="status">Loading your interviews…</p>
-      ) : rows.length ? (
+      ) : visible.length ? (
         <ul className="setup-card flex flex-col divide-y">
-          {rows.map((row) => {
-            const ended = row.live !== null && ENDED.has(row.live);
-            const running = row.live !== null && !ended && row.live !== "unavailable";
+          {visible.map((row) => {
+            const ended = ENDED.has(row.status);
             return (
               <li
                 key={row.token}
                 className="flex flex-wrap items-center justify-between gap-3 py-3"
               >
                 <div>
-                  <p className="font-medium">{row.jobTitle || row.role || "Practice interview"}</p>
+                  <p className="font-medium">
+                    {row.job_title || "Practice interview"}
+                    {row.candidate_label ? (
+                      <span className="text-ink-muted font-normal"> · {row.candidate_label}</span>
+                    ) : null}
+                  </p>
                   <p className="text-ink-muted flex flex-wrap items-center gap-2 text-sm">
-                    {new Date(row.createdAt).toLocaleString()}
-                    {row.live === null ? (
-                      <Badge>checking…</Badge>
-                    ) : ended ? (
-                      <Badge tone="ok">finished</Badge>
-                    ) : running ? (
-                      <Badge tone="warn">in progress</Badge>
+                    {new Date(row.created_at).toLocaleString()}
+                    {ended ? (
+                      <Badge tone="ok">
+                        finished · {row.questions_answered} question
+                        {row.questions_answered === 1 ? "" : "s"}
+                      </Badge>
+                    ) : row.status === "unknown" ? (
+                      <Badge>link no longer on this server</Badge>
                     ) : (
-                      <Badge>link expired</Badge>
+                      <Badge tone="warn">in progress</Badge>
                     )}
                   </p>
                 </div>
@@ -89,11 +101,11 @@ export function ReviewLibrary() {
                   <Link className="action-link" href={`/i/${encodeURIComponent(row.token)}/review`}>
                     Open review <Icon name="arrow" size={16} />
                   </Link>
-                ) : running ? (
+                ) : row.status === "unknown" ? null : (
                   <Link className="action-link" href={`/i/${encodeURIComponent(row.token)}`}>
                     Resume interview <Icon name="arrow" size={16} />
                   </Link>
-                ) : null}
+                )}
               </li>
             );
           })}
@@ -104,10 +116,7 @@ export function ReviewLibrary() {
             <Icon name="chart" size={27} />
           </span>
           <h3>No interviews to review yet</h3>
-          <p>
-            Interviews are listed in the browser they were started from. Finish a practice interview
-            and its review appears here.
-          </p>
+          <p>Finish a practice interview and its review appears here.</p>
           <Link href="/setup" className="action-link">
             Start an interview <Icon name="arrow" size={16} />
           </Link>

@@ -136,6 +136,24 @@ export async function candidateRoute(request: Request, segments: string[]): Prom
     );
   }
 
+  // GET /candidate/sessions — practice interviews on this server, for the workspace review list.
+  // Practice mode has no accounts (one person, one machine); hiring sessions are never listed.
+  if (segments.length === 2 && segments[1] === "sessions" && method === "GET") {
+    const items = allSessions()
+      .filter((s) => s.interview_input.interview_purpose !== "hiring")
+      .sort((a, b) => b.created_at.localeCompare(a.created_at))
+      .map((s) => ({
+        token: s.invite_token,
+        job_title: String(s.interview_input.job_title ?? ""),
+        candidate_label: s.candidate_label,
+        status: s.status,
+        created_at: s.created_at,
+        ended_at: s.ended_at,
+        questions_answered: new Set(s.evaluations.map((e) => e.question_id)).size,
+      }));
+    return json({ items });
+  }
+
   const [, , token, action] = segments;
   if (!token) return error(404, "not_found", "Unknown route.");
   const session = sessionByToken(token);

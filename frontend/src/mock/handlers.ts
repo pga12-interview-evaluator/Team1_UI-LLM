@@ -78,6 +78,21 @@ export function candidateView(session: MockSession): CandidateSessionView {
 /* ---------------- candidate channel ---------------- */
 
 export async function candidateRoute(request: Request, segments: string[]): Promise<NextResponse> {
+  if (segments.length === 2 && segments[1] === "sessions" && request.method === "GET") {
+    seed();
+    const items = Array.from(db().sessions.values())
+      .sort((a, b) => b.created_at.localeCompare(a.created_at))
+      .map((session) => ({
+        token: session.invite_token,
+        job_title: db().requisitions.get(session.requisition_id)?.job_title ?? "Demo interview",
+        candidate_label: session.candidate_label,
+        status: session.status,
+        created_at: session.created_at,
+        ended_at: session.ended_at,
+        questions_answered: session.evaluations.length,
+      }));
+    return json({ items });
+  }
   if (segments.length === 2 && segments[1] === "sessions" && request.method === "POST") {
     seed();
     // Exercises upload + session creation; this mock does not parse the resume or call Gemini.

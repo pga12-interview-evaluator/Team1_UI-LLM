@@ -112,3 +112,18 @@ export const practiceReviewSchema = z.object({
 });
 export type PracticeReview = z.infer<typeof practiceReviewSchema>;
 export type ReviewAnswer = z.infer<typeof reviewAnswerSchema>;
+
+export const practiceSessionListSchema = z.object({
+  items: z.array(
+    z.object({
+      token: z.string(),
+      job_title: z.string(),
+      candidate_label: z.string(),
+      status: z.string(),
+      created_at: z.string(),
+      ended_at: z.string().nullable(),
+      questions_answered: z.number().int(),
+    }),
+  ),
+});
+export type PracticeSessionList = z.infer<typeof practiceSessionListSchema>;
