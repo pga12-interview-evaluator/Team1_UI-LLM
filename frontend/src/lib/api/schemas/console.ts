@@ -387,6 +387,11 @@ export const finalReportSchema = z.object({
           ),
         }),
       ),
+      integrity_events: z
+        .array(z.object({ type: z.string(), answer_id: z.string(), duration_ms: z.number().int() }))
+        .default([]),
+      environment_quality_summary: z.string().default(""),
+      producer_versions: z.array(z.string()).default([]),
       used_in_scoring: z.literal(false),
       shown_by_default: z.literal(false),
     })

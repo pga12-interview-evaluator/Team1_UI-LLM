@@ -42,6 +42,8 @@ const serverSchema = z.object({
   GEMINI_MODEL: z.string().min(1).default("gemini-3.5-flash"),
   /** Whisper HTTP service (voice_to_text/server.py). */
   WHISPER_URL: z.string().url().default("http://127.0.0.1:8008"),
+  /** Body-language signal service (body_language/server.py wrapping Team 3). */
+  BODY_LANGUAGE_URL: z.string().url().default("http://127.0.0.1:8009"),
   /** Directory holding prompts_v2/*.md. Defaults to ../prompts_v2 relative to the app. */
   PROMPTS_DIR: z.string().optional(),
   /** Where real-mode sessions are persisted as JSON. */
@@ -56,6 +58,7 @@ export function getServerEnv() {
     GEMINI_API_KEY: process.env.GEMINI_API_KEY || undefined,
     GEMINI_MODEL: process.env.GEMINI_MODEL || undefined,
     WHISPER_URL: process.env.WHISPER_URL || undefined,
+    BODY_LANGUAGE_URL: process.env.BODY_LANGUAGE_URL || undefined,
     PROMPTS_DIR: process.env.PROMPTS_DIR || undefined,
     DATA_DIR: process.env.DATA_DIR || undefined,
   });

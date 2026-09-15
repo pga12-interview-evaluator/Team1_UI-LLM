@@ -54,6 +54,25 @@ export function NonScoredBlock({
           No attention flags fired during this interview.
         </p>
       )}
+      {context.integrity_events.length ? (
+        <p className="text-ink-muted mt-3 text-xs">
+          Integrity events (logged for the reviewer, never flagged):{" "}
+          {context.integrity_events
+            .map(
+              (e) =>
+                `${e.type.replace(/_/g, " ")} on ${e.answer_id} (${Math.round(e.duration_ms / 1000)} s)`,
+            )
+            .join("; ")}
+        </p>
+      ) : null}
+      {context.environment_quality_summary ? (
+        <p className="text-ink-muted mt-2 text-xs">{context.environment_quality_summary}</p>
+      ) : null}
+      {context.producer_versions.length ? (
+        <p className="text-ink-muted mt-1 font-mono text-[11px]">
+          {context.producer_versions.join(" · ")}
+        </p>
+      ) : null}
     </details>
   );
 }

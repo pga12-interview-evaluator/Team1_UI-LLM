@@ -16,3 +16,11 @@ coverage/
 .DS_Store
 Thumbs.db
 test.ipynb
+
+# Team 3 body language: landmarker models are downloaded by their script on first run; runs are local
+Team3_Body_language/task3_models/*.task
+Team3_Body_language/task3_reports/
+Team3_Body_language/task3_data/
+body_language/.venv/
+body_language/reports/
+body_language/server.log

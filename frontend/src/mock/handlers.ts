@@ -162,6 +162,8 @@ export async function candidateRoute(request: Request, segments: string[]): Prom
       else engine.request(session, payload.type);
       return json(candidateView(session));
     }
+    case "frames":
+      return new NextResponse(null, { status: 204 }); // mock mode analyses nothing
     case "media": {
       const form = await request.formData();
       const chunk = form.get("chunk");

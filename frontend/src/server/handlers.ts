@@ -23,6 +23,8 @@ import {
   type RealSession,
 } from "./store";
 import { whisperHealthy } from "./whisper";
+import { bodyLanguageHealthy, pushFrames } from "./bodyLanguage";
+import { captureEnabled } from "./engine/behavioralFlow";
 
 /* ---------------- shared ---------------- */
 
@@ -141,6 +143,8 @@ export async function candidateRoute(request: Request, segments: string[]): Prom
   if (!action && method === "GET") return json(candidateView(session));
   if (action === "events" && method === "GET") return eventsStream(session);
   if (method !== "POST") return error(405, "method_not_allowed", "Method not allowed.");
+  // Camera frames stream in every second; they must not queue behind a Gemini call on the session lock.
+  if (action === "frames") return framesRoute(request, session);
 
   return withLock(session.session_id, async () => {
     try {
@@ -178,6 +182,7 @@ export async function candidateRoute(request: Request, segments: string[]): Prom
             text: payload.text,
             media_ref: payload.media_ref,
             auto_submitted: payload.auto_submitted,
+            turn_index: payload.turn_index,
           });
           return json(candidateView(session));
         }
@@ -212,6 +217,41 @@ export async function candidateRoute(request: Request, segments: string[]): Prom
       save(session);
       return fromError(caught);
     }
+  });
+}
+
+const MAX_FRAMES_PER_BATCH = 16;
+const MAX_FRAME_BYTES = 400 * 1024;
+
+/**
+ * POST …/frames — multipart `turn_index` + `frames[]` (JPEG, filename `<t_ms>.jpg`) → Team 3 service.
+ * Accepted only while capture is on (consent + camera + no accommodation) and an answer is open;
+ * otherwise 204 so the browser simply stops sending. Never fails the interview.
+ */
+async function framesRoute(request: Request, session: RealSession): Promise<NextResponse> {
+  if (
+    !captureEnabled(session) ||
+    session.status !== "active" ||
+    !session.current_turn?.requires_answer
+  )
+    return new NextResponse(null, { status: 204 });
+  const form = await request.formData();
+  const turnIndex = Number(form.get("turn_index"));
+  if (!Number.isInteger(turnIndex) || turnIndex !== session.current_turn.turn_index)
+    return new NextResponse(null, { status: 204 }); // stale batch from a previous question
+  const frames: { t_ms: number; bytes: Buffer }[] = [];
+  for (const entry of form.getAll("frames").slice(0, MAX_FRAMES_PER_BATCH)) {
+    if (!(entry instanceof File) || entry.size === 0 || entry.size > MAX_FRAME_BYTES) continue;
+    const t = Number(entry.name.replace(/\.jpe?g$/i, ""));
+    if (!Number.isInteger(t) || t < 0) continue;
+    frames.push({ t_ms: t, bytes: Buffer.from(await entry.arrayBuffer()) });
+  }
+  if (!frames.length) return error(400, "no_frames", "No usable frames in this batch.");
+  const ack = await pushFrames(session.session_id, turnIndex, frames);
+  return json({
+    accepted: frames.length,
+    detected: ack?.detected ?? 0,
+    service_reachable: ack !== null,
   });
 }
 
@@ -306,6 +346,7 @@ export async function consoleRoute(request: Request, segments: string[]): Promis
       gemini_key_present: !!process.env.GEMINI_API_KEY,
       gemini_model: process.env.GEMINI_MODEL ?? "gemini-3.5-flash",
       whisper_reachable: await whisperHealthy(),
+      body_language_reachable: await bodyLanguageHealthy(),
       sessions: allSessions().length,
     });
   }

@@ -14,7 +14,10 @@ This repository is the UI + LLM layer of the PGA12 interview evaluator. Body-lan
 # terminal 1 — Whisper speech-to-text (loads the model once)
 cd voice_to_text && pip install -r requirements.txt && python server.py     # http://127.0.0.1:8008
 
-# terminal 2 — app (UI + real backend)
+# terminal 2 — body language (Team 3, own venv; optional — interview runs without it)
+cd body_language && python -m venv .venv && .venv/Scripts/pip install -r requirements.txt && .venv/Scripts/python server.py   # :8009
+
+# terminal 3 — app (UI + real backend)
 cd frontend && npm install && npm run dev                                  # http://localhost:3000
 ```
 
@@ -25,7 +28,7 @@ cd frontend && npm install && npm run dev                                  # htt
 | `/setup` | Create a practice interview from a resume + target role |
 | `/i/<token>` | Candidate interview studio (voice or text, camera preview, screen share, local recording) |
 | `/console` | Reviewer console — any work email + `CONSOLE_DEV_PASSWORD` |
-| `/api/v1/console/health` | Backend health (Gemini + Whisper reachability) |
+| `/api/v1/console/health` | Backend health (Gemini key, Whisper and body-language service reachability) |
 
 No API keys? `NEXT_PUBLIC_API_MODE=mock` serves a scripted demo interview from `frontend/src/mock/`.
 
@@ -55,7 +58,9 @@ resume + role ──▶ 01 blueprint ──▶ opening script ──▶ 02 live 
 │  ├─ src/mock/                 in-app mock backend for demos and e2e
 │  └─ docs/                     RUNBOOK · ARCHITECTURE · api-contract · FRONTEND-HANDOFF
 ├─ prompts_v2/                  CONTRACTS TRACK — 00 shared contracts (v2.1.1) + prompts 01–04 + live smoke tests
-├─ voice_to_text/               FastAPI wrapper over Whisper (16 kHz WAV in, transcript out)
+├─ voice_to_text/               FastAPI wrapper over Whisper (16 kHz WAV in, transcript out); Team 2 source in team2/
+├─ body_language/               FastAPI wrapper over Team 3's body-language analysis (frames in, non-scored signals out)
+├─ Team3_Body_language/         Team 3's script + models, untouched (imported by body_language/server.py)
 ├─ production_v2/               EXECUTABLE TRACK — Python runtime + composed prompt pack (reference only, not wired to UI)
 ├─ legacy_v1/                   v1 prompt pack, kept for reference
 ├─ AI_Interview_System_Guide_v2.html          guide for the contracts track
@@ -82,7 +87,7 @@ Natural path: keep running `prompts_v2` through the app; port `production_v2` ru
 - **Difficulty ladders** — L1 → L2 → L3 per critical competency; report "demonstrated up to Lx vs bar Ly".
 - **Evidence-quality patterns** B01–B24 — reasons to probe, never score reductions. Honest limits (`honest_down_scope`) are credited.
 - **Pressure level** — calm | standard | intense changes quantity and pace, never tone, rubric or fairness.
-- **Behavioral signals** — ML envelope → backend fusion against the candidate's own warm-up baseline → `attention_flags` to 02 only. **Never a score input**; 03/04 never see them.
+- **Behavioral signals** — Team 3's gaze/posture/movement measurements → `behavioral_signals/1.0` envelope → backend fusion against the candidate's own warm-up baseline → `attention_flags` to 02 only. **Never a score input**; 03/04 never see them; the report shows counts and flags only.
 
 Source of truth for every field, enum, quota and script: [`prompts_v2/00_shared_contracts.md`](prompts_v2/00_shared_contracts.md).
 

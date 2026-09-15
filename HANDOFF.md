@@ -10,6 +10,7 @@ _Last updated 2026-09-15 · repo `pga12-interview-evaluator/Team1_UI-LLM` · mai
 | Frontend: candidate interview studio, practice workspace, recruiter console | `frontend/` (Next.js 16) | Done. Light professional theme, animations, a11y, e2e |
 | **Real backend inside the app** (`/api/v1`): resume ingest → Gemini 01/02/03/04 → report | `frontend/src/server/` | Done, verified end to end with a real resume |
 | Voice answers → Whisper | `frontend/src/lib/media/wav.ts` + `voice_to_text/server.py` | Done. Browser sends 16 kHz WAV; FastAPI wrapper over `voice_to_text.py`, which carries Team 2's decoding settings (Hinglish/tech base prompt, beam 5, no-speech 0.6 — see `voice_to_text/team2/README.md`) |
+| Body language → non-scored attention flags (Team 3) | `body_language/server.py` (wraps `Team3_Body_language/`, unmodified) + `frontend/src/server/engine/behavioral*.ts` + `hooks/useFrameCapture.ts` | Done. Browser streams JPEG frames per answer; service returns Team 3 report + derived metrics; BFF builds `behavioral_signals/1.0`, fuses vs warm-up baseline, feeds `attention_flags` to 02 only, §14 attention boost, report block |
 | Mock backend for demos / e2e (no keys) | `frontend/src/mock/` (`/api/mock`) | Done. `NEXT_PUBLIC_API_MODE=mock` |
 | Executable Python runtime from the parallel track | `production_v2/` | Reference only; different payload shapes, not wired to the UI |
 | Guides | `AI_Interview_System_Guide_v2.html`, `AI_Interview_Production_Playbook_v2.html`, `legacy_v1/` | Reference |
@@ -22,7 +23,10 @@ _Last updated 2026-09-15 · repo `pga12-interview-evaluator/Team1_UI-LLM` · mai
 # terminal 1 — Whisper (loads model once)
 cd voice_to_text && pip install -r requirements.txt && python server.py        # :8008
 
-# terminal 2 — app
+# terminal 2 — body language (own venv; optional)
+cd body_language && .venv/Scripts/python server.py                            # :8009
+
+# terminal 3 — app
 cd frontend && npm install && npm run dev                                     # :3000
 ```
 
@@ -49,7 +53,7 @@ Routes: `/setup` (create interview from resume) · `/i/<token>` (candidate) · `
 ## 5. Known gaps / next steps (priority order)
 
 1. **Ladders, callbacks, reconciliation** — designed in prompts_v2 and expected by 02, but the orchestrator always sends `ladder_instruction: null`, `callback_due: null`, `reconciliation_due: null`. Implement in `src/server/engine/orchestrator.ts` + `state.ts` (00 §9–§11, §15). Ladder plan items are currently skipped.
-2. **Behavioral signals (Team ML)** — contract in `00 §12` and `frontend/docs/api-contract.md`; frontend never uploads video for analysis yet; report block shows `disabled_by_consent`. Wire: envelope → backend fusion → `attention_flags` into `session_state` (02 only, never 03/04).
+2. **Behavioral signals — remaining pieces** — Team 3 (gaze/body) is wired end to end (`body_language/README.md`). Still open: speech/fluency producers (Team 2 delivers transcripts only, so `long_pause`, `speech_rate_shift` etc. never fire); `span_hint_text` is always null; `resolved_by_probe` is never filled; Team 3 ships no trained models so the service runs rule-based (drop `gaze/posture/movement` model `.pkl`s in `task3_models/` to switch). Needs a real camera run to tune `GAZE_SHIFT_*` thresholds in `engine/behavioral.ts`.
 3. **Auth + persistence for production** — swap mock cookie for SSO; move `.data/` JSON to a DB; rate-limit `/setup` and the candidate channel.
 4. **Latency** — blueprint 1–3 min (starts at `/setup` submit, hidden behind consent/device steps). Options: `gemini-3.5-flash-lite` for 01 only, or requisition-mode pre-generation per role (already supported by Prompt 01 `mode: requisition`).
 5. **Hindi** — scripts translated (`policy.ts`), UI chrome partial (`lib/i18n`); Whisper hint + `language=hi` passed; needs a real Hindi test run.

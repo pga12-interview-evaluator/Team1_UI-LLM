@@ -40,6 +40,12 @@ export function InterviewShell({ token }: { token: string }) {
     !applied.includes("text_modality");
   const uploadEnabled = !!view?.consent.recording_consent;
   const media = useMediaCapture({ token, wantCamera, wantMicrophone: wantMic, uploadEnabled });
+  // 00 §12.2 off switches, mirrored client-side so no frame leaves the browser when capture is off.
+  const behavioralCapture =
+    wantCamera &&
+    !!view?.consent.behavioral_analysis_consent &&
+    applied.length === 0 &&
+    media.camera === "granted";
   const stopAnswerRecording = media.stopRecording;
   const acquiredFor = useRef<string>("");
   useEffect(() => {
@@ -109,6 +115,7 @@ export function InterviewShell({ token }: { token: string }) {
               language={language}
               media={media}
               applied={applied}
+              behavioralCapture={behavioralCapture}
               onRetry={() => dispatch({ type: "RETRY" })}
             />
           </div>
@@ -135,6 +142,7 @@ function Body({
   language,
   media,
   applied,
+  behavioralCapture,
   onRetry,
 }: {
   ui: UiState;
@@ -142,6 +150,7 @@ function Body({
   language: string;
   media: ReturnType<typeof useMediaCapture>;
   applied: string[];
+  behavioralCapture: boolean;
   onRetry: () => void;
 }) {
   switch (ui.kind) {
@@ -203,6 +212,7 @@ function Body({
               timerDisabled={applied.includes("extended_answer_time")}
               voiceAvailable={voiceAvailable}
               captionsEnabled={applied.includes("captions")}
+              behavioralCapture={behavioralCapture}
             />
           ) : null}
           <RightsBar token={token} disabled={waiting} applied={ui.view.accommodations_applied} />

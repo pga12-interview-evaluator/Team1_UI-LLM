@@ -8,6 +8,7 @@ import {
   type SessionSummary,
 } from "@/lib/api/schemas/console";
 import type { RealSession } from "../store";
+import { behavioralContext } from "./behavioralReport";
 import { disclosureText, versionBundle } from "./orchestrator";
 import { duration, planItems } from "./state";
 
@@ -206,9 +207,6 @@ export function projectReport(session: RealSession): FinalReport {
   const ownership = (raw.ownership_profile as Dict | undefined) ?? {};
   const pressure = (raw.pressure_response_summary as Dict | undefined) ?? {};
   const feedback = raw.candidate_feedback as Dict | null | undefined;
-  const behavioralDisabled =
-    !session.consent.behavioral_analysis_consent ||
-    session.accommodations.includes("no_behavioral_analysis");
 
   const candidate: FinalReport = {
     report_version: str(raw.report_version, "2.0"),
@@ -417,23 +415,7 @@ export function projectReport(session: RealSession): FinalReport {
           practice_suggestions: strs(feedback.practice_suggestions),
         }
       : null,
-    non_scored_behavioral_context: {
-      disclaimer:
-        "Non-scored context. These behavioral signals were not used in any competency score, finding, or recommendation above and must not be used by a reviewer to adjust them. Automated behavior analysis does not detect deception. Shown for follow-up-question audit only.",
-      capture_status: behavioralDisabled
-        ? session.consent.behavioral_analysis_consent
-          ? "disabled_by_accommodation"
-          : "disabled_by_consent"
-        : "none",
-      coverage: {
-        answers_with_signals: 0,
-        answers_partial: 0,
-        answers_without: session.evaluations.length,
-      },
-      flags_by_answer: [],
-      used_in_scoring: false,
-      shown_by_default: false,
-    },
+    non_scored_behavioral_context: behavioralContext(session),
   };
   return finalReportSchema.parse(candidate);
 }

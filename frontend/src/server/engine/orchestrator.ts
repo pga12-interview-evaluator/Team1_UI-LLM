@@ -6,6 +6,15 @@ import { promptVersions, renderPrompt } from "../prompts";
 import { audit, db, save, type RealSession } from "../store";
 import { transcribeWav } from "../whisper";
 import {
+  captureEnabled,
+  disableCapture,
+  flagsForNextTurn,
+  highFlagFired,
+  ingestAnswerSignals,
+  recordFlagUse,
+  releaseCapture,
+} from "./behavioralFlow";
+import {
   ACCOMMODATION_EFFECT_EN,
   policySnapshot,
   scriptsFor,
@@ -441,6 +450,7 @@ function mechanicalAdvance(session: RealSession): void {
 
 function closeInterview(session: RealSession): void {
   const scripts = scriptsFor(String(session.interview_input.interview_language));
+  releaseCapture(session);
   session.phase = "closing";
   session.status = "closed";
   session.ended_at = now();
@@ -455,6 +465,7 @@ async function interviewerTurn(session: RealSession, latestAnswer: string | null
     session.ledger.filter(
       (row) => !["supported", "revised_by_candidate"].includes(String(row.verification_status)),
     ),
+    flagsForNextTurn(session),
   );
   const prompt = renderPrompt("02", { session_state_json: state });
   let output: TurnOutput;
@@ -475,6 +486,7 @@ async function interviewerTurn(session: RealSession, latestAnswer: string | null
   }
   const violation = violatesGuard(output.candidate_message ?? "");
   const update = output.recommended_state_update ?? {};
+  recordFlagUse(session, update.attention_flag_use);
   // Apply permitted state updates (each checked against a hard rule).
   if (
     update.mark_question_complete === true &&
@@ -536,6 +548,7 @@ async function interviewerTurn(session: RealSession, latestAnswer: string | null
   if (update.accommodation_code_applied && typeof update.accommodation_code_applied === "string") {
     const code = update.accommodation_code_applied as AccommodationCode;
     if (!session.accommodations.includes(code)) session.accommodations.push(code);
+    disableCapture(session, code);
   }
 
   const type = DTO_TYPE[output.turn_type] ?? "follow_up";
@@ -622,7 +635,7 @@ export async function transcribeMedia(session: RealSession, mediaRef: string): P
 
 export async function answer(
   session: RealSession,
-  payload: { text: string; media_ref: string | null; auto_submitted: boolean },
+  payload: { text: string; media_ref: string | null; auto_submitted: boolean; turn_index: number },
 ): Promise<void> {
   if (!["active", "candidate_questions"].includes(session.status)) return;
   let text = payload.text.trim();
@@ -661,6 +674,13 @@ export async function answer(
   session.evaluating = true;
   session.current_turn = null;
   save(session);
+  // Body-language window closes with the answer. Non-scored: result only feeds 02's attention_flags.
+  if (captureEnabled(session) && session.current_question_id)
+    await ingestAnswerSignals(session, {
+      answer_id: answerId,
+      question_id: session.current_question_id,
+      turn_index: payload.turn_index,
+    });
 
   try {
     if (session.status === "candidate_questions" || !session.current_question_id) {
@@ -747,7 +767,7 @@ export async function answer(
           unresolved_claim_ids: [],
         });
       }
-      const row = applyBudgetRules(session, evaluation, answerId);
+      const row = applyBudgetRules(session, evaluation, answerId, highFlagFired(session));
       session.budget_audit.push(row);
       audit(
         "budget_decision",
@@ -939,6 +959,7 @@ export function adjustment(session: RealSession, code: AccommodationCode): void 
   (session.interview_input.accommodation_notes as Dict).codes = [...session.accommodations];
   (session.interview_input.accommodation_notes as Dict).timing_triggers_disabled = true;
   audit("accommodation", code, session.session_id);
+  disableCapture(session, code);
   if (code === "human_interviewer") {
     session.status = "escalated";
     session.escalation_reason = "accommodation_unavailable";
@@ -1035,7 +1056,7 @@ export function versionBundle(): Record<string, string> {
     prompt_versions: `blueprint ${versions["01"]} · interviewer ${versions["02"]} · evaluator ${versions["03"]} · final ${versions["04"]}`,
     contracts_version: versions.contracts,
     model_id: process.env.GEMINI_MODEL ?? "gemini-3.5-flash",
-    signal_schema_version: "behavioral_signals/1.0 (not wired)",
+    signal_schema_version: "behavioral_signals/1.0 · fusion_rules/1.0-gaze-body · producer team3 body language",
     policy_version: "pl-2026-09",
   };
 }

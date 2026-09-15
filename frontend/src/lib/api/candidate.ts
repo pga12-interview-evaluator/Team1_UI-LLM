@@ -1,8 +1,10 @@
 import { z } from "zod";
-import { request, upload, newIdempotencyKey } from "./client";
+import { request, upload, uploadOptional, newIdempotencyKey } from "./client";
 import {
   candidateSessionViewSchema,
+  framesAckSchema,
   mediaChunkAckSchema,
+  type FramesAck,
   type AnswerPayload,
   type CandidateRequestPayload,
   type CandidateSessionView,
@@ -88,6 +90,26 @@ export const candidateApi = {
       mediaChunkAckSchema,
       signal,
     );
+  },
+
+  /**
+   * Camera frames for the body-language service, one batch per second while answering.
+   * Resolves "disabled" when the backend is not accepting frames (consent, camera, accommodation).
+   */
+  async pushFrames(
+    token: string,
+    turnIndex: number,
+    frames: { t_ms: number; blob: Blob }[],
+  ): Promise<FramesAck | "disabled"> {
+    const form = new FormData();
+    form.set("turn_index", String(turnIndex));
+    for (const frame of frames) form.append("frames", frame.blob, `${frame.t_ms}.jpg`);
+    const ack = await uploadOptional(
+      `/candidate/sessions/${encodeURIComponent(token)}/frames`,
+      form,
+      framesAckSchema,
+    );
+    return ack ?? "disabled";
   },
 
   eventsUrl(token: string): string {

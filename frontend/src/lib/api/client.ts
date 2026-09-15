@@ -155,6 +155,28 @@ export async function upload<TSchema extends z.ZodTypeAny>(
   return schema.parse(await response.json());
 }
 
+/** Like `upload`, but a 204 means "not accepted right now" and resolves to null instead of throwing. */
+export async function uploadOptional<TSchema extends z.ZodTypeAny>(
+  path: string,
+  form: FormData,
+  schema: TSchema,
+  signal?: AbortSignal,
+): Promise<z.infer<TSchema> | null> {
+  const url = path.startsWith("http") ? path : `${apiBaseUrl}${path}`;
+  const response = await fetch(url, {
+    method: "POST",
+    body: form,
+    credentials: "same-origin",
+    signal,
+  });
+  if (response.status === 204) return null;
+  if (!response.ok) {
+    const parsed = await parseErrorBody(response);
+    throw new ApiError(response.status, parsed.code, parsed.message, parsed.details);
+  }
+  return schema.parse(await response.json());
+}
+
 export function newIdempotencyKey(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;

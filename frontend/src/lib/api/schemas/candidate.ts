@@ -139,3 +139,10 @@ export const mediaChunkAckSchema = z.object({
   received_bytes: z.number().int().nonnegative(),
 });
 export type MediaChunkAck = z.infer<typeof mediaChunkAckSchema>;
+
+export const framesAckSchema = z.object({
+  accepted: z.number().int(),
+  detected: z.number().int(),
+  service_reachable: z.boolean(),
+});
+export type FramesAck = z.infer<typeof framesAckSchema>;

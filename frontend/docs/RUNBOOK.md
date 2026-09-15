@@ -24,6 +24,7 @@ NEXT_PUBLIC_API_BASE_URL=/api/v1
 GEMINI_API_KEY=AIza...            # https://aistudio.google.com/apikey
 GEMINI_MODEL=gemini-3.5-flash     # verified with prompts_v2; flash-lite skips anchor-first
 WHISPER_URL=http://127.0.0.1:8008 # voice_to_text/server.py
+BODY_LANGUAGE_URL=http://127.0.0.1:8009 # body_language/server.py (Team 3); optional
 CONSOLE_DEV_PASSWORD=change-me
 CONSOLE_COOKIE_SECRET=<32 random chars>
 ```
@@ -73,6 +74,11 @@ frontend/src/server/                       ← everything server-only (import "s
 ├─ store.ts             RealSession type, JSON persistence (.data/sessions/*.json), audit.json, in-memory audio, SSE pub/sub
 ├─ resume.ts            extractResumeText (pdf-parse / mammoth / utf8) + redactResume (emails, phones, DOB, gender, caste, address…)
 ├─ whisper.ts           transcribeWav(): multipart POST to WHISPER_URL/transcribe with language + vocab hint; whisperHealthy()
+├─ bodyLanguage.ts      pushFrames() / finalizeTurn() / releaseSession() against BODY_LANGUAGE_URL; every call best-effort
+├─ behavioralStore.ts   separate .data/behavioral/<session>.json store (envelopes, flags, pending flags for 02)
+├─ engine/behavioral.ts        envelope schema + denylist, buildEnvelope(), behavioralToAttention() fusion (00 §12.1–12.3)
+├─ engine/behavioralFlow.ts    captureEnabled(), ingestAnswerSignals() on answer submit, flags for the next 02 turn, purge on accommodation
+├─ engine/behavioralReport.ts  non_scored_behavioral_context for the 04 report (00 §12.4)
 ├─ handlers.ts          route dispatch: /candidate/* (token-scoped) and /console/* (cookie); per-session lock; error mapping
 └─ engine/
    ├─ policy.ts         00 §16 knobs per pressure level, fixed scripts (EN + HI), accommodation effects, H8 banned-phrase guard

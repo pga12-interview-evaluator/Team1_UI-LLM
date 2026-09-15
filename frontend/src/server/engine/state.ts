@@ -87,6 +87,8 @@ export function buildSessionState(
   session: RealSession,
   latestAnswer: string | null,
   ledgerCompact: Dict[],
+  /** 00 §12.3 items for 02; undefined = capture disabled → key ABSENT from session_state. */
+  attentionFlags?: { flag: string; strength: string; span_hint_text: string | null }[],
 ) {
   const blueprint = session.blueprint ?? {};
   const competencies = ((blueprint.competencies as Dict[] | undefined) ?? []).map((c) => ({
@@ -149,6 +151,7 @@ export function buildSessionState(
     transcript_digest: session.digests.slice(-8),
     recent_turns: recentTurns(session),
     latest_candidate_answer: latestAnswer,
+    ...(attentionFlags !== undefined ? { attention_flags: attentionFlags } : {}),
     company_context:
       session.phase === "candidate_questions"
         ? (session.interview_input.company_context ?? null)
@@ -227,10 +230,17 @@ export function buildAssessmentInput(
 }
 
 /** 00 §14 probe budget rules, applied after each 03 result. Returns the audit row. */
-export function applyBudgetRules(session: RealSession, evaluation: Dict, answerId: string) {
+export function applyBudgetRules(
+  session: RealSession,
+  evaluation: Dict,
+  answerId: string,
+  /** true when an attention flag of strength "high" fired on this answer (00 §14 rule 3). */
+  highAttentionFlag = false,
+) {
   const policy = session.policy_snapshot as {
     probe_budget_base: number;
     probe_hard_cap_per_question: number;
+    behavioral_boost_max?: number;
   };
   const flags =
     (evaluation.pattern_flags as
@@ -265,6 +275,19 @@ export function applyBudgetRules(session: RealSession, evaluation: Dict, answerI
     escalation = true;
     reason = `base ${base} + content escalation 1 (${flags.map((f) => f.pattern).join(", ")})`;
   }
+  // Rule 3: attention boost only on top of a content escalation on the same answer, never alone,
+  // never past the cap, at most behavioral_boost_max (0 at calm / capture disabled).
+  const boostMax = Number(policy.behavioral_boost_max ?? 0);
+  const boostUsed = session.probe_budget_reason.includes("attention boost");
+  let attentionBoost = false;
+  if (escalation && highAttentionFlag && boostMax > 0 && !boostUsed) {
+    const boosted = Math.min(base + 2, cap);
+    if (boosted - session.probe_index > remaining) {
+      remaining = boosted - session.probe_index;
+      attentionBoost = true;
+      reason = `${reason} + attention boost 1 (high flag; licensed by ${flags[0]?.pattern ?? "pattern"})`;
+    }
+  }
   let override: string | null = null;
   if (best === "specific_with_verification_detail" && patternWeight === 0) {
     remaining = 0;
@@ -283,7 +306,7 @@ export function applyBudgetRules(session: RealSession, evaluation: Dict, answerI
     distinct_moderate: distinctModerate,
     evidence_grade: best,
     content_escalation: escalation,
-    attention_boost: false,
+    attention_boost: attentionBoost,
     base,
     cap,
     pool_before: session.probe_pool_remaining,

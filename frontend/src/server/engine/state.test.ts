@@ -84,3 +84,64 @@ describe("applyBudgetRules (00 §14)", () => {
     expect(s.probe_budget_remaining).toBe(1);
   });
 });
+
+describe("attention boost (00 §14 rule 3)", () => {
+  const escalating = {
+    pattern_flags: [
+      { pattern: "B04_collective_ownership", severity: 2 },
+      { pattern: "B12_unsupported_metric", severity: 2 },
+    ],
+    candid_signals: [],
+    competency_scores: [{ evidence_grade: "generic" }],
+    recommended_next_action: "probe",
+  };
+
+  it("adds +1 only on top of a content escalation with a high flag, within the cap", () => {
+    const s = session({
+      policy_snapshot: {
+        probe_budget_base: 2,
+        probe_hard_cap_per_question: 4,
+        behavioral_boost_max: 1,
+      },
+    });
+    const row = applyBudgetRules(s, escalating, "A", true);
+    expect(row.content_escalation).toBe(true);
+    expect(row.attention_boost).toBe(true);
+    expect(s.probe_budget_remaining).toBe(4);
+    expect(s.probe_budget_reason).toMatch(/attention boost 1/);
+  });
+
+  it("never boosts alone, at calm (boost_max 0), or when capture is off", () => {
+    const calm = session({
+      policy_snapshot: {
+        probe_budget_base: 1,
+        probe_hard_cap_per_question: 3,
+        behavioral_boost_max: 0,
+      },
+    });
+    expect(applyBudgetRules(calm, escalating, "A", true).attention_boost).toBe(false);
+    const quiet = session({
+      policy_snapshot: {
+        probe_budget_base: 2,
+        probe_hard_cap_per_question: 4,
+        behavioral_boost_max: 1,
+      },
+    });
+    const row = applyBudgetRules(
+      quiet,
+      { ...escalating, pattern_flags: [], competency_scores: [{ evidence_grade: "specific" }] },
+      "A",
+      true,
+    );
+    expect(row.attention_boost).toBe(false);
+    expect(quiet.probe_budget_remaining).toBe(2);
+    const off = session({
+      policy_snapshot: {
+        probe_budget_base: 2,
+        probe_hard_cap_per_question: 4,
+        behavioral_boost_max: 1,
+      },
+    });
+    expect(applyBudgetRules(off, escalating, "A", false).attention_boost).toBe(false);
+  });
+});

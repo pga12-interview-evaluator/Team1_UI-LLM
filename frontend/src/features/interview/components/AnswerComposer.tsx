@@ -8,6 +8,7 @@ import type { CandidateTurnDto } from "@/lib/api/schemas/candidate";
 import { useT } from "@/lib/i18n/I18nProvider";
 import { track } from "@/lib/telemetry/track";
 import { useAnswerTimer } from "../hooks/useAnswerTimer";
+import { useFrameCapture } from "../hooks/useFrameCapture";
 import type { useMediaCapture } from "../hooks/useMediaCapture";
 import { useInterviewStore } from "../store/useInterviewStore";
 
@@ -20,6 +21,8 @@ interface Props {
   timerDisabled: boolean;
   voiceAvailable: boolean;
   captionsEnabled: boolean;
+  /** Camera frames go to the body-language service (consent + camera + no accommodation). */
+  behavioralCapture: boolean;
 }
 
 export function AnswerComposer({
@@ -29,6 +32,7 @@ export function AnswerComposer({
   timerDisabled,
   voiceAvailable,
   captionsEnabled,
+  behavioralCapture,
 }: Props) {
   const t = useT();
   const {
@@ -49,6 +53,13 @@ export function AnswerComposer({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const effectiveModality = voiceAvailable ? modality : "text";
+  const frames = useFrameCapture({
+    token,
+    stream: media.stream,
+    enabled: behavioralCapture,
+    turnIndex: turn.turn_index,
+    active: turn.requires_answer && !busy,
+  });
 
   const submit = useCallback(
     async (auto: boolean) => {
@@ -60,6 +71,7 @@ export function AnswerComposer({
       beginAnswer(key);
       dispatch({ type: "SUBMIT_START" });
       try {
+        await frames.flush(); // last second of camera frames lands before the server closes the window
         const mediaRef = effectiveModality === "voice" ? await media.stopRecording() : null;
         const elapsed = answerStartedAt ? Date.now() - answerStartedAt : 0;
         const next = await candidateApi.submitAnswer(
@@ -104,6 +116,7 @@ export function AnswerComposer({
       dispatch,
       draft,
       effectiveModality,
+      frames,
       media,
       t.common.errorBody,
       token,
