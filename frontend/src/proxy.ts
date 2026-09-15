@@ -8,9 +8,9 @@ import { NextResponse, type NextRequest } from "next/server";
 export function proxy(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const isDev = process.env.NODE_ENV === "development";
-  const apiOrigin = process.env.NEXT_PUBLIC_API_BASE_URL
-    ? new URL(process.env.NEXT_PUBLIC_API_BASE_URL).origin
-    : "";
+  // Relative base (/api/v1) is same-origin: nothing to add. Absolute base: allow its origin.
+  const configuredBase = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
+  const apiOrigin = /^https?:\/\//.test(configuredBase) ? new URL(configuredBase).origin : "";
   const csp = [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""}`,

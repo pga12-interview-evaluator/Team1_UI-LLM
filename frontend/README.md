@@ -2,12 +2,14 @@
 
 Production frontend for the AI interviewer: a **candidate interview app** (`/i/[token]`) and a **recruiter / reviewer console** (`/console`). Next.js 16 · React 19 · TypeScript strict · Tailwind v4 · Zustand · TanStack Query · zod · Vitest · Playwright.
 
+**Run the real thing (Gemini + Whisper): [docs/RUNBOOK.md](docs/RUNBOOK.md)** — where the API key goes, what to start, code map.
+
 Start with **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — directory map, turn flow, invariants, state machine. Backend teams: **[docs/api-contract.md](docs/api-contract.md)**.
 
 ## Run it
 
 ```bash
-cp .env.example .env.local        # mock mode by default
+cp .env.example .env.local        # real mode: add GEMINI_API_KEY; or set NEXT_PUBLIC_API_MODE=mock for the demo engine
 npm install
 npm run dev                       # http://localhost:3000
 ```
@@ -55,5 +57,3 @@ Standalone Next output, non-root user, health check on `/`.
 ## Interviewly workspace
 
 Start at `/` for the new practice dashboard, `/setup` to upload a resume, and `/recordings` for browser-local session videos. In local development, the console login offers **Enter development workspace** without email/password. See [FRONTEND-HANDOFF.md](docs/FRONTEND-HANDOFF.md) for the session-creation contract, recording implementation, and team integration boundaries. Questions remain scripted in mock mode; resume-based Gemini generation requires the real BFF.
-
-

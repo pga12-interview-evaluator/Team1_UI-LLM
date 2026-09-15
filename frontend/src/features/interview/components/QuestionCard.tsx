@@ -66,7 +66,12 @@ export function QuestionCard({ turn, language, waiting, readAloud }: Props) {
         </div>
         <div aria-live="polite" aria-atomic="true" className="min-h-16">
           {waiting ? (
-            <BridgeLine text={t.interview.bridge1} language={language} />
+            // The neutral bridge line only makes sense after an answer; the very first question just loads.
+            turn ? (
+              <BridgeLine text={t.interview.bridge1} language={language} />
+            ) : (
+              <BridgeLine text="" language={language} />
+            )
           ) : turn ? (
             <p
               key={turn.turn_index}

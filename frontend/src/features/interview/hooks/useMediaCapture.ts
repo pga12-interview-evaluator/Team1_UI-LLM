@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { candidateApi } from "@/lib/api/candidate";
+import { blobToWav16k } from "@/lib/media/wav";
 import { track } from "@/lib/telemetry/track";
 
 export type MediaPermission = "unknown" | "granted" | "denied" | "unavailable";
@@ -47,13 +48,12 @@ export function useMediaCapture({
   });
   const recorderRef = useRef<MediaRecorder | null>(null);
   const analyserRef = useRef<{ ctx: AudioContext; raf: number } | null>(null);
-  const sequenceRef = useRef(0);
   const turnRef = useRef<number | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const acquireVersion = useRef(0);
-  const uploadQueue = useRef<Promise<void>>(Promise.resolve());
   const uploadError = useRef<Error | null>(null);
   const uploadedRef = useRef<string | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
   const stopPromise = useRef<Promise<string | null> | null>(null);
 
   const acquire = useCallback(async () => {
@@ -152,28 +152,14 @@ export function useMediaCapture({
         }));
         return false;
       }
-      sequenceRef.current = 0;
       turnRef.current = turnIndex;
-      uploadQueue.current = Promise.resolve();
       uploadError.current = null;
       uploadedRef.current = null;
       setState((s) => ({ ...s, lastMediaRef: null }));
+      // Buffer locally; one WAV upload happens on stop (Whisper needs the whole utterance anyway).
+      chunksRef.current = [];
       recorder.ondataavailable = (event) => {
-        if (!uploadEnabled || event.data.size === 0 || turnRef.current === null) return;
-        const seq = sequenceRef.current++;
-        uploadQueue.current = uploadQueue.current.then(async () => {
-          if (uploadError.current) return;
-          try {
-            const ack = await candidateApi.uploadMediaChunk(token, turnIndex, event.data, seq);
-            uploadedRef.current = ack.media_ref;
-            setState((s) => ({ ...s, lastMediaRef: ack.media_ref }));
-          } catch {
-            uploadError.current = new Error(
-              "Your audio upload failed. Switch to text or record your answer again.",
-            );
-            track({ name: "candidate.media_error", reason: "chunk_upload_failed" });
-          }
-        });
+        if (event.data.size > 0) chunksRef.current.push(event.data);
       };
       recorder.start(CHUNK_MS);
       recorderRef.current = recorder;
@@ -192,16 +178,34 @@ export function useMediaCapture({
         : Promise.resolve(uploadedRef.current);
     stopPromise.current = new Promise((resolve, reject) => {
       recorder.onstop = async () => {
-        await uploadQueue.current;
         setState((s) => ({ ...s, recording: false }));
-        stopPromise.current = null;
-        if (uploadError.current) reject(uploadError.current);
-        else resolve(uploadedRef.current);
+        try {
+          const turnIndex = turnRef.current;
+          if (uploadEnabled && turnIndex !== null && chunksRef.current.length) {
+            const raw = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" });
+            // Prefer 16 kHz WAV (what Whisper wants); fall back to the raw container if decoding is unavailable.
+            const payload = await blobToWav16k(raw).catch(() => raw);
+            const ack = await candidateApi.uploadMediaChunk(token, turnIndex, payload, 0);
+            uploadedRef.current = ack.media_ref;
+            setState((s) => ({ ...s, lastMediaRef: ack.media_ref }));
+          }
+          resolve(uploadedRef.current);
+        } catch (caught) {
+          const failure = new Error(
+            "Your audio upload failed. Switch to text or record your answer again.",
+          );
+          uploadError.current = failure;
+          track({ name: "candidate.media_error", reason: `wav_upload_failed:${String(caught)}` });
+          reject(failure);
+        } finally {
+          chunksRef.current = [];
+          stopPromise.current = null;
+        }
       };
       recorder.stop();
     });
     return stopPromise.current;
-  }, []);
+  }, [token, uploadEnabled]);
 
   const release = useCallback(() => {
     ++acquireVersion.current;

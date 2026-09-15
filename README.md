@@ -35,9 +35,11 @@ interview taker/
 └─ .env (git-ignored) · .gitignore
 ```
 
-### Frontend
+### Frontend + real BFF
 
-`frontend/` is the production UI for both surfaces. `cd frontend && npm install && npm run dev` → demo interview at `/i/demo`, console at `/console` (mock mode; see `frontend/README.md`). It talks to a BFF described in `frontend/docs/api-contract.md`; switch `NEXT_PUBLIC_API_MODE=real` once that service exists. Quality gates: typecheck, lint, 23 unit tests, 7 Playwright e2e, Docker build (`.github/workflows/frontend-ci.yml`).
+`frontend/` is the production UI for both surfaces **and** hosts the real backend (`/api/v1`): Gemini via `prompts_v2`, Whisper via `voice_to_text/server.py`. **Setup, API key location and run steps: [frontend/docs/RUNBOOK.md](frontend/docs/RUNBOOK.md).**
+
+ `cd frontend && npm install && npm run dev` → demo interview at `/i/demo`, console at `/console` (mock mode; see `frontend/README.md`). It talks to a BFF described in `frontend/docs/api-contract.md`; switch `NEXT_PUBLIC_API_MODE=real` once that service exists. Quality gates: typecheck, lint, 23 unit tests, 7 Playwright e2e, Docker build (`.github/workflows/frontend-ci.yml`).
 
 ## Two v2 tracks — read this first
 

@@ -70,4 +70,3 @@ The existing standalone Next.js Dockerfile is retained. Build with the real API 
 ### Per-request security policy
 
 The root layout uses `force-dynamic`: the proxy creates a fresh CSP nonce per request, so static prerendered pages would emit scripts without a matching nonce and fail hydration in production (the login screen could be blank). All UI routes now render per request. The production browser suite exercises this behavior.
-

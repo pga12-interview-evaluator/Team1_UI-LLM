@@ -26,7 +26,9 @@ frontend/
 │  │  ├─ error.tsx · global-error.tsx · not-found.tsx
 │  │  ├─ (candidate)/i/[token]/page.tsx   → features/interview/components/InterviewShell
 │  │  ├─ (console)/console/…              → features/console/* (layout wraps QueryClient + i18n)
-│  │  └─ api/mock/[...path]/route.ts      catch-all mock BFF (nodejs runtime, mock mode only)
+│  │  ├─ api/mock/[...path]/route.ts      catch-all mock BFF (nodejs runtime, mock mode only)
+│  │  └─ api/v1/[...path]/route.ts        REAL BFF entry: Gemini (prompts_v2) + Whisper; NEXT_PUBLIC_API_MODE=real
+│  ├─ server/                         REAL BFF (server-only): gemini.ts, prompts.ts, store.ts, resume.ts, whisper.ts, handlers.ts, engine/{policy,state,orchestrator,projection}.ts — see docs/RUNBOOK.md
 │  ├─ proxy.ts                        Next 16 “middleware”: per-request CSP nonce, security headers, console cookie gate
 │  │
 │  ├─ features/
@@ -143,7 +145,11 @@ npm run build && npm run e2e                            # CI style: production s
 docker build -t ai-interview-frontend --build-arg NEXT_PUBLIC_API_MODE=real --build-arg NEXT_PUBLIC_API_BASE_URL=https://api.example.com/api/v1 .
 ```
 
-## 8. Where to plug the real backend
+## 8. Real backend
+
+Already inside this app: `src/server/` serves `/api/v1/*` with Gemini + Whisper. Setup, keys and the per-answer flow are in **docs/RUNBOOK.md**. To swap in a separate team BFF later, keep the contracts in `docs/api-contract.md` and point `NEXT_PUBLIC_API_BASE_URL` at it.
+
+### 8a. Plugging a separate BFF
 
 1. Implement the endpoints in `docs/api-contract.md` (they mirror `lib/api/schemas/*`).
 2. Set `NEXT_PUBLIC_API_MODE=real` and `NEXT_PUBLIC_API_BASE_URL`.
