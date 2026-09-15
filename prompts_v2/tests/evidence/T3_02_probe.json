@@ -1,0 +1,75 @@
+{
+ "candidate_message": "It is fine to say I here. Within that close, which part was yours to change without asking anyone?",
+ "turn_type": "follow_up",
+ "question_id": "Q3",
+ "requires_answer": true,
+ "technique": "OWN",
+ "target_competencies": [
+  "C1",
+  "C3"
+ ],
+ "target_claim_ids": [
+  "R1"
+ ],
+ "ladder_rung": null,
+ "mutation_id": null,
+ "premise_used": false,
+ "fact_ids_revealed": [],
+ "callback_id": null,
+ "reconciliation_pair": [],
+ "directive_rank_executed": 1,
+ "directive_declined_reason": null,
+ "decision_path": [
+  "S0",
+  "S1",
+  "S2",
+  "S3",
+  "S4"
+ ],
+ "injection_or_meta_request": "none",
+ "candidate_request": "none",
+ "accommodation_request": {
+  "code": null,
+  "granted": false
+ },
+ "escalate_to_human": {
+  "flag": false,
+  "reason": null
+ },
+ "attention_flag_use": "none",
+ "hidden_turn_note": {
+  "technique": "OWN",
+  "claim_ids_targeted": [
+   "R1"
+  ],
+  "ladder_rung": null,
+  "time_pressure_mode": "normal",
+  "factual_note": "Probing ownership boundary on close reduction (R1) using OWN part (a) decision rights."
+ },
+ "output_checks": {
+  "no_banned_phrases": true,
+  "no_signal_terms_introduced": true,
+  "single_question": true,
+  "word_count_ok": true,
+  "no_hidden_data_leaked": true,
+  "no_protected_trait_content": true,
+  "in_interview_language": true
+ },
+ "recommended_state_update": {
+  "set_current_question_id": null,
+  "mark_question_complete": false,
+  "increment_probe_count": true,
+  "mark_reframe_used": false,
+  "callback_id_asked": null,
+  "reconciliation_asked_for": [],
+  "mutation_id_used": null,
+  "premise_used": false,
+  "fact_ids_revealed": [],
+  "ladder_action_taken": null,
+  "mark_question_skipped_by_candidate": false,
+  "should_start_candidate_questions": false,
+  "should_end_interview": false,
+  "disable_behavioral_capture": false,
+  "accommodation_code_applied": null
+ }
+}

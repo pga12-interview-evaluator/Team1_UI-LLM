@@ -1,0 +1,250 @@
+{
+ "question_id": "Q3",
+ "answer_id": "A_Q3_0",
+ "asked_question_source": "blueprint_verbatim",
+ "technique_answered": "NONE",
+ "injection_or_meta_request": "none",
+ "question_tracking": {
+  "status": "adjacent",
+  "target_clause": "one month-end where the old process ran late, and what you changed after it"
+ },
+ "answer_summary": "Candidate asserts reducing close from nine days to five through automation and streamlining, describing it as a team effort; no specific late month-end instance or personal change is described.",
+ "specificity": {
+  "specificity_level": 1,
+  "specificity_direction": "not_applicable",
+  "generic_vs_instance": "generic_only",
+  "artifact_produced": "none",
+  "peripheral_detail_present": false,
+  "bedrock_reached": false,
+  "bedrock_basis": "not_reached",
+  "next_drill_level": "what_exactly"
+ },
+ "ownership": {
+  "ownership_asserted": "we_unspecified",
+  "ownership_demonstrated": "not_probed",
+  "actors_by_role": [
+   "leadership"
+  ],
+  "ownership_quote": "We brought the month-end close",
+  "isolation_offered": false
+ },
+ "provenance": "unstated",
+ "corroboration_offered": {
+  "type": null,
+  "description": null
+ },
+ "metric_claims": [
+  {
+   "quote": "brought the month-end close from nine days to five",
+   "value_stated": "9 days -> 5 days",
+   "baseline": "stated",
+   "window": "missing",
+   "definition": "missing",
+   "source": "missing",
+   "confounders": "not_probed",
+   "causality": "not_probed",
+   "persistence": "not_probed",
+   "plausibility": "plausible",
+   "attribution_stance": "not_probed"
+  }
+ ],
+ "claims_extracted": [
+  {
+   "claim_id": "NEW",
+   "source": {
+    "kind": "answer",
+    "question_id": "Q3",
+    "answer_id": "A_Q3_0"
+   },
+   "verbatim_quote": "We brought the month-end close from nine days to five",
+   "normalized_statement": "close reporting time was reduced from nine days to five",
+   "claim_type": "metric",
+   "entity": "month_end_close_duration",
+   "attribute": "close_days",
+   "value": "9 to 5",
+   "unit": "days",
+   "precision_qualifier": "exact",
+   "materiality": "high",
+   "competency_ids": [
+    "C1"
+   ],
+   "ownership_asserted": "we_unspecified",
+   "ownership_demonstrated": "not_probed",
+   "provenance": "unstated",
+   "time_reference": null,
+   "is_anchor": true,
+   "metric_provenance": {
+    "baseline": "stated",
+    "window": "missing",
+    "definition": "missing",
+    "source": "missing",
+    "confounders": "not_probed",
+    "causality": "not_probed",
+    "persistence": "not_probed"
+   }
+  }
+ ],
+ "ledger_updates": [
+  {
+   "claim_id": "R1",
+   "new_verification_status": "probed",
+   "new_ownership_demonstrated": null,
+   "reason": "baseline stated as nine days; window, definition, and source missing; collective ownership asserted",
+   "evidence_quote": "We brought the month-end close from nine days to five",
+   "why_unsupported": null
+  }
+ ],
+ "consistency_check": {
+  "status": "none",
+  "claim_ids": [],
+  "quote_a": null,
+  "quote_b": null,
+  "detected_by": null,
+  "neutral_resolution_question": null
+ },
+ "pattern_flags": [
+  {
+   "pattern": "B04_collective_ownership",
+   "quote": "We brought the month-end close",
+   "severity": 2,
+   "basis": "text",
+   "technique_to_resolve": "OWN"
+  },
+  {
+   "pattern": "B03_context_free",
+   "quote": "automating the reconciliations and streamlining",
+   "severity": 2,
+   "basis": "text",
+   "technique_to_resolve": "DRILL"
+  },
+  {
+   "pattern": "B11_adjacent_substitution",
+   "quote": "leadership was very happy",
+   "severity": 1,
+   "basis": "text",
+   "technique_to_resolve": "PIN"
+  }
+ ],
+ "candid_signals": [],
+ "answer_style_flags": [
+  "no_first_person_decision",
+  "no_specific_referent"
+ ],
+ "competency_scores": [
+  {
+   "competency_id": "C1",
+   "score": 1,
+   "evidence_grade": "generic",
+   "evidence": [
+    "nine days to five",
+    "automating the reconciliations"
+   ],
+   "missing_evidence": [
+    "one specific late month-end instance",
+    "which reconciliations were automated",
+    "source of the close days metric",
+    "a decision that was the candidate's own"
+   ],
+   "anchor_satisfied": []
+  },
+  {
+   "competency_id": "C3",
+   "score": 1,
+   "evidence_grade": "generic",
+   "evidence": [
+    "paraphrase: team effort to reduce close"
+   ],
+   "missing_evidence": [
+    "personal decision boundary",
+    "adjacent owner by role"
+   ],
+   "anchor_satisfied": []
+  }
+ ],
+ "ownership_specificity_score": 1,
+ "technique_results": {
+  "tier_assessed": null,
+  "tier_result": "not_applicable",
+  "ceiling_reached": false,
+  "recommended_ladder_action": null,
+  "callback_consistency": null,
+  "reconciliation_result": {
+   "status": null,
+   "candidate_explanation_quote": null
+  },
+  "adaptation_quality": "not_applicable",
+  "alternative_reasoning": "not_asked",
+  "premise_response": "not_applicable",
+  "failure_chain": {
+   "status": "not_asked",
+   "symptom": false,
+   "detection": false,
+   "diagnosis": false,
+   "prevention": false
+  },
+  "disconfirmer": "not_asked",
+  "teachback": "not_asked",
+  "refsim": {
+   "third_person_more_specific": null,
+   "limit_named": null,
+   "artifact_described": "not_asked"
+  },
+  "clarification_quality": "not_applicable",
+  "stated_assumptions": [],
+  "candidate_choice_summary": null,
+  "commitment_made": null
+ },
+ "probe_directives": [
+  {
+   "rank": 1,
+   "technique": "OWN",
+   "target_quote": "We brought the month-end close",
+   "target_claim_id": "R1",
+   "evidence_sought": "a personal decision and an adjacent owner by role",
+   "suggested_wording": "It is fine to say I here. Within that close, which part was yours to change without asking anyone?",
+   "abandon_if": "names a concrete personal decision or draws a boundary of what they did not own",
+   "requires_state": false
+  },
+  {
+   "rank": 2,
+   "technique": "DRILL",
+   "target_quote": "automating the reconciliations",
+   "target_claim_id": "NEW",
+   "evidence_sought": "which specific reconciliations were automated",
+   "suggested_wording": "Which specific reconciliations or accounts were you automating?",
+   "abandon_if": "names a specific account type or reconciliation step",
+   "requires_state": false
+  },
+  {
+   "rank": 3,
+   "technique": "METRIC",
+   "target_quote": "nine days to five",
+   "target_claim_id": "R1",
+   "evidence_sought": "source of the close days metric",
+   "suggested_wording": "Which tracker or report did those close days come from?",
+   "abandon_if": "names a kind of report, system, or role that tracked the days",
+   "requires_state": false
+  }
+ ],
+ "callback_candidates": [],
+ "recommended_next_action": "probe",
+ "escalation_recommendation": {
+  "direction": "escalate",
+  "trigger_patterns": [
+   "B04_collective_ownership",
+   "B03_context_free"
+  ],
+  "justifying_quote": "We brought the month-end close from nine days to five by automating the reconciliations"
+ },
+ "question_digest": "Q3 (close time claim, C1, C3): candidate asserts close reduced from nine to five days via automation (A_Q3_0); baseline established; window, source, and specific late month-end instance not established; collective ownership asserted. Unresolved: R1 (metric); NEW month_end_close_duration (close days).",
+ "reviewer_flags": [],
+ "confidence": "high",
+ "self_check": {
+  "no_protected_trait_content": true,
+  "no_prohibited_vocabulary": true,
+  "no_behavioral_terms_in_scored_fields": true,
+  "all_evidence_verbatim_or_paraphrase_tagged": true,
+  "directive_wording_has_no_signal_terms": true,
+  "no_low_confidence_span_scored": true
+ }
+}

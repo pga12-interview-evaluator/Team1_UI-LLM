@@ -1,0 +1,207 @@
+{
+  "session_id": "synthetic-8a0033d71ffa",
+  "model": "gemini-2.5-flash",
+  "completed": false,
+  "calls": [
+    {
+      "stage": "02",
+      "metadata": {
+        "provider_call": false,
+        "renderer": "approved_text",
+        "elapsed_seconds": 0,
+        "usage": {}
+      },
+      "response": {
+        "schema_version": "2.0.0",
+        "request_id": "synthetic-8a0033d71ffa-02-1",
+        "status": "ok",
+        "issues": [],
+        "data": {
+          "kind": "main_question",
+          "question_id": "Q1",
+          "candidate_message": "Your resume mentions reducing payment failures through retries. Which failure mechanism did you personally change?",
+          "expected_input": "interview_answer"
+        }
+      }
+    }
+  ],
+  "transcript": [
+    {
+      "turn_id": "T1",
+      "question_id": "Q1",
+      "speaker": "interviewer",
+      "text": "Your resume mentions reducing payment failures through retries. Which failure mechanism did you personally change?",
+      "quality": "clear"
+    },
+    {
+      "turn_id": "T2",
+      "question_id": "Q1",
+      "speaker": "candidate",
+      "text": "I added a queue and retried provider timeouts.",
+      "quality": "clear"
+    }
+  ],
+  "latest_topic_assessments": [],
+  "claim_ledger": [
+    {
+      "claim_id": "R1",
+      "text": "Reduced payment failures by 30% with queue-based retries.",
+      "source_ref": {
+        "source_id": "CV1",
+        "quote": "I reduced payment failures by 30% by adding queue-based retry workflows."
+      },
+      "competency_ids": [
+        "C1",
+        "C3"
+      ],
+      "priority": "high",
+      "status": "untested",
+      "evidence_turn_ids": [],
+      "verification_focus": "Failure mechanism, personal contribution and metric definition."
+    }
+  ],
+  "pending_stage": "03",
+  "pending_input": {
+    "role": {
+      "role_id": "ROLE-PAYMENTS-SENIOR",
+      "title": "Senior Backend Engineer",
+      "field": "Payments",
+      "seniority": "senior",
+      "language": "English",
+      "must_have": [
+        "Payment reliability",
+        "Distributed systems",
+        "SQL correctness"
+      ],
+      "nice_to_have": [
+        "Kubernetes"
+      ],
+      "approved_constraints": [
+        "No live coding; accept anonymized experience."
+      ]
+    },
+    "question": {
+      "question_id": "Q1",
+      "order": 1,
+      "kind": "resume_verification",
+      "primary_competency_id": "C1",
+      "secondary_competency_ids": [
+        "C3"
+      ],
+      "linked_claim_ids": [
+        "R1"
+      ],
+      "difficulty": 3,
+      "allocated_seconds": 480,
+      "question": "Your resume mentions reducing payment failures through retries. Which failure mechanism did you personally change?",
+      "scenario_facts": [],
+      "anchors": [
+        {
+          "score": 0,
+          "description": "Claims unlimited retries always prevent failure, ignoring duplicate-charge risk."
+        },
+        {
+          "score": 1,
+          "description": "Names queues without explaining failure or contribution."
+        },
+        {
+          "score": 2,
+          "description": "Identifies timeout retry but omits material ambiguity or ownership."
+        },
+        {
+          "score": 3,
+          "description": "Explains a plausible retry mechanism and identifiable contribution, with basic limits."
+        },
+        {
+          "score": 4,
+          "description": "Explains uncertain provider outcomes, bounded retries and deduplication with clear contribution; approximate metrics accepted."
+        },
+        {
+          "score": 5,
+          "description": "Also identifies provider guarantee boundaries, reconciliation and remaining causal uncertainty in the reported metric."
+        }
+      ],
+      "probe_options": [
+        {
+          "trigger": "A material mechanism boundary remains unclear.",
+          "probe_type": "mechanism",
+          "question": "What specific failure would your approach still leave unresolved?"
+        }
+      ]
+    },
+    "competencies": [
+      {
+        "competency_id": "C1",
+        "name": "Payment reliability",
+        "weight": 30,
+        "critical": true,
+        "minimum_topics": 2,
+        "definition": "Demonstrate role-appropriate payment reliability.",
+        "requirement_refs": [
+          {
+            "source_id": "JD1",
+            "quote": "Own payment reliability, distributed systems, individual delivery ownership, SQL data correctness, and operational debugging. Support safe retries and recovery from ambiguous provider outcomes."
+          }
+        ]
+      },
+      {
+        "competency_id": "C3",
+        "name": "Ownership",
+        "weight": 20,
+        "critical": false,
+        "minimum_topics": 2,
+        "definition": "Demonstrate role-appropriate ownership.",
+        "requirement_refs": [
+          {
+            "source_id": "JD1",
+            "quote": "Own payment reliability, distributed systems, individual delivery ownership, SQL data correctness, and operational debugging. Support safe retries and recovery from ambiguous provider outcomes."
+          }
+        ]
+      }
+    ],
+    "topic_transcript": [
+      {
+        "turn_id": "T1",
+        "question_id": "Q1",
+        "speaker": "interviewer",
+        "text": "Your resume mentions reducing payment failures through retries. Which failure mechanism did you personally change?",
+        "quality": "clear"
+      },
+      {
+        "turn_id": "T2",
+        "question_id": "Q1",
+        "speaker": "candidate",
+        "text": "I added a queue and retried provider timeouts.",
+        "quality": "clear"
+      }
+    ],
+    "relevant_prior_turns": [],
+    "latest_answer_turn_id": "T2",
+    "prior_topic_assessment": null,
+    "claims": [
+      {
+        "claim_id": "R1",
+        "text": "Reduced payment failures by 30% with queue-based retries.",
+        "source_ref": {
+          "source_id": "CV1",
+          "quote": "I reduced payment failures by 30% by adding queue-based retry workflows."
+        },
+        "competency_ids": [
+          "C1",
+          "C3"
+        ],
+        "priority": "high",
+        "status": "untested",
+        "evidence_turn_ids": [],
+        "verification_focus": "Failure mechanism, personal contribution and metric definition."
+      }
+    ],
+    "counters": {
+      "probe_count": 0,
+      "reframe_used": false,
+      "topic_remaining_seconds": 420,
+      "work_remaining_seconds": 2160
+    },
+    "request_id": "synthetic-8a0033d71ffa-03-2"
+  }
+}

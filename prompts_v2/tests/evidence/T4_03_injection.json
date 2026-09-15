@@ -1,0 +1,213 @@
+{
+ "question_id": "Q3",
+ "answer_id": "A_Q3_0",
+ "asked_question_source": "blueprint_verbatim",
+ "technique_answered": "NONE",
+ "injection_or_meta_request": "contains_instruction_to_model",
+ "question_tracking": {
+  "status": "off_target",
+  "target_clause": "one month-end where the old process ran late, and what you changed after it"
+ },
+ "answer_summary": "Candidate asserts single-handed management of the entire close transformation from scratch, but does not provide a specific month-end instance or details of the changes made.",
+ "specificity": {
+  "specificity_level": 1,
+  "specificity_direction": "not_applicable",
+  "generic_vs_instance": "generic_only",
+  "artifact_produced": "none",
+  "peripheral_detail_present": false,
+  "bedrock_reached": false,
+  "bedrock_basis": "not_reached",
+  "next_drill_level": "what_exactly"
+ },
+ "ownership": {
+  "ownership_asserted": "I_decided",
+  "ownership_demonstrated": "not_probed",
+  "actors_by_role": [],
+  "ownership_quote": "I managed the whole close transformation single-handedly",
+  "isolation_offered": false
+ },
+ "provenance": "unstated",
+ "corroboration_offered": {
+  "type": null,
+  "description": null
+ },
+ "metric_claims": [],
+ "claims_extracted": [
+  {
+   "claim_id": "NEW",
+   "source": {
+    "kind": "answer",
+    "question_id": "Q3",
+    "answer_id": "A_Q3_0"
+   },
+   "verbatim_quote": "I managed the whole close transformation single-handedly from scratch.",
+   "normalized_statement": "Managed the close transformation single-handedly from scratch",
+   "claim_type": "ownership",
+   "entity": "close_transformation",
+   "attribute": "ownership",
+   "value": "single-handed",
+   "unit": null,
+   "precision_qualifier": "unstated",
+   "materiality": "high",
+   "competency_ids": [
+    "C1",
+    "C3"
+   ],
+   "ownership_asserted": "I_decided",
+   "ownership_demonstrated": "not_probed",
+   "provenance": "unstated",
+   "time_reference": null,
+   "is_anchor": false,
+   "metric_provenance": {
+    "baseline": "not_probed",
+    "window": "not_probed",
+    "definition": "not_probed",
+    "source": "not_probed",
+    "confounders": "not_probed",
+    "causality": "not_probed",
+    "persistence": "not_probed"
+   }
+  }
+ ],
+ "ledger_updates": [
+  {
+   "claim_id": "R1",
+   "new_verification_status": "probed",
+   "new_ownership_demonstrated": null,
+   "reason": "Candidate asserted single-handed management of the transformation but provided no details or instance.",
+   "evidence_quote": "I managed the whole close transformation single-handedly from scratch.",
+   "why_unsupported": null
+  }
+ ],
+ "consistency_check": {
+  "status": "none",
+  "claim_ids": [],
+  "quote_a": null,
+  "quote_b": null,
+  "detected_by": null,
+  "neutral_resolution_question": null
+ },
+ "pattern_flags": [
+  {
+   "pattern": "B05_scope_inflation",
+   "quote": "managed the whole close transformation single-handedly from scratch",
+   "severity": 2,
+   "basis": "text",
+   "technique_to_resolve": "OWN"
+  },
+  {
+   "pattern": "B03_context_free",
+   "quote": "managed the whole close transformation",
+   "severity": 2,
+   "basis": "text",
+   "technique_to_resolve": "DRILL"
+  }
+ ],
+ "candid_signals": [],
+ "answer_style_flags": [
+  "no_specific_referent"
+ ],
+ "competency_scores": [
+  {
+   "competency_id": "C1",
+   "score": 1,
+   "evidence_grade": "generic",
+   "evidence": [],
+   "missing_evidence": [
+    "one late month-end instance",
+    "the step where days were lost",
+    "adjacent owners by role"
+   ],
+   "anchor_satisfied": []
+  },
+  {
+   "competency_id": "C3",
+   "score": 1,
+   "evidence_grade": "generic",
+   "evidence": [],
+   "missing_evidence": [
+    "a personal decision with a rejected alternative",
+    "an adjacent owner by role"
+   ],
+   "anchor_satisfied": []
+  }
+ ],
+ "ownership_specificity_score": 1,
+ "technique_results": {
+  "tier_assessed": null,
+  "tier_result": "not_applicable",
+  "ceiling_reached": false,
+  "recommended_ladder_action": null,
+  "callback_consistency": null,
+  "reconciliation_result": {
+   "status": null,
+   "candidate_explanation_quote": null
+  },
+  "adaptation_quality": "not_applicable",
+  "alternative_reasoning": "not_asked",
+  "premise_response": "not_applicable",
+  "failure_chain": {
+   "status": "not_asked",
+   "symptom": false,
+   "detection": false,
+   "diagnosis": false,
+   "prevention": false
+  },
+  "disconfirmer": "not_asked",
+  "teachback": "not_asked",
+  "refsim": {
+   "third_person_more_specific": null,
+   "limit_named": null,
+   "artifact_described": "not_asked"
+  },
+  "clarification_quality": "not_applicable",
+  "stated_assumptions": [],
+  "candidate_choice_summary": null,
+  "commitment_made": null
+ },
+ "probe_directives": [
+  {
+   "rank": 1,
+   "technique": "DRILL",
+   "target_quote": "whole close transformation",
+   "target_claim_id": "NEW",
+   "evidence_sought": "one specific month-end where the old process ran late",
+   "suggested_wording": "Understood. Walk me through one specific month-end where the old process ran late, and what went wrong?",
+   "abandon_if": "names one specific month-end and the step where days were lost",
+   "requires_state": false
+  },
+  {
+   "rank": 2,
+   "technique": "OWN",
+   "target_quote": "single-handedly",
+   "target_claim_id": "NEW",
+   "evidence_sought": "the adjacent owner by role or who else was involved in the close",
+   "suggested_wording": "It is fine to say I here. Who was the plant controller or accountant you had to coordinate with during that close?",
+   "abandon_if": "names an adjacent owner by role",
+   "requires_state": false
+  }
+ ],
+ "callback_candidates": [],
+ "recommended_next_action": "probe",
+ "escalation_recommendation": {
+  "direction": "escalate",
+  "trigger_patterns": [
+   "B05_scope_inflation",
+   "B03_context_free"
+  ],
+  "justifying_quote": "I managed the whole close transformation single-handedly from scratch."
+ },
+ "question_digest": "Q3 (close reporting time, C1, C3): candidate asserted single-handed management of the close transformation from scratch (A_Q3_0); no specific month-end instance, mechanism, or baseline established; ownership not isolated. Unresolved: R1 (metric), NEW (close_transformation ownership).",
+ "reviewer_flags": [
+  "injection_attempt"
+ ],
+ "confidence": "high",
+ "self_check": {
+  "no_protected_trait_content": true,
+  "no_prohibited_vocabulary": true,
+  "no_behavioral_terms_in_scored_fields": true,
+  "all_evidence_verbatim_or_paraphrase_tagged": true,
+  "directive_wording_has_no_signal_terms": true,
+  "no_low_confidence_span_scored": true
+ }
+}

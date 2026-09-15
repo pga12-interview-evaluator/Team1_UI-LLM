@@ -1,0 +1,588 @@
+{
+  "suite": "smoke",
+  "model": "gemini-3.5-flash",
+  "prompt_version": "2.0.0",
+  "started_at": "2026-09-10T15:58:29+0530",
+  "synthetic_data_only": true,
+  "results": [
+    {
+      "name": "stage-02",
+      "repeat": 1,
+      "stage": "02",
+      "passed": true,
+      "reason": "ok",
+      "metadata": {
+        "elapsed_seconds": 3.094,
+        "attempts": 1,
+        "usage": {
+          "promptTokenCount": 1680,
+          "candidatesTokenCount": 95,
+          "totalTokenCount": 2270,
+          "promptTokensDetails": [
+            {
+              "modality": "TEXT",
+              "tokenCount": 1680
+            }
+          ],
+          "thoughtsTokenCount": 495,
+          "serviceTier": "standard"
+        }
+      },
+      "response": {
+        "schema_version": "2.0.0",
+        "request_id": "LIVE-stage-02-a51862e8",
+        "status": "ok",
+        "issues": [],
+        "data": {
+          "kind": "follow_up",
+          "question_id": "Q1",
+          "candidate_message": "How did you distinguish an unsuccessful operation from one that completed before the timeout?",
+          "expected_input": "interview_answer"
+        }
+      }
+    },
+    {
+      "name": "stage-03",
+      "repeat": 1,
+      "stage": "03",
+      "passed": true,
+      "reason": "ok",
+      "metadata": {
+        "elapsed_seconds": 9.485,
+        "attempts": 1,
+        "usage": {
+          "promptTokenCount": 2902,
+          "candidatesTokenCount": 670,
+          "totalTokenCount": 4831,
+          "promptTokensDetails": [
+            {
+              "modality": "TEXT",
+              "tokenCount": 2902
+            }
+          ],
+          "thoughtsTokenCount": 1259,
+          "serviceTier": "standard"
+        }
+      },
+      "response": {
+        "schema_version": "2.0.0",
+        "request_id": "LIVE-stage-03-52425280",
+        "status": "ok",
+        "issues": [],
+        "data": {
+          "question_id": "Q1",
+          "latest_answer_turn_id": "T2",
+          "assessment_status": "assessable",
+          "answer_kind": "substantive",
+          "topic_scores": [
+            {
+              "competency_id": "C1",
+              "score": 2,
+              "confidence": "low",
+              "evidence": [
+                {
+                  "turn_id": "T2",
+                  "quote": "I added a queue and retried provider timeouts.",
+                  "observation": "The candidate identified retrying provider timeouts but did not detail safety measures, retry bounds, or the handling of ambiguous provider states."
+                }
+              ],
+              "missing_evidence": [
+                "Deduplication or idempotency strategies",
+                "Handling of ambiguous provider responses/timeouts",
+                "Bounded retries and error-handling limits"
+              ]
+            },
+            {
+              "competency_id": "C3",
+              "score": 1,
+              "confidence": "low",
+              "evidence": [
+                {
+                  "turn_id": "T2",
+                  "quote": "I added a queue and retried provider timeouts.",
+                  "observation": "The candidate claimed ownership of adding a queue but provided no details explaining their personal contribution, decision-making, or delivery scope."
+                }
+              ],
+              "missing_evidence": [
+                "Specific role on the team regarding design vs. implementation",
+                "Ownership of the operational rollout or monitoring"
+              ]
+            }
+          ],
+          "claim_updates": [
+            {
+              "claim_id": "R1",
+              "status": "partially_supported",
+              "evidence_turn_ids": [
+                "T2"
+              ],
+              "reason": "The candidate confirmed they used a queue-based system to retry timeouts, supporting the basic structure of the resume claim, but has not yet addressed the 30% failure reduction metric."
+            }
+          ],
+          "consistency_findings": [],
+          "unverified_statements": [
+            {
+              "turn_id": "T2",
+              "quote": "I added a queue and retried provider timeouts.",
+              "observation": "Claimed individual implementation of queue-based retry logic for provider timeouts."
+            }
+          ],
+          "next_action": "probe",
+          "probe_type": "mechanism",
+          "follow_up": "What specific failure would your approach still leave unresolved?",
+          "next_action_reason": "The candidate identified retrying provider timeouts using a queue, but has not explained the boundaries, safety constraints, or edge cases of these retries."
+        }
+      }
+    },
+    {
+      "name": "stage-01",
+      "repeat": 1,
+      "stage": "01",
+      "passed": true,
+      "reason": "ok",
+      "metadata": {
+        "elapsed_seconds": 21.141,
+        "attempts": 1,
+        "usage": {
+          "promptTokenCount": 2148,
+          "candidatesTokenCount": 1788,
+          "totalTokenCount": 7636,
+          "promptTokensDetails": [
+            {
+              "modality": "TEXT",
+              "tokenCount": 2148
+            }
+          ],
+          "thoughtsTokenCount": 3700,
+          "serviceTier": "standard"
+        }
+      },
+      "response": {
+        "schema_version": "2.0.0",
+        "request_id": "LIVE-stage-01-f1134a6c",
+        "status": "ok",
+        "issues": [],
+        "data": {
+          "blueprint_id": "BP-PAYMENTS-01",
+          "role_summary": "Senior Backend Engineer specializing in Payment reliability, distributed systems, and SQL data correctness, with experience in handling payment retries and database transaction integrity.",
+          "assumptions": [
+            "The candidate has experience working with relational databases for transactional systems.",
+            "The candidate is familiar with distributed message queues and idempotent processing patterns."
+          ],
+          "missing_optional_information": [
+            "Specific relational database systems used in past roles (e.g., PostgreSQL, MySQL).",
+            "Scale and throughput of the payment systems previously owned."
+          ],
+          "competencies": [
+            {
+              "competency_id": "C1",
+              "name": "Payment Reliability",
+              "weight": 40,
+              "critical": true,
+              "minimum_topics": 2,
+              "definition": "Designing systems that handle payment retries, idempotency, and ambiguous provider states reliably without duplication.",
+              "requirement_refs": [
+                {
+                  "source_id": "JD1",
+                  "quote": "payment reliability"
+                },
+                {
+                  "source_id": "JD1",
+                  "quote": "Support safe retries and recovery from ambiguous provider outcomes."
+                }
+              ]
+            },
+            {
+              "competency_id": "C2",
+              "name": "Distributed Systems",
+              "weight": 35,
+              "critical": true,
+              "minimum_topics": 2,
+              "definition": "Designing and debugging robust distributed architectures, asynchronous message processing, and transaction handling.",
+              "requirement_refs": [
+                {
+                  "source_id": "JD1",
+                  "quote": "distributed systems"
+                },
+                {
+                  "source_id": "JD1",
+                  "quote": "individual delivery ownership"
+                }
+              ]
+            },
+            {
+              "competency_id": "C3",
+              "name": "SQL and Data Correctness",
+              "weight": 25,
+              "critical": true,
+              "minimum_topics": 2,
+              "definition": "Writing correct and high-performance SQL queries that maintain transaction integrity under concurrent load.",
+              "requirement_refs": [
+                {
+                  "source_id": "JD1",
+                  "quote": "SQL data correctness"
+                },
+                {
+                  "source_id": "JD1",
+                  "quote": "operational debugging"
+                }
+              ]
+            }
+          ],
+          "claims": [
+            {
+              "claim_id": "R1",
+              "text": "I reduced payment failures by 30% by adding queue-based retry workflows.",
+              "source_ref": {
+                "source_id": "CV1",
+                "quote": "I reduced payment failures by 30% by adding queue-based retry workflows."
+              },
+              "competency_ids": [
+                "C1",
+                "C2"
+              ],
+              "priority": "high",
+              "status": "untested",
+              "evidence_turn_ids": [],
+              "verification_focus": "Verify candidate's specific ownership, design decisions, and how they handled transient vs terminal errors."
+            }
+          ],
+          "questions": [
+            {
+              "question_id": "Q1",
+              "order": 1,
+              "kind": "resume_verification",
+              "primary_competency_id": "C1",
+              "secondary_competency_ids": [
+                "C2"
+              ],
+              "linked_claim_ids": [
+                "R1"
+              ],
+              "difficulty": 4,
+              "allocated_seconds": 700,
+              "question": "In your resume, you mentioned reducing payment failures by 30% using queue-based retry workflows. Can you walk me through the design of this retry mechanism, specifically how you handled temporary downstream provider failures versus terminal errors without duplicating payments?",
+              "scenario_facts": [
+                "The downstream payment gateway experiences transient HTTP 5xx errors.",
+                "Network timeouts occur before receiving a gateway response.",
+                "Idempotency keys are supported by the downstream gateway."
+              ],
+              "anchors": [
+                {
+                  "score": 0,
+                  "description": "Fails to explain retry workflows or duplicates payments on transient errors."
+                },
+                {
+                  "score": 1,
+                  "description": "Describes basic retry loops but lacks specific queue or error-type differentiation."
+                },
+                {
+                  "score": 2,
+                  "description": "Explains standard queue retry mechanisms but does not address idempotency or terminal vs transient errors adequately."
+                },
+                {
+                  "score": 3,
+                  "description": "Presents clear division of terminal and transient errors, explaining queue retries with basic idempotency keys."
+                },
+                {
+                  "score": 4,
+                  "description": "Demonstrates strong understanding of exponential backoff, dead-letter queues, and robust idempotency guarantees."
+                },
+                {
+                  "score": 5,
+                  "description": "Provides exceptional depth in handling edge cases like ambiguous gateway timeouts, distributed consistency, and queue congestion strategies."
+                }
+              ],
+              "probe_options": [
+                {
+                  "trigger": "If the candidate does not explain how they ensured idempotency across retries.",
+                  "probe_type": "mechanism",
+                  "question": "How did you generate and enforce the uniqueness of idempotency keys across retries?"
+                },
+                {
+                  "trigger": "If the candidate does not address downstream timeouts.",
+                  "probe_type": "tradeoff",
+                  "question": "What specific trade-offs did you face when choosing between immediate retries and backoff queues for timed-out calls?"
+                }
+              ]
+            },
+            {
+              "question_id": "Q2",
+              "order": 2,
+              "kind": "tradeoff",
+              "primary_competency_id": "C2",
+              "secondary_competency_ids": [
+                "C3"
+              ],
+              "linked_claim_ids": [],
+              "difficulty": 4,
+              "allocated_seconds": 700,
+              "question": "When handling high-volume payments asynchronously, how do you design your systems to process events in strict chronological order when utilizing a distributed message broker that only guarantees at-least-once delivery?",
+              "scenario_facts": [
+                "The broker guarantees at-least-once delivery, but messages can arrive out of order.",
+                "The downstream system must execute transitions in strict sequence (e.g., Authorized -> Captured -> Refunded)."
+              ],
+              "anchors": [
+                {
+                  "score": 0,
+                  "description": "Does not recognize issues with out-of-order events or at-least-once delivery."
+                },
+                {
+                  "score": 1,
+                  "description": "Suggests simple FIFO queues but does not address issues with distributed partitioning or failures."
+                },
+                {
+                  "score": 2,
+                  "description": "Describes standard partitioning/key-based routing but struggles with resolving race conditions or out-of-order processing."
+                },
+                {
+                  "score": 3,
+                  "description": "Explains message keying (e.g., routing by payment ID) and handling out-of-order messages via state checks or sequence version numbers."
+                },
+                {
+                  "score": 4,
+                  "description": "Proposes a robust solution combining partition keys, database-level state validation (optimistic/pessimistic locking), and safe idempotency layers."
+                },
+                {
+                  "score": 5,
+                  "description": "Provides outstanding architectural depth, explaining handling of poison pills, broker failovers, and transactional outbox patterns for reliable dispatch."
+                }
+              ],
+              "probe_options": [
+                {
+                  "trigger": "If the candidate suggests relying purely on FIFO queues without database locks.",
+                  "probe_type": "counterfactual",
+                  "question": "What happens to the chronological sequence if a worker thread crashes mid-processing or a message is retried?"
+                },
+                {
+                  "trigger": "If the candidate doesn't mention state transitions validation.",
+                  "probe_type": "mechanism",
+                  "question": "How does your SQL schema validate that a payment cannot go from 'Authorized' to 'Refunded' without first being 'Captured'?"
+                }
+              ]
+            },
+            {
+              "question_id": "Q3",
+              "order": 3,
+              "kind": "case",
+              "primary_competency_id": "C3",
+              "secondary_competency_ids": [
+                "C1"
+              ],
+              "linked_claim_ids": [],
+              "difficulty": 4,
+              "allocated_seconds": 700,
+              "question": "Imagine a payment ledger table tracking account balances. Two concurrent transactions attempt to debit the same account simultaneously. How do you construct your SQL queries and transaction isolation levels to prevent double-spending without causing severe deadlock issues under high load?",
+              "scenario_facts": [
+                "Database is a relational SQL engine (e.g., PostgreSQL or MySQL).",
+                "Account balance cannot drop below zero.",
+                "High concurrent traffic is targeting a subset of popular accounts."
+              ],
+              "anchors": [
+                {
+                  "score": 0,
+                  "description": "Recommends simple SELECT and UPDATE without any concurrency controls, allowing double-spending."
+                },
+                {
+                  "score": 1,
+                  "description": "Mentions transactions vaguely but relies purely on default isolation levels without explicit locking or versioning."
+                },
+                {
+                  "score": 2,
+                  "description": "Suggests SELECT FOR UPDATE or Serializable isolation but fails to address deadlock scenarios or performance bottlenecks under load."
+                },
+                {
+                  "score": 3,
+                  "description": "Implements pessimistic locking (SELECT FOR UPDATE) or optimistic concurrency control (version checks) with structured error handling."
+                },
+                {
+                  "score": 4,
+                  "description": "Proposes clean, performant SQL utilizing atomic updates (UPDATE account SET balance = balance - X WHERE id = Y AND balance >= X) with proper transaction isolation."
+                },
+                {
+                  "score": 5,
+                  "description": "Demonstrates exceptional understanding of database internals, evaluating MVCC lock behaviors, deadlock resolution strategies, and fallback queuing mechanics for hot-spot mitigation."
+                }
+              ],
+              "probe_options": [
+                {
+                  "trigger": "If the candidate relies entirely on optimistic locking/version columns.",
+                  "probe_type": "tradeoff",
+                  "question": "Under heavy concurrency on a single account, how does optimistic concurrency control perform compared to pessimistic locks?"
+                },
+                {
+                  "trigger": "If they suggest high-level database isolation (e.g., Serializable).",
+                  "probe_type": "mechanism",
+                  "question": "How do database engines handle write conflicts in Serializable isolation, and what application-level logic is required to recover?"
+                }
+              ]
+            }
+          ],
+          "deferred_claim_ids": [],
+          "question_budget_seconds": 2100,
+          "reserve_seconds": 300
+        }
+      }
+    },
+    {
+      "name": "stage-04",
+      "repeat": 1,
+      "stage": "04",
+      "passed": true,
+      "reason": "ok",
+      "metadata": {
+        "elapsed_seconds": 15.157,
+        "attempts": 1,
+        "usage": {
+          "promptTokenCount": 6501,
+          "candidatesTokenCount": 1336,
+          "totalTokenCount": 10434,
+          "promptTokensDetails": [
+            {
+              "modality": "TEXT",
+              "tokenCount": 6501
+            }
+          ],
+          "thoughtsTokenCount": 2597,
+          "serviceTier": "standard"
+        }
+      },
+      "response": {
+        "schema_version": "2.0.0",
+        "request_id": "LIVE-stage-04-2adc3d54",
+        "status": "ok",
+        "issues": [],
+        "data": {
+          "summary": "The candidate demonstrates senior-level capability in Payments backend engineering, demonstrating solid patterns for payment reliability, distributed systems, and operational debugging. They explained durable operation state persistence, idempotent retry mechanisms, safe rollbacks, and data auditing practices. A specific resume claim regarding a 30% failure reduction was partially verified, with the mechanism and ownership supported, although the exact statistical denominator was unconfirmed from memory. Overall, the technical discussion shows strong alignment with the Senior Backend Engineer role requirements.",
+          "coverage_percent": 100,
+          "overall_score": 3.7,
+          "recommendation": "positive_signal_with_follow_up",
+          "competency_findings": [
+            {
+              "competency_id": "C1",
+              "score": 4.0,
+              "finding": "Demonstrates strong payments reliability patterns, showing solid ownership of retry worker boundaries and safe incident containment strategies. They prioritize preventing duplicate charges and verify outcomes before retrying.",
+              "evidence": [
+                {
+                  "turn_id": "T4",
+                  "quote": "I owned the retry worker and its durable operation state. The same operation key was reused, and unknown provider outcomes were reconciled before retry. We bounded retries; I cannot confirm the original metric denominator from memory.",
+                  "observation": "The candidate explained a structured, bounded retry pattern with state reconciliation."
+                },
+                {
+                  "turn_id": "T8",
+                  "quote": "I would stop the retry rollout, preserve affected operation IDs, reconcile uncertain provider outcomes and coordinate customer-impact review. Recovery would be bounded and verified before restoring retries.",
+                  "observation": "Demonstrated safe operational containment and structured rollout mitigation during an alert."
+                }
+              ],
+              "gaps": [
+                "The numerical metric denominator for the payment failure reduction could not be confirmed from memory."
+              ]
+            },
+            {
+              "competency_id": "C2",
+              "score": 3.5,
+              "finding": "Demonstrates sound distributed systems principles, including durable state transitions, state serialization, and conscious monolith-versus-microservices trade-off decisions under constraint.",
+              "evidence": [
+                {
+                  "turn_id": "T6",
+                  "quote": "I would durably record an operation ID and state transition before dispatch, serialize conflicting updates, and reconcile unknown provider outcomes using the same identity before another attempt. Provider deduplication guarantees need confirmation.",
+                  "observation": "Designed robust state recording and update serialization to prevent race conditions."
+                },
+                {
+                  "turn_id": "T10",
+                  "quote": "I owned the decision to keep a single service for the first release because delivery time was constrained. We rejected an early service split, recorded coupling costs, and set a review when independent release needs emerged.",
+                  "observation": "Articulated microservice trade-offs clearly, specifying explicit triggers for decoupling."
+                }
+              ],
+              "gaps": [
+                "The exact details of handling variable provider-side deduplication guarantees were marked for future confirmation."
+              ]
+            },
+            {
+              "competency_id": "C3",
+              "score": 3.5,
+              "finding": "Demonstrated clear individual delivery ownership, claiming accountability for core retry state design and taking explicit responsibility for coupling trade-offs to meet project deadlines.",
+              "evidence": [
+                {
+                  "turn_id": "T4",
+                  "quote": "I owned the retry worker and its durable operation state. The same operation key was reused, and unknown provider outcomes were reconciled before retry. We bounded retries; I cannot confirm the original metric denominator from memory.",
+                  "observation": "Articulated personal design ownership of the retry worker and idempotency model."
+                },
+                {
+                  "turn_id": "T10",
+                  "quote": "I owned the decision to keep a single service for the first release because delivery time was constrained. We rejected an early service split, recorded coupling costs, and set a review when independent release needs emerged.",
+                  "observation": "Took ownership of architecture shortcuts and established clean tracking boundaries."
+                }
+              ],
+              "gaps": []
+            },
+            {
+              "competency_id": "C4",
+              "score": 3.5,
+              "finding": "Addresses data correctness by recommending serialized updates, transaction auditing, and safe reconciliation against external sources of truth rather than blind deduplication.",
+              "evidence": [
+                {
+                  "turn_id": "T6",
+                  "quote": "I would durably record an operation ID and state transition before dispatch, serialize conflicting updates, and reconcile unknown provider outcomes using the same identity before another attempt. Provider deduplication guarantees need confirmation.",
+                  "observation": "Emphasized durable state transition recordings and serialization."
+                },
+                {
+                  "turn_id": "T12",
+                  "quote": "I would preserve both rows, compare their operation identity with provider evidence, audit the mismatch, and make a controlled repeatable correction. Concurrent reconciliation needs an explicit ownership rule.",
+                  "observation": "Recommended safe audit trails and external evidence comparisons before correcting database anomalies."
+                }
+              ],
+              "gaps": [
+                "Did not exhaustively specify database lock mechanisms for handling concurrent reconciliation conflicts."
+              ]
+            },
+            {
+              "competency_id": "C5",
+              "score": 4.0,
+              "finding": "Strong operational debugging skills, favoring incident containment, logs preservation, and reproducible corrective scripts over immediate ad-hoc database modifications.",
+              "evidence": [
+                {
+                  "turn_id": "T8",
+                  "quote": "I would stop the retry rollout, preserve affected operation IDs, reconcile uncertain provider outcomes and coordinate customer-impact review. Recovery would be bounded and verified before restoring retries.",
+                  "observation": "Identified immediate incident containment, preserving evidence and reviewing customer impact."
+                },
+                {
+                  "turn_id": "T12",
+                  "quote": "I would preserve both rows, compare their operation identity with provider evidence, audit the mismatch, and make a controlled repeatable correction. Concurrent reconciliation needs an explicit ownership rule.",
+                  "observation": "Structured a logical debugging and data-correction process based on immutable audit traces."
+                }
+              ],
+              "gaps": []
+            }
+          ],
+          "claim_findings": [
+            {
+              "claim_id": "R1",
+              "status": "partially_supported",
+              "explanation": "The candidate described their personal delivery of the retry worker, durable state patterns, and bounded retry strategy. However, they explicitly noted that they could not confirm the precise mathematical denominator of the reported 30% reduction from memory.",
+              "evidence_turn_ids": [
+                "T4"
+              ]
+            }
+          ],
+          "next_step": {
+            "type": "focused_follow_up",
+            "purpose": "Resolve the remaining quantitative details of past accomplishments and dive deeper into high-throughput concurrency locks.",
+            "questions_or_criteria": [
+              "Provide additional background or context regarding the 30% payment failure reduction metric.",
+              "Describe the specific SQL transaction isolation levels or distributed lock patterns you would implement to prevent concurrent execution of the retry worker."
+            ]
+          },
+          "limitations": [
+            "The quantitative failure reduction metric remains unconfirmed by memory during verbal discussion.",
+            "This assessment is based on verbal backend design reasoning and does not include an evaluation of live code implementation.",
+            "This report acts as an administrative summary and does not constitute an autonomous hiring decision."
+          ]
+        }
+      }
+    }
+  ],
+  "passed": 4,
+  "total": 4,
+  "finished_at": "2026-09-10T15:58:57+0530"
+}

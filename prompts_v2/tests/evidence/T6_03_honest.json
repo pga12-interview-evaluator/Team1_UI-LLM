@@ -1,0 +1,230 @@
+{
+ "question_id": "Q3",
+ "answer_id": "A_Q3_1",
+ "asked_question_source": "fast_path_directive",
+ "technique_answered": "OWN",
+ "injection_or_meta_request": "none",
+ "question_tracking": {
+  "status": "on_target",
+  "target_clause": "which part was yours to change without asking anyone"
+ },
+ "answer_summary": "Candidate down-scopes their role, stating they wrote the accrual estimation rule and moved the plant submission cut-off, while the controller owned the calendar and the GL team did reconciliations. They state the baseline was nine business days from the close tracker.",
+ "specificity": {
+  "specificity_level": 3,
+  "specificity_direction": "increasing",
+  "generic_vs_instance": "instance_named",
+  "artifact_produced": "specific",
+  "peripheral_detail_present": false,
+  "bedrock_reached": false,
+  "bedrock_basis": "not_reached",
+  "next_drill_level": "what_did_it_look_like"
+ },
+ "ownership": {
+  "ownership_asserted": "I_decided",
+  "ownership_demonstrated": "owner",
+  "actors_by_role": [
+   "plant controller",
+   "GL team"
+  ],
+  "ownership_quote": "I wrote the accrual estimation rule for plant overheads and moved the plant submission cut-off",
+  "isolation_offered": true
+ },
+ "provenance": "first_hand",
+ "corroboration_offered": {
+  "type": "record",
+  "description": "the close tracker"
+ },
+ "metric_claims": [
+  {
+   "quote": "Before it was nine business days, from the close tracker",
+   "value_stated": "9 business days",
+   "baseline": "stated",
+   "window": "missing",
+   "definition": "missing",
+   "source": "stated",
+   "confounders": "not_probed",
+   "causality": "not_probed",
+   "persistence": "not_probed",
+   "plausibility": "plausible",
+   "attribution_stance": "honest_uncertainty"
+  }
+ ],
+ "claims_extracted": [
+  {
+   "claim_id": "NEW",
+   "source": {
+    "kind": "answer",
+    "question_id": "Q3",
+    "answer_id": "A_Q3_1"
+   },
+   "verbatim_quote": "I wrote the accrual estimation rule for plant overheads and moved the plant submission cut-off",
+   "normalized_statement": "Candidate wrote the accrual estimation rule for plant overheads and moved the plant submission cut-off",
+   "claim_type": "ownership",
+   "entity": "plant_overhead_accrual_rebuild",
+   "attribute": "ownership_boundary",
+   "value": "wrote accrual rule and moved cut-off",
+   "unit": null,
+   "precision_qualifier": "exact",
+   "materiality": "high",
+   "competency_ids": [
+    "C1",
+    "C3"
+   ],
+   "ownership_asserted": "I_decided",
+   "ownership_demonstrated": "owner",
+   "provenance": "first_hand",
+   "time_reference": null,
+   "is_anchor": true,
+   "metric_provenance": {
+    "baseline": "not_probed",
+    "window": "not_probed",
+    "definition": "not_probed",
+    "source": "not_probed",
+    "confounders": "not_probed",
+    "causality": "not_probed",
+    "persistence": "not_probed"
+   }
+  }
+ ],
+ "ledger_updates": [
+  {
+   "claim_id": "R1",
+   "new_verification_status": "partially_supported",
+   "new_ownership_demonstrated": "owner",
+   "new_verification_status_reason": "Candidate down-scoped their role to the accrual rule and cut-off, establishing a clear ownership boundary and a baseline of nine days from the close tracker.",
+   "evidence_quote": "Honestly, my part was narrower than that. I wrote the accrual estimation rule for plant overheads",
+   "why_unsupported": null
+  }
+ ],
+ "consistency_check": {
+  "status": "none",
+  "claim_ids": [],
+  "quote_a": null,
+  "quote_b": null,
+  "detected_by": null,
+  "neutral_resolution_question": null
+ },
+ "pattern_flags": [],
+ "candid_signals": [
+  {
+   "signal": "honest_down_scope",
+   "quote": "Honestly, my part was narrower than that. I wrote the accrual estimation rule for plant overheads and moved the plant submission cut-off"
+  }
+ ],
+ "answer_style_flags": [],
+ "competency_scores": [
+  {
+   "competency_id": "C1",
+   "score": 3,
+   "evidence_grade": "specific",
+   "evidence": [
+    "I wrote the accrual estimation rule for plant overheads and moved the plant submission cut-off",
+    "Before it was nine business days, from the close tracker"
+   ],
+   "missing_evidence": [
+    "what the accrual estimation rule looked like",
+    "one month the new process still slipped"
+   ],
+   "anchor_satisfied": [
+    "your role on the close",
+    "roughly how many business days reporting took before"
+   ]
+  },
+  {
+   "competency_id": "C3",
+   "score": 3,
+   "evidence_grade": "specific",
+   "evidence": [
+    "Honestly, my part was narrower than that. I wrote the accrual estimation rule",
+    "the controller owned the close calendar and the GL team did the reconciliations"
+   ],
+   "missing_evidence": [
+    "a rejected alternative to the accrual rule"
+   ],
+   "anchor_satisfied": [
+    "ownership boundary"
+   ]
+  }
+ ],
+ "ownership_specificity_score": 3,
+ "technique_results": {
+  "tier_assessed": null,
+  "tier_result": "not_applicable",
+  "ceiling_reached": false,
+  "recommended_ladder_action": null,
+  "callback_consistency": null,
+  "reconciliation_result": {
+   "status": null,
+   "candidate_explanation_quote": null
+  },
+  "adaptation_quality": "not_applicable",
+  "alternative_reasoning": "not_asked",
+  "premise_response": "not_applicable",
+  "failure_chain": {
+   "status": "not_asked",
+   "symptom": false,
+   "detection": false,
+   "diagnosis": false,
+   "prevention": false
+  },
+  "disconfirmer": "not_asked",
+  "teachback": "not_asked",
+  "refsim": {
+   "third_person_more_specific": null,
+   "limit_named": null,
+   "artifact_described": "not_asked"
+  },
+  "clarification_quality": "not_applicable",
+  "stated_assumptions": [],
+  "candidate_choice_summary": null,
+  "commitment_made": null
+ },
+ "probe_directives": [
+  {
+   "rank": 1,
+   "technique": "DRILL",
+   "target_quote": "accrual estimation rule",
+   "target_claim_id": "NEW",
+   "evidence_sought": "what the accrual rule looked like",
+   "suggested_wording": "What did that accrual estimation rule look like in Excel?",
+   "abandon_if": "describes the columns, formula, or logic of the accrual rule",
+   "requires_state": false
+  },
+  {
+   "rank": 2,
+   "technique": "FAIL",
+   "target_quote": "moved the plant submission cut-off",
+   "target_claim_id": "NEW",
+   "evidence_sought": "one month the new process still slipped",
+   "suggested_wording": "In the first close after the change went live, which submission still arrived last?",
+   "abandon_if": "names a specific plant or role that missed the new cut-off and what was done",
+   "requires_state": false
+  }
+ ],
+ "callback_candidates": [
+  {
+   "claim_id": "R1",
+   "angle": "downstream_consumer",
+   "question_template": "On the close work: who read the day-five report first, and what did they ask you to change in it?",
+   "what_consistent_looks_like": "names a specific role and a change request consistent with plant overhead reporting",
+   "priority": 2
+  }
+ ],
+ "recommended_next_action": "probe",
+ "escalation_recommendation": {
+  "direction": "deescalate",
+  "trigger_patterns": [],
+  "justifying_quote": "Honestly, my part was narrower than that. I wrote the accrual estimation rule"
+ },
+ "question_digest": "Q3 (close reporting time, C1, C3): candidate down-scoped their role to writing the plant overhead accrual rule and moving the cut-off (A_Q3_1); baseline of nine days from the close tracker established; ownership boundary drawn. Unresolved: R1 (mechanism and failure response); NEW (accrual rule details).",
+ "reviewer_flags": [],
+ "confidence": "high",
+ "self_check": {
+  "no_protected_trait_content": true,
+  "no_prohibited_vocabulary": true,
+  "no_behavioral_terms_in_scored_fields": true,
+  "all_evidence_verbatim_or_paraphrase_tagged": true,
+  "directive_wording_has_no_signal_terms": true,
+  "no_low_confidence_span_scored": true
+ }
+}

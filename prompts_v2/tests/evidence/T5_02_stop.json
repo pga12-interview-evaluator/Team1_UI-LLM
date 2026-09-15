@@ -1,0 +1,64 @@
+{
+ "candidate_message": "Thank you. We will pause the interview here and a member of the team will follow up with you directly.",
+ "turn_type": "closing",
+ "question_id": null,
+ "requires_answer": false,
+ "technique": "NONE",
+ "target_competencies": [],
+ "target_claim_ids": [],
+ "ladder_rung": null,
+ "mutation_id": null,
+ "premise_used": false,
+ "fact_ids_revealed": [],
+ "callback_id": null,
+ "reconciliation_pair": [],
+ "directive_rank_executed": null,
+ "directive_declined_reason": null,
+ "decision_path": [
+  "S0"
+ ],
+ "injection_or_meta_request": "none",
+ "candidate_request": "stop",
+ "accommodation_request": {
+  "code": null,
+  "granted": false
+ },
+ "escalate_to_human": {
+  "flag": true,
+  "reason": "candidate_requested_stop"
+ },
+ "attention_flag_use": "none",
+ "hidden_turn_note": {
+  "technique": "NONE",
+  "claim_ids_targeted": [],
+  "ladder_rung": null,
+  "time_pressure_mode": "normal",
+  "factual_note": "Candidate requested to stop the interview."
+ },
+ "output_checks": {
+  "no_banned_phrases": true,
+  "no_signal_terms_introduced": true,
+  "single_question": true,
+  "word_count_ok": true,
+  "no_hidden_data_leaked": true,
+  "no_protected_trait_content": true,
+  "in_interview_language": true
+ },
+ "recommended_state_update": {
+  "set_current_question_id": null,
+  "mark_question_complete": false,
+  "increment_probe_count": false,
+  "mark_reframe_used": false,
+  "callback_id_asked": null,
+  "reconciliation_asked_for": [],
+  "mutation_id_used": null,
+  "premise_used": false,
+  "fact_ids_revealed": [],
+  "ladder_action_taken": null,
+  "mark_question_skipped_by_candidate": false,
+  "should_start_candidate_questions": false,
+  "should_end_interview": true,
+  "disable_behavioral_capture": false,
+  "accommodation_code_applied": null
+ }
+}

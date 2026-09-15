@@ -1,0 +1,452 @@
+{
+  "suite": "smoke",
+  "model": "gemini-3.5-flash-lite",
+  "prompt_version": "2.0.0",
+  "started_at": "2026-09-10T16:20:23+0530",
+  "synthetic_data_only": true,
+  "results": [
+    {
+      "name": "stage-01",
+      "repeat": 1,
+      "stage": "01",
+      "passed": true,
+      "reason": "ok",
+      "metadata": {
+        "elapsed_seconds": 12.437,
+        "attempts": 1,
+        "usage": {
+          "promptTokenCount": 2351,
+          "candidatesTokenCount": 3586,
+          "totalTokenCount": 5937,
+          "promptTokensDetails": [
+            {
+              "modality": "TEXT",
+              "tokenCount": 2351
+            }
+          ],
+          "serviceTier": "standard"
+        },
+        "system_instruction_sha256": "a18e8e586ff447fdefa5b04c20837cdc1bcdbc83f01481db345d9b1274680af4",
+        "validation_regenerations": 0,
+        "total_elapsed_seconds": 12.437,
+        "validation_feedback": null,
+        "usage_records": [
+          {
+            "promptTokenCount": 2351,
+            "candidatesTokenCount": 3586,
+            "totalTokenCount": 5937,
+            "promptTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 2351
+              }
+            ],
+            "serviceTier": "standard"
+          }
+        ],
+        "total_provider_attempts": 1
+      },
+      "response": {
+        "schema_version": "2.0.0",
+        "request_id": "LIVE-stage-01-49e070d8",
+        "status": "ok",
+        "issues": [],
+        "data": {
+          "blueprint_id": "BP1",
+          "role_summary": "Senior Backend Engineer focusing on payments reliability, distributed systems, and SQL correctness under strict operational constraints.",
+          "assumptions": [
+            "Candidate has production experience with asynchronous queues and distributed retries.",
+            "Anonymized experience is acceptable as per approved constraints."
+          ],
+          "missing_optional_information": [
+            "Detailed metrics on scale (QPS and transaction volume)."
+          ],
+          "competencies": [
+            {
+              "competency_id": "C1",
+              "name": "Payment reliability",
+              "weight": 35,
+              "critical": true,
+              "minimum_topics": 2,
+              "definition": "Ability to design and operate reliable payment transaction pipelines with safe retries and ambiguous state recovery.",
+              "requirement_refs": [
+                {
+                  "source_id": "JD1",
+                  "quote": "Own payment reliability"
+                },
+                {
+                  "source_id": "JD1",
+                  "quote": "Support safe retries and recovery from ambiguous provider outcomes."
+                }
+              ]
+            },
+            {
+              "competency_id": "C2",
+              "name": "Distributed systems",
+              "weight": 35,
+              "critical": true,
+              "minimum_topics": 2,
+              "definition": "Designing resilient distributed architectures, handling network partitions, and managing concurrent message processing.",
+              "requirement_refs": [
+                {
+                  "source_id": "JD1",
+                  "quote": "distributed systems"
+                },
+                {
+                  "source_id": "JD1",
+                  "quote": "individual delivery ownership"
+                }
+              ]
+            },
+            {
+              "competency_id": "C3",
+              "name": "SQL correctness",
+              "weight": 30,
+              "critical": true,
+              "minimum_topics": 2,
+              "definition": "Ensuring transactional consistency, handling concurrency anomalies, and maintaining SQL data correctness.",
+              "requirement_refs": [
+                {
+                  "source_id": "JD1",
+                  "quote": "SQL data correctness"
+                },
+                {
+                  "source_id": "JD1",
+                  "quote": "operational debugging"
+                }
+              ]
+            }
+          ],
+          "claims": [
+            {
+              "claim_id": "R1",
+              "text": "I reduced payment failures by 30% by adding queue-based retry workflows.",
+              "source_ref": {
+                "source_id": "CV1",
+                "quote": "I reduced payment failures by 30% by adding queue-based retry workflows."
+              },
+              "competency_ids": [
+                "C1",
+                "C2"
+              ],
+              "priority": "high",
+              "status": "untested",
+              "evidence_turn_ids": [],
+              "verification_focus": "Verify architecture of queue-based retries and how duplicate message delivery was handled."
+            }
+          ],
+          "questions": [
+            {
+              "question_id": "Q1",
+              "order": 1,
+              "kind": "resume_verification",
+              "primary_competency_id": "C1",
+              "secondary_competency_ids": [
+                "C2"
+              ],
+              "linked_claim_ids": [
+                "R1"
+              ],
+              "difficulty": 4,
+              "allocated_seconds": 380,
+              "question": "Walk through your implementation of queue-based retry workflows that reduced payment failures. How did you prevent duplicate charges during network partitions?",
+              "scenario_facts": [
+                "Upstream timeout occurred while processing a settlement.",
+                "Network partition isolated the worker node mid-execution."
+              ],
+              "anchors": [
+                {
+                  "score": 0,
+                  "description": "Unaware of duplicate charge risks or relies entirely on client-side state without server safety."
+                },
+                {
+                  "score": 1,
+                  "description": "Mentions retries generally but lacks concrete safeguards against double execution or race conditions."
+                },
+                {
+                  "score": 2,
+                  "description": "Identifies basic idempotency keys but struggles to explain edge cases under partition."
+                },
+                {
+                  "score": 3,
+                  "description": "Applies sound idempotency patterns and explains reliable queue consumer mechanics adequately."
+                },
+                {
+                  "score": 4,
+                  "description": "Demonstrates clear trade-offs between at-least-once delivery, idempotency storage, and failure isolation."
+                },
+                {
+                  "score": 5,
+                  "description": "Provides exceptional architectural depth covering distributed locks, transactional outbox patterns, and downstream provider quirks."
+                }
+              ],
+              "probe_options": [
+                {
+                  "trigger": "Candidate glosses over idempotency storage implementation.",
+                  "probe_type": "mechanism",
+                  "question": "Where specifically was the idempotency state stored, and how did you prevent race conditions between concurrent worker threads?"
+                }
+              ]
+            },
+            {
+              "question_id": "Q2",
+              "order": 2,
+              "kind": "tradeoff",
+              "primary_competency_id": "C2",
+              "secondary_competency_ids": [
+                "C1"
+              ],
+              "linked_claim_ids": [],
+              "difficulty": 4,
+              "allocated_seconds": 380,
+              "question": "Design an asynchronous webhook notification system for payment status updates that guarantees delivery order without blocking critical transaction threads.",
+              "scenario_facts": [
+                "Third-party webhook endpoints frequently experience high latency or downtime.",
+                "Merchants require chronological delivery of payment events."
+              ],
+              "anchors": [
+                {
+                  "score": 0,
+                  "description": "Synchronously blocks payment processing on webhook HTTP requests."
+                },
+                {
+                  "score": 1,
+                  "description": "Proposes basic queues without addressing ordering guarantees or failure loops."
+                },
+                {
+                  "score": 2,
+                  "description": "Uses per-merchant queues or backoff strategies but misses dead-letter handling."
+                },
+                {
+                  "score": 3,
+                  "description": "Outlines reliable asynchronous dispatch with reasonable retry and ordering logic."
+                },
+                {
+                  "score": 4,
+                  "description": "Balances strict ordering constraints with partition tolerance and backpressure handling."
+                },
+                {
+                  "score": 5,
+                  "description": "Presents robust architectural patterns for partitioning, circuit breaking, and out-of-order remediation."
+                }
+              ],
+              "probe_options": [
+                {
+                  "trigger": "Candidate assumes infinite queue capacity.",
+                  "probe_type": "tradeoff",
+                  "question": "How do you handle backpressure and prevent queue overflow if a major merchant's endpoint goes down for hours?"
+                }
+              ]
+            },
+            {
+              "question_id": "Q3",
+              "order": 3,
+              "kind": "debugging",
+              "primary_competency_id": "C3",
+              "secondary_competency_ids": [
+                "C1"
+              ],
+              "linked_claim_ids": [],
+              "difficulty": 4,
+              "allocated_seconds": 380,
+              "question": "During a high-load campaign, users report intermittent balance discrepancies after successful fund transfers. How would you debug and fix this in the database layer?",
+              "scenario_facts": [
+                "Read-replica lag is elevated during peak traffic.",
+                "Concurrent transfers occur on the same user account."
+              ],
+              "anchors": [
+                {
+                  "score": 0,
+                  "description": "Suggests turning off database constraints or ignoring transaction isolation levels."
+                },
+                {
+                  "score": 1,
+                  "description": "Vaguely mentions locks without specifying isolation levels or query patterns."
+                },
+                {
+                  "score": 2,
+                  "description": "Identifies read-replica lag or race conditions but lacks a structured debugging plan."
+                },
+                {
+                  "score": 3,
+                  "description": "Uses appropriate row-level locking or serializable transactions and checks consistency queries."
+                },
+                {
+                  "score": 4,
+                  "description": "Systematically analyzes locking contention, isolation levels, and read-after-write consistency."
+                },
+                {
+                  "score": 5,
+                  "description": "Diagnoses subtle concurrency anomalies, lock deadlocks, and proposes resilient schema or query refactoring."
+                }
+              ],
+              "probe_options": [
+                {
+                  "trigger": "Candidate relies solely on table-level locks.",
+                  "probe_type": "tradeoff",
+                  "question": "What are the throughput implications of table-level locks under high concurrency, and how would you optimize using row-level approaches?"
+                }
+              ]
+            },
+            {
+              "question_id": "Q4",
+              "order": 4,
+              "kind": "case",
+              "primary_competency_id": "C1",
+              "secondary_competency_ids": [
+                "C3"
+              ],
+              "linked_claim_ids": [],
+              "difficulty": 4,
+              "allocated_seconds": 380,
+              "question": "An external payment gateway responds with an ambiguous timeout error after debiting a customer's card. How do you design the reconciliation flow to resolve this safely?",
+              "scenario_facts": [
+                "The gateway API does not support synchronous status checks for 5 minutes post-timeout.",
+                "Users expect immediate confirmation or safe rollback."
+              ],
+              "anchors": [
+                {
+                  "score": 0,
+                  "description": "Automatically reverses the charge or assumes failure without verification, risking double payouts."
+                },
+                {
+                  "score": 1,
+                  "description": "Leaves the transaction in an indefinite pending state with no recovery mechanism."
+                },
+                {
+                  "score": 2,
+                  "description": "Proposes polling the gateway eventually but lacks deterministic reconciliation state machines."
+                },
+                {
+                  "score": 3,
+                  "description": "Implements a state machine with pending states, scheduled polling, and manual review triggers."
+                },
+                {
+                  "score": 4,
+                  "description": "Provides robust reconciliation logic combining asynchronous status polling, ledger invariants, and customer communication states."
+                },
+                {
+                  "score": 5,
+                  "description": "Architects comprehensive ledger reconciliation guaranteeing zero financial discrepancy under severe provider unreliability."
+                }
+              ],
+              "probe_options": [
+                {
+                  "trigger": "Candidate overlooks financial ledger integrity.",
+                  "probe_type": "mechanism",
+                  "question": "How does your internal ledger record balance adjustments while the transaction status remains ambiguous?"
+                }
+              ]
+            },
+            {
+              "question_id": "Q5",
+              "order": 5,
+              "kind": "technical",
+              "primary_competency_id": "C2",
+              "secondary_competency_ids": [
+                "C3"
+              ],
+              "linked_claim_ids": [],
+              "difficulty": 4,
+              "allocated_seconds": 380,
+              "question": "How would you design a distributed lock mechanism across multiple microservices to ensure only one worker processes a specific payout batch?",
+              "scenario_facts": [
+                "Network partitions can cause worker nodes to become unresponsive while holding locks.",
+                "Clock drift exists across service hosts."
+              ],
+              "anchors": [
+                {
+                  "score": 0,
+                  "description": "Relies on in-memory locks within a single instance across a distributed fleet."
+                },
+                {
+                  "score": 1,
+                  "description": "Mentions Redis or DB locks without considering expiration or failure recovery."
+                },
+                {
+                  "score": 2,
+                  "description": "Uses TTL-based locks but ignores hazards of long-running tasks exceeding TTL."
+                },
+                {
+                  "score": 3,
+                  "description": "Implements distributed locking patterns (e.g., Redlock or database leases) with fencing tokens."
+                },
+                {
+                  "score": 4,
+                  "description": "Analyzes clock drift hazards, lock expiration trade-offs, and fencing token validation."
+                },
+                {
+                  "score": 5,
+                  "description": "Details bulletproof consensus or leasing patterns with rigorous handling of split-brain and process pauses."
+                }
+              ],
+              "probe_options": [
+                {
+                  "trigger": "Candidate ignores process GC pauses or clock drift.",
+                  "probe_type": "falsifiability",
+                  "question": "What happens if a worker holding the lock experiences a long garbage collection pause and believes it still holds the lock when TTL expires?"
+                }
+              ]
+            },
+            {
+              "question_id": "Q6",
+              "order": 6,
+              "kind": "tradeoff",
+              "primary_competency_id": "C3",
+              "secondary_competency_ids": [
+                "C1"
+              ],
+              "linked_claim_ids": [],
+              "difficulty": 4,
+              "allocated_seconds": 380,
+              "question": "When migrating a high-throughput financial ledger table to a new sharded schema, what strategies do you use to maintain zero downtime and data correctness?",
+              "scenario_facts": [
+                "Table contains hundreds of millions of rows with continuous write traffic.",
+                "Historical analytics queries depend on the legacy schema."
+              ],
+              "anchors": [
+                {
+                  "score": 0,
+                  "description": "Proposes a downtime maintenance window with bulk dump-and-restore."
+                },
+                {
+                  "score": 1,
+                  "description": "Suggests dual writes without validation or backfill synchronization."
+                },
+                {
+                  "score": 2,
+                  "description": "Mentions dual writing and migration scripts but lacks verification steps."
+                },
+                {
+                  "score": 3,
+                  "description": "Outlines a phased migration: dual writes, backfilling historical data, shadow reads, and cutover."
+                },
+                {
+                  "score": 4,
+                  "description": "Addresses edge cases in dual writing, data divergence reconciliation, and safe schema evolution."
+                },
+                {
+                  "score": 5,
+                  "description": "Presents an exhaustive zero-downtime migration blueprint including continuous reconciliation diffing and atomic cutover."
+                }
+              ],
+              "probe_options": [
+                {
+                  "trigger": "Candidate assumes dual writes never diverge.",
+                  "probe_type": "consistency",
+                  "question": "How do you detect and reconcile data divergence between the old and new tables during the dual-write phase?"
+                }
+              ]
+            }
+          ],
+          "deferred_claim_ids": [],
+          "question_budget_seconds": 2280,
+          "reserve_seconds": 300
+        }
+      }
+    }
+  ],
+  "passed": 1,
+  "total": 1,
+  "finished_at": "2026-09-10T16:20:36+0530"
+}

@@ -1,0 +1,1334 @@
+{
+  "session_id": "synthetic-84a45a85026f",
+  "model": "gemini-3.5-flash-lite",
+  "synthetic": true,
+  "timing": "Controlled synthetic answer timing; provider wait excluded. Not a human usability study.",
+  "blueprint_origin": "Frozen author-designed synthetic fixture; live planner separately smoke-tested.",
+  "calls": [
+    {
+      "stage": "02",
+      "metadata": {
+        "provider_call": false,
+        "renderer": "approved_text",
+        "elapsed_seconds": 0,
+        "usage": {}
+      },
+      "response": {
+        "schema_version": "2.0.0",
+        "request_id": "synthetic-84a45a85026f-02-1",
+        "status": "ok",
+        "issues": [],
+        "data": {
+          "kind": "main_question",
+          "question_id": "Q1",
+          "candidate_message": "Your resume mentions reducing payment failures through retries. Which failure mechanism did you personally change?",
+          "expected_input": "interview_answer"
+        }
+      }
+    },
+    {
+      "stage": "03",
+      "metadata": {
+        "elapsed_seconds": 2.875,
+        "attempts": 1,
+        "usage": {
+          "promptTokenCount": 2906,
+          "candidatesTokenCount": 563,
+          "totalTokenCount": 3469,
+          "promptTokensDetails": [
+            {
+              "modality": "TEXT",
+              "tokenCount": 2906
+            }
+          ],
+          "serviceTier": "standard"
+        },
+        "validation_regenerations": 0,
+        "total_elapsed_seconds": 2.875,
+        "validation_feedback": null,
+        "provider_call": true
+      },
+      "response": {
+        "schema_version": "2.0.0",
+        "request_id": "synthetic-84a45a85026f-03-2",
+        "status": "ok",
+        "issues": [],
+        "data": {
+          "question_id": "Q1",
+          "latest_answer_turn_id": "T2",
+          "assessment_status": "assessable",
+          "answer_kind": "substantive",
+          "topic_scores": [
+            {
+              "competency_id": "C1",
+              "score": 1,
+              "confidence": "medium",
+              "evidence": [
+                {
+                  "turn_id": "T2",
+                  "quote": "I added a queue and retried provider timeouts.",
+                  "observation": "Names queues and timeout retries without explaining the specific failure mechanics or dealing with duplicate charge risks."
+                }
+              ],
+              "missing_evidence": [
+                "Explanation of deduplication",
+                "Handling of ambiguous provider outcomes",
+                "Bounded limits on retries"
+              ]
+            },
+            {
+              "competency_id": "C3",
+              "score": 1,
+              "confidence": "medium",
+              "evidence": [
+                {
+                  "turn_id": "T2",
+                  "quote": "I added a queue and retried provider timeouts.",
+                  "observation": "Provides minimal personal contribution detail beyond a general statement of adding a queue."
+                }
+              ],
+              "missing_evidence": [
+                "Specific personal contribution and design decisions"
+              ]
+            }
+          ],
+          "claim_updates": [
+            {
+              "claim_id": "R1",
+              "status": "partially_supported",
+              "evidence_turn_ids": [
+                "T2"
+              ],
+              "reason": "Candidate confirmed the use of queue-based retries for timeouts, but mechanics and metric definitions remain unproven."
+            }
+          ],
+          "consistency_findings": [],
+          "unverified_statements": [],
+          "next_action": "probe",
+          "probe_type": "mechanism",
+          "follow_up": "How did your retry mechanism handle the risk of duplicate charges if the upstream provider actually processed the initial timed-out request?",
+          "next_action_reason": "The candidate mentioned adding a queue for provider timeouts but omitted essential failure mechanisms like deduplication and bounded limits."
+        }
+      }
+    },
+    {
+      "stage": "02",
+      "metadata": {
+        "provider_call": false,
+        "renderer": "approved_text",
+        "elapsed_seconds": 0,
+        "usage": {}
+      },
+      "response": {
+        "schema_version": "2.0.0",
+        "request_id": "synthetic-84a45a85026f-02-3",
+        "status": "ok",
+        "issues": [],
+        "data": {
+          "kind": "follow_up",
+          "question_id": "Q1",
+          "candidate_message": "How did your retry mechanism handle the risk of duplicate charges if the upstream provider actually processed the initial timed-out request?",
+          "expected_input": "interview_answer"
+        }
+      }
+    },
+    {
+      "stage": "03",
+      "metadata": {
+        "elapsed_seconds": 2.875,
+        "attempts": 1,
+        "usage": {
+          "promptTokenCount": 3417,
+          "candidatesTokenCount": 537,
+          "totalTokenCount": 3954,
+          "promptTokensDetails": [
+            {
+              "modality": "TEXT",
+              "tokenCount": 3417
+            }
+          ],
+          "serviceTier": "standard"
+        },
+        "validation_regenerations": 0,
+        "total_elapsed_seconds": 2.875,
+        "validation_feedback": null,
+        "provider_call": true
+      },
+      "response": {
+        "schema_version": "2.0.0",
+        "request_id": "synthetic-84a45a85026f-03-4",
+        "status": "ok",
+        "issues": [],
+        "data": {
+          "question_id": "Q1",
+          "latest_answer_turn_id": "T4",
+          "assessment_status": "assessable",
+          "answer_kind": "substantive",
+          "topic_scores": [
+            {
+              "competency_id": "C1",
+              "score": 4,
+              "confidence": "high",
+              "evidence": [
+                {
+                  "turn_id": "T4",
+                  "quote": "The same operation key was reused, and unknown provider outcomes were reconciled before retry. We bounded retries; I cannot confirm the original metric denominator from memory.",
+                  "observation": "Explains handling of uncertain provider outcomes via operation keys, reconciliation, and bounded limits."
+                }
+              ],
+              "missing_evidence": [
+                "Exact metric denominator details"
+              ]
+            },
+            {
+              "competency_id": "C3",
+              "score": 4,
+              "confidence": "high",
+              "evidence": [
+                {
+                  "turn_id": "T4",
+                  "quote": "I owned the retry worker and its durable operation state.",
+                  "observation": "Demonstrates clear individual contribution and ownership of the retry worker and durable state."
+                }
+              ],
+              "missing_evidence": []
+            }
+          ],
+          "claim_updates": [
+            {
+              "claim_id": "R1",
+              "status": "supported_in_interview",
+              "evidence_turn_ids": [
+                "T4"
+              ],
+              "reason": "Candidate explained durable operation state, operation key reuse, reconciliation of unknown provider outcomes, and bounded retries supporting the retry workflow claim."
+            }
+          ],
+          "consistency_findings": [],
+          "unverified_statements": [],
+          "next_action": "advance",
+          "probe_type": "none",
+          "follow_up": null,
+          "next_action_reason": "The candidate adequately addressed payment reliability and ownership mechanisms, reaching level 4 performance. Time and probe limits support advancing."
+        }
+      }
+    },
+    {
+      "stage": "02",
+      "metadata": {
+        "provider_call": false,
+        "renderer": "approved_text",
+        "elapsed_seconds": 0,
+        "usage": {}
+      },
+      "response": {
+        "schema_version": "2.0.0",
+        "request_id": "synthetic-84a45a85026f-02-5",
+        "status": "ok",
+        "issues": [],
+        "data": {
+          "kind": "main_question",
+          "question_id": "Q2",
+          "candidate_message": "A payment provider sometimes times out after processing a request. Design the state you would persist before deciding whether to retry.",
+          "expected_input": "interview_answer"
+        }
+      }
+    },
+    {
+      "stage": "03",
+      "metadata": {
+        "elapsed_seconds": 2.609,
+        "attempts": 1,
+        "usage": {
+          "promptTokenCount": 3181,
+          "candidatesTokenCount": 469,
+          "totalTokenCount": 3650,
+          "promptTokensDetails": [
+            {
+              "modality": "TEXT",
+              "tokenCount": 3181
+            }
+          ],
+          "serviceTier": "standard"
+        },
+        "validation_regenerations": 0,
+        "total_elapsed_seconds": 2.609,
+        "validation_feedback": null,
+        "provider_call": true
+      },
+      "response": {
+        "schema_version": "2.0.0",
+        "request_id": "synthetic-84a45a85026f-03-6",
+        "status": "ok",
+        "issues": [],
+        "data": {
+          "question_id": "Q2",
+          "latest_answer_turn_id": "T6",
+          "assessment_status": "assessable",
+          "answer_kind": "substantive",
+          "topic_scores": [
+            {
+              "competency_id": "C2",
+              "score": 4,
+              "confidence": "high",
+              "evidence": [
+                {
+                  "turn_id": "T6",
+                  "quote": "I would durably record an operation ID and state transition before dispatch, serialize conflicting updates, and reconcile unknown provider outcomes using the same identity before another attempt.",
+                  "observation": "Demonstrates clear understanding of durable operation states, concurrency control, and safe status reconciliation for uncertain timeouts."
+                }
+              ],
+              "missing_evidence": []
+            },
+            {
+              "competency_id": "C4",
+              "score": 4,
+              "confidence": "medium",
+              "evidence": [
+                {
+                  "turn_id": "T6",
+                  "quote": "I would durably record an operation ID and state transition before dispatch, serialize conflicting updates",
+                  "observation": "Shows consistency and transactional safety in data state management before retries."
+                }
+              ],
+              "missing_evidence": []
+            }
+          ],
+          "claim_updates": [],
+          "consistency_findings": [],
+          "unverified_statements": [],
+          "next_action": "advance",
+          "probe_type": "none",
+          "follow_up": null,
+          "next_action_reason": "The candidate has provided a thorough, senior-level response explaining operation IDs, state transitions, concurrency serialization, and reconciliation of unknown outcomes, fully satisfying the requirements for this case."
+        }
+      }
+    },
+    {
+      "stage": "02",
+      "metadata": {
+        "provider_call": false,
+        "renderer": "approved_text",
+        "elapsed_seconds": 0,
+        "usage": {}
+      },
+      "response": {
+        "schema_version": "2.0.0",
+        "request_id": "synthetic-84a45a85026f-02-7",
+        "status": "ok",
+        "issues": [],
+        "data": {
+          "kind": "main_question",
+          "question_id": "Q3",
+          "candidate_message": "A retry rollout increases duplicate-payment alerts. Describe your immediate response under uncertain provider status.",
+          "expected_input": "interview_answer"
+        }
+      }
+    },
+    {
+      "stage": "03",
+      "metadata": {
+        "elapsed_seconds": 2.469,
+        "attempts": 1,
+        "usage": {
+          "promptTokenCount": 3299,
+          "candidatesTokenCount": 477,
+          "totalTokenCount": 3776,
+          "promptTokensDetails": [
+            {
+              "modality": "TEXT",
+              "tokenCount": 3299
+            }
+          ],
+          "serviceTier": "standard"
+        },
+        "validation_regenerations": 0,
+        "total_elapsed_seconds": 2.469,
+        "validation_feedback": null,
+        "provider_call": true
+      },
+      "response": {
+        "schema_version": "2.0.0",
+        "request_id": "synthetic-84a45a85026f-03-8",
+        "status": "ok",
+        "issues": [],
+        "data": {
+          "question_id": "Q3",
+          "latest_answer_turn_id": "T8",
+          "assessment_status": "assessable",
+          "answer_kind": "substantive",
+          "topic_scores": [
+            {
+              "competency_id": "C1",
+              "score": 4,
+              "confidence": "high",
+              "evidence": [
+                {
+                  "turn_id": "T8",
+                  "quote": "I would stop the retry rollout, preserve affected operation IDs, reconcile uncertain provider outcomes and coordinate customer-impact review. Recovery would be bounded and verified before restoring retries.",
+                  "observation": "Candidate clearly addresses bounded rollout stop, customer impact triage, evidence preservation, and recovery ownership matching anchor 4."
+                }
+              ],
+              "missing_evidence": []
+            },
+            {
+              "competency_id": "C5",
+              "score": 4,
+              "confidence": "high",
+              "evidence": [
+                {
+                  "turn_id": "T8",
+                  "quote": "I would stop the retry rollout, preserve affected operation IDs, reconcile uncertain provider outcomes and coordinate customer-impact review.",
+                  "observation": "Demonstrates operational debugging and containment under ambiguous provider failure states."
+                }
+              ],
+              "missing_evidence": []
+            }
+          ],
+          "claim_updates": [],
+          "consistency_findings": [],
+          "unverified_statements": [],
+          "next_action": "advance",
+          "probe_type": "none",
+          "follow_up": null,
+          "next_action_reason": "The candidate has provided a thorough, well-reasoned answer meeting the criteria for a high competency score (level 4) covering containment, reconciliation, and verification."
+        }
+      }
+    },
+    {
+      "stage": "02",
+      "metadata": {
+        "provider_call": false,
+        "renderer": "approved_text",
+        "elapsed_seconds": 0,
+        "usage": {}
+      },
+      "response": {
+        "schema_version": "2.0.0",
+        "request_id": "synthetic-84a45a85026f-02-9",
+        "status": "ok",
+        "issues": [],
+        "data": {
+          "kind": "main_question",
+          "question_id": "Q4",
+          "candidate_message": "Describe one architecture trade-off you personally owned under a tight delivery deadline.",
+          "expected_input": "interview_answer"
+        }
+      }
+    },
+    {
+      "stage": "03",
+      "metadata": {
+        "elapsed_seconds": 2.703,
+        "attempts": 1,
+        "usage": {
+          "promptTokenCount": 3412,
+          "candidatesTokenCount": 474,
+          "totalTokenCount": 3886,
+          "promptTokensDetails": [
+            {
+              "modality": "TEXT",
+              "tokenCount": 3412
+            }
+          ],
+          "serviceTier": "standard"
+        },
+        "validation_regenerations": 0,
+        "total_elapsed_seconds": 2.719,
+        "validation_feedback": null,
+        "provider_call": true
+      },
+      "response": {
+        "schema_version": "2.0.0",
+        "request_id": "synthetic-84a45a85026f-03-10",
+        "status": "ok",
+        "issues": [],
+        "data": {
+          "question_id": "Q4",
+          "latest_answer_turn_id": "T10",
+          "assessment_status": "assessable",
+          "answer_kind": "substantive",
+          "topic_scores": [
+            {
+              "competency_id": "C2",
+              "score": 4,
+              "confidence": "high",
+              "evidence": [
+                {
+                  "turn_id": "T10",
+                  "quote": "I owned the decision to keep a single service for the first release because delivery time was constrained. We rejected an early service split, recorded coupling costs, and set a review when independent release needs emerged.",
+                  "observation": "Clearly explains the architectural trade-off, alternatives rejected, and reassessment conditions."
+                }
+              ],
+              "missing_evidence": []
+            },
+            {
+              "competency_id": "C3",
+              "score": 4,
+              "confidence": "high",
+              "evidence": [
+                {
+                  "turn_id": "T10",
+                  "quote": "I owned the decision to keep a single service for the first release because delivery time was constrained.",
+                  "observation": "Demonstrates direct personal ownership of a delivery-constrained architectural decision."
+                }
+              ],
+              "missing_evidence": []
+            }
+          ],
+          "claim_updates": [],
+          "consistency_findings": [],
+          "unverified_statements": [],
+          "next_action": "advance",
+          "probe_type": "none",
+          "follow_up": null,
+          "next_action_reason": "The candidate fully addressed the architectural trade-off, explaining alternatives, ownership boundary, result, and reassessment conditions, matching a score of 4."
+        }
+      }
+    },
+    {
+      "stage": "02",
+      "metadata": {
+        "provider_call": false,
+        "renderer": "approved_text",
+        "elapsed_seconds": 0,
+        "usage": {}
+      },
+      "response": {
+        "schema_version": "2.0.0",
+        "request_id": "synthetic-84a45a85026f-02-11",
+        "status": "ok",
+        "issues": [],
+        "data": {
+          "kind": "main_question",
+          "question_id": "Q5",
+          "candidate_message": "A reconciliation job finds two internal rows for one provider operation. Describe how you would establish the correct state safely.",
+          "expected_input": "interview_answer"
+        }
+      }
+    },
+    {
+      "stage": "03",
+      "metadata": {
+        "elapsed_seconds": 2.343,
+        "attempts": 1,
+        "usage": {
+          "promptTokenCount": 3539,
+          "candidatesTokenCount": 479,
+          "totalTokenCount": 4018,
+          "promptTokensDetails": [
+            {
+              "modality": "TEXT",
+              "tokenCount": 3539
+            }
+          ],
+          "serviceTier": "standard"
+        },
+        "validation_regenerations": 0,
+        "total_elapsed_seconds": 2.343,
+        "validation_feedback": null,
+        "provider_call": true
+      },
+      "response": {
+        "schema_version": "2.0.0",
+        "request_id": "synthetic-84a45a85026f-03-12",
+        "status": "ok",
+        "issues": [],
+        "data": {
+          "question_id": "Q5",
+          "latest_answer_turn_id": "T12",
+          "assessment_status": "assessable",
+          "answer_kind": "substantive",
+          "topic_scores": [
+            {
+              "competency_id": "C4",
+              "score": 5,
+              "confidence": "high",
+              "evidence": [
+                {
+                  "turn_id": "T12",
+                  "quote": "I would preserve both rows, compare their operation identity with provider evidence, audit the mismatch, and make a controlled repeatable correction. Concurrent reconciliation needs an explicit ownership rule.",
+                  "observation": "Candidate covers provider source comparison, immutable audit, controlled correction, repeatability, and concurrent reconciliation."
+                }
+              ],
+              "missing_evidence": []
+            },
+            {
+              "competency_id": "C5",
+              "score": 5,
+              "confidence": "high",
+              "evidence": [
+                {
+                  "turn_id": "T12",
+                  "quote": "I would preserve both rows, compare their operation identity with provider evidence, audit the mismatch, and make a controlled repeatable correction. Concurrent reconciliation needs an explicit ownership rule.",
+                  "observation": "Candidate demonstrates clear operational debugging regarding duplicate records and concurrency safety."
+                }
+              ],
+              "missing_evidence": []
+            }
+          ],
+          "claim_updates": [],
+          "consistency_findings": [],
+          "unverified_statements": [],
+          "next_action": "advance",
+          "probe_type": "none",
+          "follow_up": null,
+          "next_action_reason": "The candidate provided a comprehensive, high-scoring response covering all anchors including concurrent reconciliation and provider source comparison. No further probes are needed."
+        }
+      }
+    },
+    {
+      "stage": "02",
+      "metadata": {
+        "provider_call": false,
+        "renderer": "approved_text",
+        "elapsed_seconds": 0,
+        "usage": {}
+      },
+      "response": {
+        "schema_version": "2.0.0",
+        "request_id": "synthetic-84a45a85026f-02-13",
+        "status": "ok",
+        "issues": [],
+        "data": {
+          "kind": "candidate_questions",
+          "question_id": null,
+          "candidate_message": "What would you like to ask about the role or interview process?",
+          "expected_input": "candidate_question"
+        }
+      }
+    },
+    {
+      "stage": "02",
+      "metadata": {
+        "provider_call": false,
+        "renderer": "approved_text",
+        "elapsed_seconds": 0,
+        "usage": {}
+      },
+      "response": {
+        "schema_version": "2.0.0",
+        "request_id": "synthetic-84a45a85026f-02-14",
+        "status": "ok",
+        "issues": [],
+        "data": {
+          "kind": "candidate_answer",
+          "question_id": null,
+          "candidate_message": "I do not have confirmed information about that. Please ask the recruiter to confirm.",
+          "expected_input": "candidate_question"
+        }
+      }
+    },
+    {
+      "stage": "02",
+      "metadata": {
+        "provider_call": false,
+        "renderer": "approved_text",
+        "elapsed_seconds": 0,
+        "usage": {}
+      },
+      "response": {
+        "schema_version": "2.0.0",
+        "request_id": "synthetic-84a45a85026f-02-15",
+        "status": "ok",
+        "issues": [],
+        "data": {
+          "kind": "closing",
+          "question_id": null,
+          "candidate_message": "Thank you for your time. This interview session has ended.",
+          "expected_input": "none"
+        }
+      }
+    },
+    {
+      "stage": "04",
+      "metadata": {
+        "elapsed_seconds": 5.5,
+        "attempts": 1,
+        "usage": {
+          "promptTokenCount": 6865,
+          "candidatesTokenCount": 1589,
+          "totalTokenCount": 8454,
+          "promptTokensDetails": [
+            {
+              "modality": "TEXT",
+              "tokenCount": 6865
+            }
+          ],
+          "serviceTier": "standard"
+        },
+        "validation_regenerations": 0,
+        "total_elapsed_seconds": 5.515,
+        "validation_feedback": null,
+        "provider_call": true
+      },
+      "response": {
+        "schema_version": "2.0.0",
+        "request_id": "synthetic-84a45a85026f-04-16",
+        "status": "ok",
+        "issues": [],
+        "data": {
+          "summary": "The candidate demonstrated strong senior-level engineering competencies across payment reliability, distributed systems, ownership, data correctness, and operational debugging. They provided clear mechanisms for durable state tracking, handling uncertain provider timeouts, bounding retries, and safely executing reconciliation processes. The candidate's resume claim regarding queue-based retries was well-supported, showing clear personal contribution and architectural reasoning under constraints.",
+          "coverage_percent": 100,
+          "overall_score": 4.125,
+          "recommendation": "positive_signal_with_follow_up",
+          "competency_findings": [
+            {
+              "competency_id": "C1",
+              "score": 4.0,
+              "finding": "Demonstrated solid understanding of payment reliability, robust retry mechanisms, bounded limits, and operational containment under ambiguous provider states.",
+              "evidence": [
+                {
+                  "turn_id": "T4",
+                  "quote": "I owned the retry worker and its durable operation state. The same operation key was reused, and unknown provider outcomes were reconciled before retry. We bounded retries; I cannot confirm the original metric denominator from memory.",
+                  "observation": "Explains handling of uncertain provider outcomes via operation keys, reconciliation, and bounded limits."
+                },
+                {
+                  "turn_id": "T8",
+                  "quote": "I would stop the retry rollout, preserve affected operation IDs, reconcile uncertain provider outcomes and coordinate customer-impact review. Recovery would be bounded and verified before restoring retries.",
+                  "observation": "Candidate clearly addresses bounded rollout stop, customer impact triage, evidence preservation, and recovery ownership matching anchor 4."
+                }
+              ],
+              "gaps": [
+                "Exact metric denominator details for the reported improvement."
+              ]
+            },
+            {
+              "competency_id": "C2",
+              "score": 4.0,
+              "finding": "Showed deep familiarity with distributed systems, concurrency control, state transitions, and justified architectural trade-offs under tight deadlines.",
+              "evidence": [
+                {
+                  "turn_id": "T6",
+                  "quote": "I would durably record an operation ID and state transition before dispatch, serialize conflicting updates, and reconcile unknown provider outcomes using the same identity before another attempt.",
+                  "observation": "Demonstrates clear understanding of durable operation states, concurrency control, and safe status reconciliation for uncertain timeouts."
+                },
+                {
+                  "turn_id": "T10",
+                  "quote": "I owned the decision to keep a single service for the first release because delivery time was constrained. We rejected an early service split, recorded coupling costs, and set a review when independent release needs emerged.",
+                  "observation": "Clearly explains the architectural trade-off, alternatives rejected, and reassessment conditions."
+                }
+              ],
+              "gaps": []
+            },
+            {
+              "competency_id": "C3",
+              "score": 4.0,
+              "finding": "Clearly articulated individual delivery ownership, worker maintenance, and responsibility for architecture trade-offs and retry mechanics.",
+              "evidence": [
+                {
+                  "turn_id": "T4",
+                  "quote": "I owned the retry worker and its durable operation state.",
+                  "observation": "Demonstrates clear individual contribution and ownership of the retry worker and durable state."
+                },
+                {
+                  "turn_id": "T10",
+                  "quote": "I owned the decision to keep a single service for the first release because delivery time was constrained.",
+                  "observation": "Demonstrates direct personal ownership of a delivery-constrained architectural decision."
+                }
+              ],
+              "gaps": []
+            },
+            {
+              "competency_id": "C4",
+              "score": 4.5,
+              "finding": "Addressed transactional safety, idempotent operation identity, and meticulous audit and correction mechanisms for duplicate data rows.",
+              "evidence": [
+                {
+                  "turn_id": "T6",
+                  "quote": "I would durably record an operation ID and state transition before dispatch, serialize conflicting updates",
+                  "observation": "Shows consistency and transactional safety in data state management before retries."
+                },
+                {
+                  "turn_id": "T12",
+                  "quote": "I would preserve both rows, compare their operation identity with provider evidence, audit the mismatch, and make a controlled repeatable correction. Concurrent reconciliation needs an explicit ownership rule.",
+                  "observation": "Candidate covers provider source comparison, immutable audit, controlled correction, repeatability, and concurrent reconciliation."
+                }
+              ],
+              "gaps": []
+            },
+            {
+              "competency_id": "C5",
+              "score": 4.5,
+              "finding": "Strong demonstration of operational debugging under ambiguous provider outcomes, incident triage, and safe recovery workflows.",
+              "evidence": [
+                {
+                  "turn_id": "T8",
+                  "quote": "I would stop the retry rollout, preserve affected operation IDs, reconcile uncertain provider outcomes and coordinate customer-impact review.",
+                  "observation": "Demonstrates operational debugging and containment under ambiguous provider failure states."
+                },
+                {
+                  "turn_id": "T12",
+                  "quote": "I would preserve both rows, compare their operation identity with provider evidence, audit the mismatch, and make a controlled repeatable correction. Concurrent reconciliation needs an explicit ownership rule.",
+                  "observation": "Candidate demonstrates clear operational debugging regarding duplicate records and concurrency safety."
+                }
+              ],
+              "gaps": []
+            }
+          ],
+          "claim_findings": [
+            {
+              "claim_id": "R1",
+              "status": "supported_in_interview",
+              "explanation": "The candidate explained the failure mechanisms, durable operation states, reuse of operation keys, and bounding of retries to address payment failures safely.",
+              "evidence_turn_ids": [
+                "T4"
+              ]
+            }
+          ],
+          "next_step": {
+            "type": "focused_follow_up",
+            "purpose": "Clarify provider-specific guarantee integration details and verify precise metric definitions for the reported failure reduction.",
+            "questions_or_criteria": [
+              "Provide further detail on how provider-specific guarantee boundaries (e.g., webhook vs. poll) interact with your durable operation state.",
+              "Clarify the exact calculation or denominator behind the reported 30% payment failure reduction."
+            ]
+          },
+          "limitations": [
+            "This report represents interview evidence only and requires human review; it is not an autonomous hiring decision.",
+            "Provider-specific guarantee edge cases were not deeply evaluated due to missing optional setup info.",
+            "The exact metric denominator for claim R1 was not fully detailed from memory during the session."
+          ]
+        }
+      }
+    }
+  ],
+  "transcript": [
+    {
+      "turn_id": "T1",
+      "question_id": "Q1",
+      "speaker": "interviewer",
+      "text": "Your resume mentions reducing payment failures through retries. Which failure mechanism did you personally change?",
+      "quality": "clear"
+    },
+    {
+      "turn_id": "T2",
+      "question_id": "Q1",
+      "speaker": "candidate",
+      "text": "I added a queue and retried provider timeouts.",
+      "quality": "clear"
+    },
+    {
+      "turn_id": "T3",
+      "question_id": "Q1",
+      "speaker": "interviewer",
+      "text": "How did your retry mechanism handle the risk of duplicate charges if the upstream provider actually processed the initial timed-out request?",
+      "quality": "clear"
+    },
+    {
+      "turn_id": "T4",
+      "question_id": "Q1",
+      "speaker": "candidate",
+      "text": "I owned the retry worker and its durable operation state. The same operation key was reused, and unknown provider outcomes were reconciled before retry. We bounded retries; I cannot confirm the original metric denominator from memory.",
+      "quality": "clear"
+    },
+    {
+      "turn_id": "T5",
+      "question_id": "Q2",
+      "speaker": "interviewer",
+      "text": "A payment provider sometimes times out after processing a request. Design the state you would persist before deciding whether to retry.",
+      "quality": "clear"
+    },
+    {
+      "turn_id": "T6",
+      "question_id": "Q2",
+      "speaker": "candidate",
+      "text": "I would durably record an operation ID and state transition before dispatch, serialize conflicting updates, and reconcile unknown provider outcomes using the same identity before another attempt. Provider deduplication guarantees need confirmation.",
+      "quality": "clear"
+    },
+    {
+      "turn_id": "T7",
+      "question_id": "Q3",
+      "speaker": "interviewer",
+      "text": "A retry rollout increases duplicate-payment alerts. Describe your immediate response under uncertain provider status.",
+      "quality": "clear"
+    },
+    {
+      "turn_id": "T8",
+      "question_id": "Q3",
+      "speaker": "candidate",
+      "text": "I would stop the retry rollout, preserve affected operation IDs, reconcile uncertain provider outcomes and coordinate customer-impact review. Recovery would be bounded and verified before restoring retries.",
+      "quality": "clear"
+    },
+    {
+      "turn_id": "T9",
+      "question_id": "Q4",
+      "speaker": "interviewer",
+      "text": "Describe one architecture trade-off you personally owned under a tight delivery deadline.",
+      "quality": "clear"
+    },
+    {
+      "turn_id": "T10",
+      "question_id": "Q4",
+      "speaker": "candidate",
+      "text": "I owned the decision to keep a single service for the first release because delivery time was constrained. We rejected an early service split, recorded coupling costs, and set a review when independent release needs emerged.",
+      "quality": "clear"
+    },
+    {
+      "turn_id": "T11",
+      "question_id": "Q5",
+      "speaker": "interviewer",
+      "text": "A reconciliation job finds two internal rows for one provider operation. Describe how you would establish the correct state safely.",
+      "quality": "clear"
+    },
+    {
+      "turn_id": "T12",
+      "question_id": "Q5",
+      "speaker": "candidate",
+      "text": "I would preserve both rows, compare their operation identity with provider evidence, audit the mismatch, and make a controlled repeatable correction. Concurrent reconciliation needs an explicit ownership rule.",
+      "quality": "clear"
+    },
+    {
+      "turn_id": "T13",
+      "question_id": null,
+      "speaker": "interviewer",
+      "text": "What would you like to ask about the role or interview process?",
+      "quality": "clear"
+    },
+    {
+      "turn_id": "T14",
+      "question_id": null,
+      "speaker": "candidate",
+      "text": "What is the next step after this interview?",
+      "quality": "clear"
+    },
+    {
+      "turn_id": "T15",
+      "question_id": null,
+      "speaker": "interviewer",
+      "text": "I do not have confirmed information about that. Please ask the recruiter to confirm.",
+      "quality": "clear"
+    },
+    {
+      "turn_id": "T16",
+      "question_id": null,
+      "speaker": "interviewer",
+      "text": "Thank you for your time. This interview session has ended.",
+      "quality": "clear"
+    }
+  ],
+  "latest_topic_assessments": [
+    {
+      "question_id": "Q1",
+      "latest_answer_turn_id": "T4",
+      "assessment_status": "assessable",
+      "answer_kind": "substantive",
+      "topic_scores": [
+        {
+          "competency_id": "C1",
+          "score": 4,
+          "confidence": "high",
+          "evidence": [
+            {
+              "turn_id": "T4",
+              "quote": "The same operation key was reused, and unknown provider outcomes were reconciled before retry. We bounded retries; I cannot confirm the original metric denominator from memory.",
+              "observation": "Explains handling of uncertain provider outcomes via operation keys, reconciliation, and bounded limits."
+            }
+          ],
+          "missing_evidence": [
+            "Exact metric denominator details"
+          ]
+        },
+        {
+          "competency_id": "C3",
+          "score": 4,
+          "confidence": "high",
+          "evidence": [
+            {
+              "turn_id": "T4",
+              "quote": "I owned the retry worker and its durable operation state.",
+              "observation": "Demonstrates clear individual contribution and ownership of the retry worker and durable state."
+            }
+          ],
+          "missing_evidence": []
+        }
+      ],
+      "claim_updates": [
+        {
+          "claim_id": "R1",
+          "status": "supported_in_interview",
+          "evidence_turn_ids": [
+            "T4"
+          ],
+          "reason": "Candidate explained durable operation state, operation key reuse, reconciliation of unknown provider outcomes, and bounded retries supporting the retry workflow claim."
+        }
+      ],
+      "consistency_findings": [],
+      "unverified_statements": [],
+      "next_action": "advance",
+      "probe_type": "none",
+      "follow_up": null,
+      "next_action_reason": "The candidate adequately addressed payment reliability and ownership mechanisms, reaching level 4 performance. Time and probe limits support advancing."
+    },
+    {
+      "question_id": "Q2",
+      "latest_answer_turn_id": "T6",
+      "assessment_status": "assessable",
+      "answer_kind": "substantive",
+      "topic_scores": [
+        {
+          "competency_id": "C2",
+          "score": 4,
+          "confidence": "high",
+          "evidence": [
+            {
+              "turn_id": "T6",
+              "quote": "I would durably record an operation ID and state transition before dispatch, serialize conflicting updates, and reconcile unknown provider outcomes using the same identity before another attempt.",
+              "observation": "Demonstrates clear understanding of durable operation states, concurrency control, and safe status reconciliation for uncertain timeouts."
+            }
+          ],
+          "missing_evidence": []
+        },
+        {
+          "competency_id": "C4",
+          "score": 4,
+          "confidence": "medium",
+          "evidence": [
+            {
+              "turn_id": "T6",
+              "quote": "I would durably record an operation ID and state transition before dispatch, serialize conflicting updates",
+              "observation": "Shows consistency and transactional safety in data state management before retries."
+            }
+          ],
+          "missing_evidence": []
+        }
+      ],
+      "claim_updates": [],
+      "consistency_findings": [],
+      "unverified_statements": [],
+      "next_action": "advance",
+      "probe_type": "none",
+      "follow_up": null,
+      "next_action_reason": "The candidate has provided a thorough, senior-level response explaining operation IDs, state transitions, concurrency serialization, and reconciliation of unknown outcomes, fully satisfying the requirements for this case."
+    },
+    {
+      "question_id": "Q3",
+      "latest_answer_turn_id": "T8",
+      "assessment_status": "assessable",
+      "answer_kind": "substantive",
+      "topic_scores": [
+        {
+          "competency_id": "C1",
+          "score": 4,
+          "confidence": "high",
+          "evidence": [
+            {
+              "turn_id": "T8",
+              "quote": "I would stop the retry rollout, preserve affected operation IDs, reconcile uncertain provider outcomes and coordinate customer-impact review. Recovery would be bounded and verified before restoring retries.",
+              "observation": "Candidate clearly addresses bounded rollout stop, customer impact triage, evidence preservation, and recovery ownership matching anchor 4."
+            }
+          ],
+          "missing_evidence": []
+        },
+        {
+          "competency_id": "C5",
+          "score": 4,
+          "confidence": "high",
+          "evidence": [
+            {
+              "turn_id": "T8",
+              "quote": "I would stop the retry rollout, preserve affected operation IDs, reconcile uncertain provider outcomes and coordinate customer-impact review.",
+              "observation": "Demonstrates operational debugging and containment under ambiguous provider failure states."
+            }
+          ],
+          "missing_evidence": []
+        }
+      ],
+      "claim_updates": [],
+      "consistency_findings": [],
+      "unverified_statements": [],
+      "next_action": "advance",
+      "probe_type": "none",
+      "follow_up": null,
+      "next_action_reason": "The candidate has provided a thorough, well-reasoned answer meeting the criteria for a high competency score (level 4) covering containment, reconciliation, and verification."
+    },
+    {
+      "question_id": "Q4",
+      "latest_answer_turn_id": "T10",
+      "assessment_status": "assessable",
+      "answer_kind": "substantive",
+      "topic_scores": [
+        {
+          "competency_id": "C2",
+          "score": 4,
+          "confidence": "high",
+          "evidence": [
+            {
+              "turn_id": "T10",
+              "quote": "I owned the decision to keep a single service for the first release because delivery time was constrained. We rejected an early service split, recorded coupling costs, and set a review when independent release needs emerged.",
+              "observation": "Clearly explains the architectural trade-off, alternatives rejected, and reassessment conditions."
+            }
+          ],
+          "missing_evidence": []
+        },
+        {
+          "competency_id": "C3",
+          "score": 4,
+          "confidence": "high",
+          "evidence": [
+            {
+              "turn_id": "T10",
+              "quote": "I owned the decision to keep a single service for the first release because delivery time was constrained.",
+              "observation": "Demonstrates direct personal ownership of a delivery-constrained architectural decision."
+            }
+          ],
+          "missing_evidence": []
+        }
+      ],
+      "claim_updates": [],
+      "consistency_findings": [],
+      "unverified_statements": [],
+      "next_action": "advance",
+      "probe_type": "none",
+      "follow_up": null,
+      "next_action_reason": "The candidate fully addressed the architectural trade-off, explaining alternatives, ownership boundary, result, and reassessment conditions, matching a score of 4."
+    },
+    {
+      "question_id": "Q5",
+      "latest_answer_turn_id": "T12",
+      "assessment_status": "assessable",
+      "answer_kind": "substantive",
+      "topic_scores": [
+        {
+          "competency_id": "C4",
+          "score": 5,
+          "confidence": "high",
+          "evidence": [
+            {
+              "turn_id": "T12",
+              "quote": "I would preserve both rows, compare their operation identity with provider evidence, audit the mismatch, and make a controlled repeatable correction. Concurrent reconciliation needs an explicit ownership rule.",
+              "observation": "Candidate covers provider source comparison, immutable audit, controlled correction, repeatability, and concurrent reconciliation."
+            }
+          ],
+          "missing_evidence": []
+        },
+        {
+          "competency_id": "C5",
+          "score": 5,
+          "confidence": "high",
+          "evidence": [
+            {
+              "turn_id": "T12",
+              "quote": "I would preserve both rows, compare their operation identity with provider evidence, audit the mismatch, and make a controlled repeatable correction. Concurrent reconciliation needs an explicit ownership rule.",
+              "observation": "Candidate demonstrates clear operational debugging regarding duplicate records and concurrency safety."
+            }
+          ],
+          "missing_evidence": []
+        }
+      ],
+      "claim_updates": [],
+      "consistency_findings": [],
+      "unverified_statements": [],
+      "next_action": "advance",
+      "probe_type": "none",
+      "follow_up": null,
+      "next_action_reason": "The candidate provided a comprehensive, high-scoring response covering all anchors including concurrent reconciliation and provider source comparison. No further probes are needed."
+    }
+  ],
+  "claim_ledger": [
+    {
+      "claim_id": "R1",
+      "text": "Reduced payment failures by 30% with queue-based retries.",
+      "source_ref": {
+        "source_id": "CV1",
+        "quote": "I reduced payment failures by 30% by adding queue-based retry workflows."
+      },
+      "competency_ids": [
+        "C1",
+        "C3"
+      ],
+      "priority": "high",
+      "status": "supported_in_interview",
+      "evidence_turn_ids": [
+        "T4"
+      ],
+      "verification_focus": "Failure mechanism, personal contribution and metric definition."
+    }
+  ],
+  "metrics": {
+    "competencies": [
+      {
+        "competency_id": "C1",
+        "weight": 30,
+        "critical": true,
+        "eligible_question_ids": [
+          "Q1",
+          "Q3"
+        ],
+        "sufficient": true,
+        "score": 4.0
+      },
+      {
+        "competency_id": "C2",
+        "weight": 25,
+        "critical": true,
+        "eligible_question_ids": [
+          "Q2",
+          "Q4"
+        ],
+        "sufficient": true,
+        "score": 4.0
+      },
+      {
+        "competency_id": "C3",
+        "weight": 20,
+        "critical": false,
+        "eligible_question_ids": [
+          "Q1",
+          "Q4"
+        ],
+        "sufficient": true,
+        "score": 4.0
+      },
+      {
+        "competency_id": "C4",
+        "weight": 15,
+        "critical": false,
+        "eligible_question_ids": [
+          "Q2",
+          "Q5"
+        ],
+        "sufficient": true,
+        "score": 4.5
+      },
+      {
+        "competency_id": "C5",
+        "weight": 10,
+        "critical": false,
+        "eligible_question_ids": [
+          "Q3",
+          "Q5"
+        ],
+        "sufficient": true,
+        "score": 4.5
+      }
+    ],
+    "coverage_percent": 100,
+    "overall_score": 4.125,
+    "signal": "positive_signal_with_follow_up"
+  },
+  "report": {
+    "summary": "The candidate demonstrated strong senior-level engineering competencies across payment reliability, distributed systems, ownership, data correctness, and operational debugging. They provided clear mechanisms for durable state tracking, handling uncertain provider timeouts, bounding retries, and safely executing reconciliation processes. The candidate's resume claim regarding queue-based retries was well-supported, showing clear personal contribution and architectural reasoning under constraints.",
+    "coverage_percent": 100,
+    "overall_score": 4.125,
+    "recommendation": "positive_signal_with_follow_up",
+    "competency_findings": [
+      {
+        "competency_id": "C1",
+        "score": 4.0,
+        "finding": "Demonstrated solid understanding of payment reliability, robust retry mechanisms, bounded limits, and operational containment under ambiguous provider states.",
+        "evidence": [
+          {
+            "turn_id": "T4",
+            "quote": "I owned the retry worker and its durable operation state. The same operation key was reused, and unknown provider outcomes were reconciled before retry. We bounded retries; I cannot confirm the original metric denominator from memory.",
+            "observation": "Explains handling of uncertain provider outcomes via operation keys, reconciliation, and bounded limits."
+          },
+          {
+            "turn_id": "T8",
+            "quote": "I would stop the retry rollout, preserve affected operation IDs, reconcile uncertain provider outcomes and coordinate customer-impact review. Recovery would be bounded and verified before restoring retries.",
+            "observation": "Candidate clearly addresses bounded rollout stop, customer impact triage, evidence preservation, and recovery ownership matching anchor 4."
+          }
+        ],
+        "gaps": [
+          "Exact metric denominator details for the reported improvement."
+        ]
+      },
+      {
+        "competency_id": "C2",
+        "score": 4.0,
+        "finding": "Showed deep familiarity with distributed systems, concurrency control, state transitions, and justified architectural trade-offs under tight deadlines.",
+        "evidence": [
+          {
+            "turn_id": "T6",
+            "quote": "I would durably record an operation ID and state transition before dispatch, serialize conflicting updates, and reconcile unknown provider outcomes using the same identity before another attempt.",
+            "observation": "Demonstrates clear understanding of durable operation states, concurrency control, and safe status reconciliation for uncertain timeouts."
+          },
+          {
+            "turn_id": "T10",
+            "quote": "I owned the decision to keep a single service for the first release because delivery time was constrained. We rejected an early service split, recorded coupling costs, and set a review when independent release needs emerged.",
+            "observation": "Clearly explains the architectural trade-off, alternatives rejected, and reassessment conditions."
+          }
+        ],
+        "gaps": []
+      },
+      {
+        "competency_id": "C3",
+        "score": 4.0,
+        "finding": "Clearly articulated individual delivery ownership, worker maintenance, and responsibility for architecture trade-offs and retry mechanics.",
+        "evidence": [
+          {
+            "turn_id": "T4",
+            "quote": "I owned the retry worker and its durable operation state.",
+            "observation": "Demonstrates clear individual contribution and ownership of the retry worker and durable state."
+          },
+          {
+            "turn_id": "T10",
+            "quote": "I owned the decision to keep a single service for the first release because delivery time was constrained.",
+            "observation": "Demonstrates direct personal ownership of a delivery-constrained architectural decision."
+          }
+        ],
+        "gaps": []
+      },
+      {
+        "competency_id": "C4",
+        "score": 4.5,
+        "finding": "Addressed transactional safety, idempotent operation identity, and meticulous audit and correction mechanisms for duplicate data rows.",
+        "evidence": [
+          {
+            "turn_id": "T6",
+            "quote": "I would durably record an operation ID and state transition before dispatch, serialize conflicting updates",
+            "observation": "Shows consistency and transactional safety in data state management before retries."
+          },
+          {
+            "turn_id": "T12",
+            "quote": "I would preserve both rows, compare their operation identity with provider evidence, audit the mismatch, and make a controlled repeatable correction. Concurrent reconciliation needs an explicit ownership rule.",
+            "observation": "Candidate covers provider source comparison, immutable audit, controlled correction, repeatability, and concurrent reconciliation."
+          }
+        ],
+        "gaps": []
+      },
+      {
+        "competency_id": "C5",
+        "score": 4.5,
+        "finding": "Strong demonstration of operational debugging under ambiguous provider outcomes, incident triage, and safe recovery workflows.",
+        "evidence": [
+          {
+            "turn_id": "T8",
+            "quote": "I would stop the retry rollout, preserve affected operation IDs, reconcile uncertain provider outcomes and coordinate customer-impact review.",
+            "observation": "Demonstrates operational debugging and containment under ambiguous provider failure states."
+          },
+          {
+            "turn_id": "T12",
+            "quote": "I would preserve both rows, compare their operation identity with provider evidence, audit the mismatch, and make a controlled repeatable correction. Concurrent reconciliation needs an explicit ownership rule.",
+            "observation": "Candidate demonstrates clear operational debugging regarding duplicate records and concurrency safety."
+          }
+        ],
+        "gaps": []
+      }
+    ],
+    "claim_findings": [
+      {
+        "claim_id": "R1",
+        "status": "supported_in_interview",
+        "explanation": "The candidate explained the failure mechanisms, durable operation states, reuse of operation keys, and bounding of retries to address payment failures safely.",
+        "evidence_turn_ids": [
+          "T4"
+        ]
+      }
+    ],
+    "next_step": {
+      "type": "focused_follow_up",
+      "purpose": "Clarify provider-specific guarantee integration details and verify precise metric definitions for the reported failure reduction.",
+      "questions_or_criteria": [
+        "Provide further detail on how provider-specific guarantee boundaries (e.g., webhook vs. poll) interact with your durable operation state.",
+        "Clarify the exact calculation or denominator behind the reported 30% payment failure reduction."
+      ]
+    },
+    "limitations": [
+      "This report represents interview evidence only and requires human review; it is not an autonomous hiring decision.",
+      "Provider-specific guarantee edge cases were not deeply evaluated due to missing optional setup info.",
+      "The exact metric denominator for claim R1 was not fully detailed from memory during the session."
+    ]
+  },
+  "passed": true
+}

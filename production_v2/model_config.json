@@ -1,0 +1,5 @@
+{
+  "model": "gemini-3.8-flash",
+  "available_via_models_api": true,
+  "output_token_limit": 65536
+}

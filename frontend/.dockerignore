@@ -1,0 +1,12 @@
+node_modules
+.next
+!.next/standalone
+!.next/static
+.git
+.env*
+!.env.example
+test-results
+playwright-report
+coverage
+e2e
+*.md

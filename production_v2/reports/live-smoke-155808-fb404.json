@@ -1,0 +1,48 @@
+{
+  "suite": "smoke",
+  "model": "gemini-3.5-flash",
+  "prompt_version": "2.0.0",
+  "started_at": "2026-09-10T15:58:08+0530",
+  "synthetic_data_only": true,
+  "results": [
+    {
+      "name": "stage-02",
+      "repeat": 1,
+      "stage": "02",
+      "passed": true,
+      "reason": "ok",
+      "metadata": {
+        "elapsed_seconds": 3.547,
+        "attempts": 1,
+        "usage": {
+          "promptTokenCount": 1680,
+          "candidatesTokenCount": 81,
+          "totalTokenCount": 2348,
+          "promptTokensDetails": [
+            {
+              "modality": "TEXT",
+              "tokenCount": 1680
+            }
+          ],
+          "thoughtsTokenCount": 587,
+          "serviceTier": "standard"
+        }
+      },
+      "response": {
+        "schema_version": "2.0.0",
+        "request_id": "LIVE-stage-02-72a796b4",
+        "status": "ok",
+        "issues": [],
+        "data": {
+          "kind": "follow_up",
+          "question_id": "Q1",
+          "candidate_message": "How did you distinguish an unsuccessful operation from one that completed before the timeout?",
+          "expected_input": "interview_answer"
+        }
+      }
+    }
+  ],
+  "passed": 1,
+  "total": 1,
+  "finished_at": "2026-09-10T15:58:12+0530"
+}

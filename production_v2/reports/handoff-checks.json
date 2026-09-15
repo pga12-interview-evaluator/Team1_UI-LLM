@@ -1,0 +1,14 @@
+{
+  "passed": 7,
+  "checks": [
+    "unique HTML IDs",
+    "all internal and local file links resolve",
+    "no remote runtime assets",
+    "embedded bundle matches canonical prompt/schema/evidence/hash fields",
+    "all eight schema hashes match",
+    "actual API credential absent from all generated text files",
+    "current test and full-session evidence embedded"
+  ],
+  "secret_scan_files": 28,
+  "credential_hits": 0
+}
