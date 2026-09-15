@@ -1,6 +1,6 @@
 # Team1_UI-LLM
 
-Team 1 — UI + LLM layer of the PGA12 interview evaluator. Frontend in `frontend/`, prompt packs in `prompts_v2/` and `production_v2/`, speech-to-text prototype in `voice_to_text/`.
+Team 1 — UI + LLM layer of the PGA12 interview evaluator. Frontend in `frontend/`, prompt packs in `prompts_v2/` and `production_v2/`, speech-to-text prototype in `voice_to_text/`. **New here? Read [HANDOFF.md](HANDOFF.md) first** (state, run steps, gaps, ownership).
 
 # AI Interview Taker — LLM layer
 
