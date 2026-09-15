@@ -9,7 +9,7 @@ _Last updated 2026-09-15 · repo `pga12-interview-evaluator/Team1_UI-LLM` · mai
 | Cross-examination prompt pack (01 blueprint → 02 interviewer → 03 evaluator → 04 report) + contracts | `prompts_v2/` | Done. `contracts_version 2.1.1`. Live smoke 33/33 on `gemini-3.5-flash` (`prompts_v2/tests/`) |
 | Frontend: candidate interview studio, practice workspace, recruiter console | `frontend/` (Next.js 16) | Done. Light professional theme, animations, a11y, e2e |
 | **Real backend inside the app** (`/api/v1`): resume ingest → Gemini 01/02/03/04 → report | `frontend/src/server/` | Done, verified end to end with a real resume |
-| Voice answers → Whisper | `frontend/src/lib/media/wav.ts` + `voice_to_text/server.py` | Done. Browser sends 16 kHz WAV; FastAPI wrapper over the team's `voice_to_text.py` |
+| Voice answers → Whisper | `frontend/src/lib/media/wav.ts` + `voice_to_text/server.py` | Done. Browser sends 16 kHz WAV; FastAPI wrapper over `voice_to_text.py`, which carries Team 2's decoding settings (Hinglish/tech base prompt, beam 5, no-speech 0.6 — see `voice_to_text/team2/README.md`) |
 | Mock backend for demos / e2e (no keys) | `frontend/src/mock/` (`/api/mock`) | Done. `NEXT_PUBLIC_API_MODE=mock` |
 | Executable Python runtime from the parallel track | `production_v2/` | Reference only; different payload shapes, not wired to the UI |
 | Guides | `AI_Interview_System_Guide_v2.html`, `AI_Interview_Production_Playbook_v2.html`, `legacy_v1/` | Reference |

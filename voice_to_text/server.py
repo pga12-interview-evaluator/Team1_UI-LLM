@@ -1,6 +1,6 @@
 """Whisper transcription HTTP service for the interview BFF.
 
-Wraps voice_to_text.transcribe() — same model, same settings, no ffmpeg. The browser sends
+Wraps voice_to_text.transcribe() — Team 2 decoding settings (see team2/README.md), no ffmpeg. The browser sends
 16 kHz mono 16-bit WAV (frontend/src/lib/media/wav.ts), any WAV is auto-resampled anyway.
 
 Run:
@@ -66,7 +66,7 @@ def warm_up() -> None:
 
 @app.get("/health")
 def health() -> dict:
-    return {"ok": True, "model": MODEL_NAME}
+    return {"ok": True, "model": MODEL_NAME, "beam_size": v2t.BEAM_SIZE}
 
 
 @app.post("/transcribe")

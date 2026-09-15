@@ -39,7 +39,7 @@ Terminal 1 — Whisper service (loads the model once; ~20 s on CPU):
 ```bash
 cd voice_to_text
 pip install -r requirements.txt
-python server.py                    # http://127.0.0.1:8008  (WHISPER_MODEL=small for better Hinglish)
+python server.py                    # http://127.0.0.1:8008  (WHISPER_MODEL=small for better Hinglish; WHISPER_BEAM_SIZE=1 for speed)
 ```
 
 Terminal 2 — the app:

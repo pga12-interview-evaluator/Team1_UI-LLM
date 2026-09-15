@@ -16,6 +16,7 @@ Install:
 
 import argparse
 import json
+import os
 import queue
 import sys
 import threading
@@ -38,7 +39,7 @@ SAMPLE_WIDTH = 2               # int16
 CALIBRATION_SEC = 0.7          # sample ambient noise before recording
 THRESHOLD_MULTIPLIER = 2.5     # voice = rms > noise_floor * this
 MIN_THRESHOLD = 300            # never go below this (int16 rms)
-SILENCE_LIMIT_SEC = 5.0        # stop after this much trailing silence
+SILENCE_LIMIT_SEC = 4.0        # stop after this much trailing silence (Team 2 setting)
 START_TIMEOUT_SEC = 10.0       # abort if no voice within this window
 MAX_RECORD_SEC = 120.0         # hard cap
 
@@ -49,6 +50,17 @@ LANGUAGE = None                # "hi", "en", or None = auto-detect
 # In the interview system, build this from the resume + JD.
 VOCAB_HINT = ""                # e.g. "Chaitanya Rana, Vishwakarma College of Engineering, SQL, inner join"
 FP16 = False                   # must be False on CPU
+
+# Team 2 decoding settings (voice_to_text/team2/voice_to_textproject.ipynb).
+# Base prompt tells Whisper to expect Hinglish + data/tech vocabulary; the per-session
+# VOCAB_HINT (candidate name, JD terms) is appended to it.
+BASE_PROMPT = (
+    "This is a Hindi and English mixed voice transcription. "
+    "The speaker may talk about Python, machine learning, data analytics, Excel, SQL, "
+    "Power BI, Tableau, statistics, data science and technology."
+)
+BEAM_SIZE = int(os.environ.get("WHISPER_BEAM_SIZE", "5"))   # 5 = Team 2 default; 1 = fastest on CPU
+NO_SPEECH_THRESHOLD = 0.6      # drop segments Whisper thinks are silence
 
 _MODEL_CACHE: dict = {}
 
@@ -178,6 +190,12 @@ def record_until_silence(
 # ---------------------------------------------------------------------------
 
 
+def build_prompt(vocab_hint: str = "") -> str:
+    """Team 2 base prompt + optional per-session vocabulary hint."""
+    hint = (vocab_hint or "").strip()
+    return f"{BASE_PROMPT} {hint}".strip() if hint else BASE_PROMPT
+
+
 def load_model(name: str = MODEL_NAME):
     if name not in _MODEL_CACHE:
         print(f"Loading Whisper '{name}'...", flush=True)
@@ -210,8 +228,12 @@ def transcribe(
         task="transcribe",                 # never "translate": keep source language
         fp16=FP16,
         temperature=0.0,                   # deterministic, less hallucination
-        condition_on_previous_text=False,  # stops repeat-loop hallucinations
-        initial_prompt=vocab_hint or None,     # bias spelling of names / domain terms
+        beam_size=BEAM_SIZE,               # Team 2: beam search, better Hinglish decoding
+        no_speech_threshold=NO_SPEECH_THRESHOLD,
+        # Team 2's notebook uses condition_on_previous_text=True; kept False here because
+        # it causes repeat-loop hallucinations on long interview answers.
+        condition_on_previous_text=False,
+        initial_prompt=build_prompt(vocab_hint),  # Hinglish/tech base + names / domain terms
     )
     return {
         "text": result["text"].strip(),
@@ -258,8 +280,10 @@ def _transcribe_segment(model, audio, language, prev_text):
         task="transcribe",
         fp16=FP16,
         temperature=0.0,
+        beam_size=BEAM_SIZE,
+        no_speech_threshold=NO_SPEECH_THRESHOLD,
         condition_on_previous_text=False,
-        initial_prompt=prev_text[-200:] or None,  # vocabulary continuity between segments
+        initial_prompt=build_prompt(prev_text[-200:]),  # vocabulary continuity between segments
     )
     kept = [s for s in result.get("segments", []) if s.get("no_speech_prob", 0) < NO_SPEECH_PROB]
     return " ".join(s["text"].strip() for s in kept).strip(), result.get("language")
