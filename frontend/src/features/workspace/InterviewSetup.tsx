@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState, type FormEvent } from "react";
+import { useSyncExternalStore, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Alert, Button } from "@/components/ui";
 import { Icon } from "@/components/ui/Icon";
@@ -8,8 +8,18 @@ import { practiceCreatedSchema, practiceInputSchema, resumeError } from "@/lib/a
 import { publicEnv } from "@/lib/config/env";
 import { saveSession } from "./history";
 import { WorkspaceShell } from "./WorkspaceShell";
+const subscribeNoop = () => () => {};
+/** false during SSR and until React attaches handlers; true once hydrated on the client. */
+function useHydrated(): boolean {
+  return useSyncExternalStore(
+    subscribeNoop,
+    () => true,
+    () => false,
+  );
+}
 export function InterviewSetup() {
   const router = useRouter();
+  const hydrated = useHydrated();
   const [file, setFile] = useState<File | null>(null);
   const [dragging, setDragging] = useState(false);
   const [role, setRole] = useState("");
@@ -74,7 +84,9 @@ export function InterviewSetup() {
         </div>
       )}
       <div className="setup-layout">
-        <form onSubmit={submit} className="setup-card">
+        {/* method="post": if the browser ever submits natively (before hydration), the resume
+            and job description must not be leaked into the URL as a GET query string. */}
+        <form onSubmit={submit} method="post" className="setup-card">
           <fieldset disabled={busy}>
             <section className="setup-section">
               <h2>First, your resume</h2>
@@ -204,7 +216,7 @@ export function InterviewSetup() {
             )}
             <div className="setup-actions">
               <span>No email. No invitation link. Just you.</span>
-              <Button type="submit" loading={busy}>
+              <Button type="submit" loading={busy} disabled={!hydrated}>
                 {busy ? "Preparing your session" : "Continue to device setup"}
                 <Icon name="arrow" size={17} />
               </Button>
