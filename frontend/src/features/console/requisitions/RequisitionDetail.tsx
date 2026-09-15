@@ -19,6 +19,7 @@ import {
 } from "@/components/ui";
 import { ApiError } from "@/lib/api/client";
 import type { InviteResponse, Requisition } from "@/lib/api/schemas/console";
+import { publicEnv } from "@/lib/config/env";
 import { PageHeader } from "../components/ConsoleShell";
 import { LoadError } from "../components/LoadError";
 import { PressureBadge, RequisitionStatusBadge } from "../components/StatusBadge";
@@ -34,6 +35,8 @@ export function RequisitionDetail({ id }: { id: string }) {
   const toast = useToast();
   const [editing, setEditing] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
+  // Real mode derives one read-only requisition per practice session; the lifecycle lives at /setup.
+  const readOnly = publicEnv.NEXT_PUBLIC_API_MODE === "real";
   const [label, setLabel] = useState("");
   const [lastInvite, setLastInvite] = useState<InviteResponse | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -88,16 +91,23 @@ export function RequisitionDetail({ id }: { id: string }) {
           <>
             <RequisitionStatusBadge status={requisition.status} />
             <PressureBadge level={requisition.pressure_level} />
-            <Button
-              variant="secondary"
-              onClick={() => setEditing(true)}
-              disabled={requisition.status === "frozen"}
-            >
-              Edit
-            </Button>
-            {!requisition.blueprint ||
-            requisition.status === "draft" ||
-            requisition.status === "blueprint_review" ? (
+            {readOnly ? (
+              <Link href="/setup">
+                <Button variant="secondary">New practice interview</Button>
+              </Link>
+            ) : null}
+            {readOnly ? null : (
+              <Button
+                variant="secondary"
+                onClick={() => setEditing(true)}
+                disabled={requisition.status === "frozen"}
+              >
+                Edit
+              </Button>
+            )}
+            {readOnly ? null : !requisition.blueprint ||
+              requisition.status === "draft" ||
+              requisition.status === "blueprint_review" ? (
               <Button
                 variant="secondary"
                 onClick={() =>
@@ -111,7 +121,7 @@ export function RequisitionDetail({ id }: { id: string }) {
                 {requisition.blueprint ? "Regenerate blueprint" : "Generate blueprint"}
               </Button>
             ) : null}
-            {requisition.blueprint && requisition.status !== "frozen" ? (
+            {!readOnly && requisition.blueprint && requisition.status !== "frozen" ? (
               <Button
                 onClick={() =>
                   run(() => freeze.mutateAsync(), {
@@ -125,7 +135,7 @@ export function RequisitionDetail({ id }: { id: string }) {
                 Freeze blueprint
               </Button>
             ) : null}
-            {requisition.status === "frozen" ? (
+            {!readOnly && requisition.status === "frozen" ? (
               <Button onClick={() => setInviteOpen(true)}>Invite candidate</Button>
             ) : null}
           </>
@@ -166,8 +176,8 @@ export function RequisitionDetail({ id }: { id: string }) {
               <div>
                 <p className="text-ink-muted text-xs font-semibold uppercase">Must-have</p>
                 <div className="mt-1 flex flex-wrap gap-1">
-                  {requisition.must_have_skills.map((skill) => (
-                    <Badge key={skill} tone="brand">
+                  {requisition.must_have_skills.map((skill, index) => (
+                    <Badge key={`${index}-${skill}`} tone="brand">
                       {skill}
                     </Badge>
                   ))}
@@ -177,8 +187,8 @@ export function RequisitionDetail({ id }: { id: string }) {
                 <p className="text-ink-muted text-xs font-semibold uppercase">Nice-to-have</p>
                 <div className="mt-1 flex flex-wrap gap-1">
                   {requisition.nice_to_have_skills.length ? (
-                    requisition.nice_to_have_skills.map((skill) => (
-                      <Badge key={skill}>{skill}</Badge>
+                    requisition.nice_to_have_skills.map((skill, index) => (
+                      <Badge key={`${index}-${skill}`}>{skill}</Badge>
                     ))
                   ) : (
                     <span className="text-ink-muted">—</span>
@@ -302,8 +312,8 @@ function BlueprintView({ requisition }: { requisition: Requisition }) {
       {!blueprint.validation.passed ? (
         <Alert tone="bad" title="Validation failed">
           <ul className="list-disc pl-5">
-            {blueprint.validation.failures.map((failure) => (
-              <li key={failure}>{failure}</li>
+            {blueprint.validation.failures.map((failure, index) => (
+              <li key={`${index}-${failure}`}>{failure}</li>
             ))}
           </ul>
         </Alert>

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Alert, Button, Skeleton, Table, Td, Th } from "@/components/ui";
+import { publicEnv } from "@/lib/config/env";
 import { formatDateTime } from "@/lib/utils/time";
 import { PageHeader } from "../components/ConsoleShell";
 import { PressureBadge, RequisitionStatusBadge } from "../components/StatusBadge";
@@ -13,15 +14,35 @@ export function RequisitionList() {
     <>
       <PageHeader
         title="Requisitions"
-        description="One requisition per role. Generate and freeze the blueprint before inviting candidates."
+        description={
+          publicEnv.NEXT_PUBLIC_API_MODE === "real"
+            ? "One read-only requisition per practice session. New interviews are created from the candidate setup page."
+            : "One requisition per role. Generate and freeze the blueprint before inviting candidates."
+        }
         actions={
-          <Link href="/console/requisitions/new">
-            <Button>New requisition</Button>
-          </Link>
+          publicEnv.NEXT_PUBLIC_API_MODE === "real" ? (
+            <Link href="/setup">
+              <Button>New practice interview</Button>
+            </Link>
+          ) : (
+            <Link href="/console/requisitions/new">
+              <Button>New requisition</Button>
+            </Link>
+          )
         }
       />
       {query.isPending ? <Skeleton className="h-40 w-full" /> : null}
-      {query.isError ? <Alert tone="bad">Could not load requisitions.</Alert> : null}
+      {query.isError ? (
+        <Alert tone="bad">
+          Could not load requisitions. {query.error instanceof Error ? query.error.message : null}
+          {process.env.NODE_ENV !== "production" &&
+          (query.error as { details?: unknown })?.details ? (
+            <pre className="mt-2 overflow-x-auto text-xs">
+              {JSON.stringify((query.error as { details?: unknown }).details, null, 2)}
+            </pre>
+          ) : null}
+        </Alert>
+      ) : null}
       {query.data ? (
         <Table>
           <thead>

@@ -125,14 +125,20 @@ export async function callGemini<T = unknown>(
     let data: T;
     try {
       data = JSON.parse(extractJson(raw)) as T;
-    } catch {
-      if (candidate?.finishReason === "MAX_TOKENS" && attempt < retries) {
+    } catch (parseError) {
+      // Malformed JSON is usually a one-off (truncation, a stray fence, an unescaped quote):
+      // one fresh attempt beats failing the whole interview. Keep the tail for the audit log.
+      if (attempt < retries) {
         attempt += 1;
+        await sleep(1000 * attempt);
         continue;
       }
+      const tail = raw.replace(/\s+/g, " ").slice(-160);
       throw new GeminiError(
         422,
-        `Gemini output was not valid JSON (finishReason=${candidate?.finishReason ?? "?"}).`,
+        `Gemini output was not valid JSON (finishReason=${candidate?.finishReason ?? "?"}, ${String(
+          (parseError as Error).message,
+        ).slice(0, 80)}). Tail: …${tail}`,
       );
     }
     return {

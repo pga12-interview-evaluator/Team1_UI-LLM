@@ -154,8 +154,8 @@ function Evaluations({ items }: { items: EvaluationSummary[] }) {
   if (!items.length) return <p className="text-ink-muted">No evaluations yet.</p>;
   return (
     <div className="flex flex-col gap-4">
-      {items.map((evaluation) => (
-        <Card key={evaluation.answer_id}>
+      {items.map((evaluation, index) => (
+        <Card key={`${evaluation.answer_id}-${index}`}>
           <CardHeader
             title={
               <span className="font-mono text-sm">
@@ -265,8 +265,8 @@ function BudgetAudit({ detail }: { detail: SessionDetailType }) {
         </tr>
       </thead>
       <tbody>
-        {detail.budget_audit.map((row) => (
-          <tr key={row.answer_id}>
+        {detail.budget_audit.map((row, index) => (
+          <tr key={`${row.answer_id}-${index}`}>
             <Td className="font-mono text-xs">{row.answer_id}</Td>
             <Td>
               {row.pattern_weight} ({row.distinct_moderate} moderate)

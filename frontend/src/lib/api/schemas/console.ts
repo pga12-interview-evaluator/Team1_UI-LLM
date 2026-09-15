@@ -105,7 +105,12 @@ export const blueprintSummarySchema = z.object({
 });
 export type BlueprintSummary = z.infer<typeof blueprintSummarySchema>;
 
+// Read shape: input minimums (>=1 must-have skill, >=50-char JD) are enforced when a requisition
+// is created, not when one is displayed — a practice session whose blueprint is still generating
+// or failed has neither yet and must still list.
 export const requisitionSchema = requisitionBaseSchema.extend({
+  job_description: z.string().max(20_000),
+  must_have_skills: z.array(z.string().min(1).max(80)).max(12),
   requisition_id: z.string(),
   status: requisitionStatusSchema,
   created_at: z.string(),

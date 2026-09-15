@@ -195,6 +195,29 @@ const num = (v: unknown, fallback: number | null = null): number | null =>
 const arr = <T>(v: unknown, map: (item: Dict) => T): T[] =>
   Array.isArray(v) ? v.filter((x) => x && typeof x === "object").map((x) => map(x as Dict)) : [];
 const strs = (v: unknown): string[] => (Array.isArray(v) ? v.map(String) : []);
+/** 04 emits `{statement, evidence_refs[]}` items; the console lists plain lines. */
+const statementLines = (v: unknown): string[] =>
+  Array.isArray(v)
+    ? v.map((item) => {
+        if (typeof item === "string") return item;
+        const row = (item ?? {}) as Dict;
+        const refs = strs(row.evidence_refs);
+        return `${String(row.statement ?? "")}${refs.length ? ` [${refs.join(", ")}]` : ""}`;
+      })
+    : [];
+/** 04 §3.10c: `{claim_id, claim_text, why_unsupported, missing_parts[]}` → one reviewer-readable line. */
+const unverifiedLines = (v: unknown): string[] =>
+  Array.isArray(v)
+    ? v.map((item) => {
+        if (typeof item === "string") return item;
+        const row = (item ?? {}) as Dict;
+        const missing = strs(row.missing_parts);
+        const why = String(row.why_unsupported ?? "not_probed").replace(/_/g, " ");
+        return `${String(row.claim_id ?? "claim")}: ${String(row.claim_text ?? "")} — ${why}${
+          missing.length ? ` (missing: ${missing.join("; ")})` : ""
+        }`;
+      })
+    : [];
 const oneOf = <T extends string>(v: unknown, allowed: readonly T[], fallback: T): T =>
   allowed.includes(v as T) ? (v as T) : fallback;
 
@@ -376,9 +399,9 @@ export function projectReport(session: RealSession): FinalReport {
         ),
       })),
     },
-    demonstrated_strengths: strs(raw.demonstrated_strengths),
-    material_gaps_or_risks: strs(raw.material_gaps_or_risks),
-    unverified_claims: strs(raw.unverified_claims),
+    demonstrated_strengths: statementLines(raw.demonstrated_strengths),
+    material_gaps_or_risks: statementLines(raw.material_gaps_or_risks),
+    unverified_claims: unverifiedLines(raw.unverified_claims),
     recommendation: oneOf(
       raw.recommendation,
       [

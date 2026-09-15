@@ -194,8 +194,8 @@ export function ReportView({ id }: { id: string }) {
               <div>
                 {report.pattern_summary.length ? (
                   <ul className="flex flex-col gap-2 text-sm">
-                    {report.pattern_summary.map((pattern) => (
-                      <li key={pattern.pattern}>
+                    {report.pattern_summary.map((pattern, index) => (
+                      <li key={`${pattern.pattern}-${index}`}>
                         <Badge tone="warn">{pattern.pattern}</Badge>{" "}
                         <span className="text-ink-muted">×{pattern.occurrences}</span>
                         {pattern.example_quotes.map((quote, index) => (
@@ -217,8 +217,8 @@ export function ReportView({ id }: { id: string }) {
               <div>
                 {report.candid_signals_summary.length ? (
                   <ul className="flex flex-col gap-2 text-sm">
-                    {report.candid_signals_summary.map((signal) => (
-                      <li key={signal.signal}>
+                    {report.candid_signals_summary.map((signal, index) => (
+                      <li key={`${signal.signal}-${index}`}>
                         <Badge tone="ok">{signal.signal}</Badge>{" "}
                         <span className="text-ink-muted">×{signal.occurrences}</span>
                         <p className="border-line text-ink-muted mt-1 border-l-2 pl-3">
@@ -276,9 +276,11 @@ export function ReportView({ id }: { id: string }) {
                 </p>
                 <p className="text-ink-muted">{report.recommended_next_step.purpose}</p>
                 <ul className="text-ink-muted mt-1 list-disc pl-5">
-                  {report.recommended_next_step.targeted_questions_or_criteria.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
+                  {report.recommended_next_step.targeted_questions_or_criteria.map(
+                    (item, index) => (
+                      <li key={`${index}-${item}`}>{item}</li>
+                    ),
+                  )}
                 </ul>
               </div>
             </CardBody>
@@ -325,8 +327,8 @@ export function ReportView({ id }: { id: string }) {
                   {item.claim_id}: “{item.quote}”
                 </p>
               ))}
-              {report.ownership_profile.notes.map((note) => (
-                <p key={note} className="text-ink-muted mt-1">
+              {report.ownership_profile.notes.map((note, index) => (
+                <p key={`${index}-${note}`} className="text-ink-muted mt-1">
                   {note}
                 </p>
               ))}
@@ -428,8 +430,8 @@ function ListBlock({
       <p className={`text-xs font-semibold uppercase ${color}`}>{title}</p>
       {items.length ? (
         <ul className="mt-1 list-disc pl-5">
-          {items.map((item) => (
-            <li key={item}>{item}</li>
+          {items.map((item, index) => (
+            <li key={`${index}-${item}`}>{item}</li>
           ))}
         </ul>
       ) : (
