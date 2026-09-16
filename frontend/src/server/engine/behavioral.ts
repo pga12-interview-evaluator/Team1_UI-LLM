@@ -1,6 +1,7 @@
 import "server-only";
 import { z } from "zod";
 import type { BodyLanguageResult } from "../bodyLanguage";
+import type { Team4Speech } from "../whisper";
 
 /**
  * 00 §12 — behavioral signals. This module is the ONLY place behavioral data is shaped:
@@ -20,6 +21,34 @@ const CONFIDENT_FRAMES = 20;
 const GAZE_SHIFT_MED_PCT = -20;
 const GAZE_SHIFT_HIGH_PCT = -40;
 const SUSTAINED_OFF_SCREEN_MIN_MS = 3000;
+/** `long_pause`: longest silence at least this long AND at least double the warm-up baseline. */
+const LONG_PAUSE_MED_MS = 4000;
+const LONG_PAUSE_HIGH_MS = 8000;
+/** `speech_rate_shift`: words/min change vs the candidate's own baseline (percent). */
+const RATE_SHIFT_SLOW_PCT = -35;
+const RATE_SHIFT_FAST_PCT = 50;
+/** Team 4 counts words from the transcript; below this an answer is too short to judge pace. */
+const MIN_SPEECH_WORDS = 15;
+
+/** Camera producer absent (typed answer, camera off, service down). */
+const EMPTY_DERIVED: BodyLanguageResult["derived"] = {
+  calibrated: false,
+  duration_ms: 0,
+  frames_total: 0,
+  frames_detected: 0,
+  coverage_ratio: 0,
+  on_screen_ratio: 0,
+  off_screen_saccade_count: 0,
+  sustained_off_screen_ms_max: 0,
+  off_screen_events: [],
+  face_visible_ratio: 0,
+  posture_shift_count: 0,
+  face_out_of_frame_ms: 0,
+  face_absent_events: [],
+  processing_latency_ms: 0,
+  analysis_mode: "rule_based",
+  service_version: "none",
+};
 
 /** §12.1 denylist: any of these keys at any depth rejects the whole envelope. */
 const DENYLIST = new Set([
@@ -88,6 +117,25 @@ export const envelopeSchema = z
         })
         .strict(),
     ),
+    speech: z
+      .object({
+        words_per_minute: metric,
+        filler_rate_per_min: metric,
+        pause_count_over_2s: metric,
+        longest_pause_ms: metric,
+        restart_count: metric,
+        asr_confidence_mean: z.number().min(0).max(1),
+      })
+      .strict()
+      .optional(),
+    fluency: z
+      .object({
+        hesitation_score: metric,
+        reading_cadence_score: metric,
+        events: z.array(timedEvent),
+      })
+      .strict()
+      .optional(),
     gaze: z
       .object({
         on_screen_ratio: metric,
@@ -190,10 +238,18 @@ export function buildEnvelope(input: {
   question_id: string;
   turn_index: number;
   calibration: boolean;
-  result: BodyLanguageResult;
+  /** Team 3 camera result; null when no frames were captured for this answer. */
+  result: BodyLanguageResult | null;
+  /** Team 4 speech analysis of the recorded answer; null for typed answers. */
+  speech?: Team4Speech | null;
   baseline: BehavioralEnvelope | null;
 }): BehavioralEnvelope {
-  const d = input.result.derived;
+  const d = input.result?.derived ?? EMPTY_DERIVED;
+  const sp = input.speech ?? null;
+  const speechOk = !!sp && sp.total_words >= MIN_SPEECH_WORDS && sp.duration >= 2;
+  const speechConfidence = speechOk ? 1 : sp ? 0.4 : 0;
+  const fillerRate =
+    sp && sp.duration > 0 ? Number(((sp.filler_count / sp.duration) * 60).toFixed(2)) : 0;
   const sufficiency = Math.min(1, d.frames_detected / CONFIDENT_FRAMES);
   const confidence = Number((Math.min(1, d.coverage_ratio) * sufficiency).toFixed(3));
   const status =
@@ -220,16 +276,16 @@ export function buildEnvelope(input: {
     producers: [
       {
         service: "speech_features",
-        model_version: "none",
-        status: "missing",
-        coverage_ratio: 0,
+        model_version: sp ? `team4/${sp.source.split("@")[1] ?? "notebook"}` : "none",
+        status: speechOk ? "ok" : sp ? "degraded" : "missing",
+        coverage_ratio: sp ? 1 : 0,
         processing_latency_ms: 0,
       },
       {
         service: "fluency",
-        model_version: "none",
-        status: "missing",
-        coverage_ratio: 0,
+        model_version: sp ? `team4/${sp.source.split("@")[1] ?? "notebook"}` : "none",
+        status: speechOk ? "ok" : sp ? "degraded" : "missing",
+        coverage_ratio: sp ? 1 : 0,
         processing_latency_ms: 0,
       },
       {
@@ -247,6 +303,53 @@ export function buildEnvelope(input: {
         processing_latency_ms: d.processing_latency_ms,
       },
     ],
+    ...(sp
+      ? {
+          speech: {
+            words_per_minute: metricOf(sp.wpm, speechConfidence, b?.speech?.words_per_minute.value),
+            filler_rate_per_min: metricOf(
+              fillerRate,
+              speechConfidence,
+              b?.speech?.filler_rate_per_min.value,
+            ),
+            pause_count_over_2s: metricOf(
+              sp.long_pauses,
+              speechConfidence,
+              b?.speech?.pause_count_over_2s.value,
+            ),
+            longest_pause_ms: metricOf(
+              Math.round(sp.longest_pause * 1000),
+              speechConfidence,
+              b?.speech?.longest_pause_ms.value,
+            ),
+            restart_count: metricOf(
+              sp.repetition_count,
+              speechConfidence,
+              b?.speech?.restart_count.value,
+            ),
+            asr_confidence_mean: 1,
+          },
+          fluency: {
+            // Team 4's fluency_score is 100 = clean; hesitation is its complement on a 0-1 scale.
+            hesitation_score: metricOf(
+              Number((1 - sp.fluency_score / 100).toFixed(3)),
+              speechConfidence,
+              b?.fluency?.hesitation_score.value,
+            ),
+            reading_cadence_score: metricOf(0, 0, null),
+            events:
+              sp.longest_pause >= 2
+                ? [
+                    {
+                      type: "long_pause",
+                      at_ms: 0,
+                      duration_ms: Math.round(sp.longest_pause * 1000),
+                    },
+                  ]
+                : [],
+          },
+        }
+      : {}),
     gaze: {
       on_screen_ratio: metricOf(d.on_screen_ratio, confidence, b?.gaze.on_screen_ratio.value),
       off_screen_saccade_count: metricOf(
@@ -296,8 +399,8 @@ export function buildEnvelope(input: {
       confidence,
     })),
     baseline_delta: {
-      words_per_minute_pct: null,
-      filler_rate_pct: null,
+      words_per_minute_pct: sp ? pct(sp.wpm, b?.speech?.words_per_minute.value) : null,
+      filler_rate_pct: sp ? pct(fillerRate, b?.speech?.filler_rate_per_min.value) : null,
       on_screen_ratio_pct: pct(d.on_screen_ratio, b?.gaze.on_screen_ratio.value),
     },
   };
@@ -313,7 +416,7 @@ export function behavioralToAttention(
   envelope: BehavioralEnvelope,
   baseline: BehavioralEnvelope | null,
 ): { flags: AttentionFlagItem[]; availability: FlagsAvailability } {
-  const producerOk = (service: "gaze" | "body") => {
+  const producerOk = (service: "gaze" | "body" | "speech_features") => {
     const producer = envelope.producers.find((p) => p.service === service);
     return (
       !!producer && producer.status === "ok" && producer.coverage_ratio >= MIN_PRODUCER_COVERAGE
@@ -321,11 +424,37 @@ export function behavioralToAttention(
   };
   const gazeUsable = producerOk("gaze");
   const bodyUsable = producerOk("body");
-  const availability: FlagsAvailability =
-    gazeUsable && bodyUsable ? "full" : gazeUsable || bodyUsable ? "partial" : "none";
-  if (envelope.calibration || !baseline || !gazeUsable) return { flags: [], availability };
+  const speechUsable = producerOk("speech_features") && !!envelope.speech;
+  const usable = [gazeUsable, bodyUsable, speechUsable].filter(Boolean).length;
+  const availability: FlagsAvailability = usable === 3 ? "full" : usable > 0 ? "partial" : "none";
+  if (envelope.calibration || !baseline) return { flags: [], availability };
 
   const flags: AttentionFlagItem[] = [];
+  if (speechUsable && envelope.speech && baseline.speech) {
+    const pause = envelope.speech.longest_pause_ms;
+    if (
+      pause.confidence >= MIN_METRIC_CONFIDENCE &&
+      pause.value >= LONG_PAUSE_MED_MS &&
+      pause.baseline_delta_pct !== null &&
+      pause.baseline_delta_pct >= 100
+    ) {
+      flags.push({
+        flag: "long_pause",
+        strength: pause.value >= LONG_PAUSE_HIGH_MS ? "high" : "med",
+        span_hint_text: null,
+      });
+    }
+    const rate = envelope.speech.words_per_minute;
+    if (
+      rate.confidence >= MIN_METRIC_CONFIDENCE &&
+      rate.baseline_delta_pct !== null &&
+      (rate.baseline_delta_pct <= RATE_SHIFT_SLOW_PCT ||
+        rate.baseline_delta_pct >= RATE_SHIFT_FAST_PCT)
+    ) {
+      flags.push({ flag: "speech_rate_shift", strength: "med", span_hint_text: null });
+    }
+  }
+  if (!gazeUsable) return { flags, availability };
   const onScreen = envelope.gaze.on_screen_ratio;
   const sustained = envelope.gaze.sustained_off_screen_ms_max;
   let gazeStrength: AttentionFlagItem["strength"] | null = null;

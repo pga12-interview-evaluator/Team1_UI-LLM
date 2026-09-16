@@ -7,7 +7,7 @@ import {
 } from "@/lib/api/schemas/review";
 import { loadBehavioral } from "../behavioralStore";
 import type { RealSession } from "../store";
-import { speechMetrics, speechNotes, type SpeechMetrics } from "./speech";
+import { speechMetrics, speechNotes } from "./speech";
 
 type Dict = Record<string, unknown>;
 
@@ -74,6 +74,17 @@ const TURN_KIND: Record<string, string> = {
   clarification_reveal: "clarification",
 };
 
+const CLAIM_STATUS: Record<string, string> = {
+  supported: "Supported — you backed it up",
+  partially_supported: "Partly supported",
+  unresolved_after_probing: "Unresolved — the follow-up did not settle it",
+  not_tested: "Not tested — the interview ended first",
+  conflicting_with_quotes: "Conflicts with something else you said",
+  revised_by_candidate: "You revised it yourself",
+  withheld_confidential: "Withheld as confidential",
+  not_their_scope: "Outside your scope",
+};
+
 const label = (map: Record<string, string>, key: string) =>
   map[key] ?? key.replace(/^B\d+_/, "").replace(/_/g, " ");
 
@@ -100,9 +111,44 @@ function followUpFor(transcript: TranscriptEntry[], answerIndex: number): string
     : null;
 }
 
-function durationFor(session: RealSession, answer: TranscriptEntry): number | null {
-  const ref = Object.values(session.media_refs).find((m) => m.turn_index === answer.turn_index - 1);
-  return ref?.duration_sec ?? null;
+function mediaFor(session: RealSession, answer: TranscriptEntry) {
+  return Object.values(session.media_refs).find((m) => m.turn_index === answer.turn_index - 1);
+}
+
+/** Per-answer speech block: Team 4's analysis when the answer was spoken, transcript metrics otherwise. */
+function speechFor(
+  text: string,
+  media: ReturnType<typeof mediaFor>,
+): NonNullable<ReviewAnswer["speech"]> {
+  const base = speechMetrics(text, media?.duration_sec ?? null);
+  const t4 = media?.speech ?? null;
+  if (!t4)
+    return {
+      ...base,
+      filler_words: {},
+      repetitions: [],
+      long_pauses: 0,
+      longest_pause_sec: 0,
+      fluency_score: null,
+    };
+  return {
+    words: t4.total_words || base.words,
+    duration_sec: t4.duration,
+    words_per_minute: t4.wpm ? Math.round(t4.wpm) : base.words_per_minute,
+    filler_count: t4.filler_count,
+    fillers_per_100_words: t4.total_words
+      ? Number(((t4.filler_count / t4.total_words) * 100).toFixed(1))
+      : 0,
+    top_fillers: Object.entries(t4.filler_words)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([w, n]) => `${w} ×${n}`),
+    filler_words: t4.filler_words,
+    repetitions: t4.repetitions,
+    long_pauses: t4.long_pauses,
+    longest_pause_sec: t4.longest_pause,
+    fluency_score: t4.fluency_score,
+  };
 }
 
 function presenceFor(session: RealSession, answerId: string) {
@@ -166,6 +212,7 @@ function reportSection(session: RealSession, report: FinalReport | null): Practi
         demonstrated_up_to: ceiling?.demonstrated_up_to ?? "not_assessed",
         bar: ceiling?.seniority_bar_rung ?? "not_assessed",
         gap: c.evidence_gap,
+        evidence: c.evidence_for,
       };
     }),
     strengths: feedback?.strengths_in_plain_language.length
@@ -174,6 +221,33 @@ function reportSection(session: RealSession, report: FinalReport | null): Practi
     gaps: report.material_gaps_or_risks,
     practice_suggestions: feedback?.practice_suggestions ?? [],
     unverified_claims: report.unverified_claims,
+    claims: report.claim_ledger_resolution.map((c) => ({
+      claim_id: c.claim_id,
+      text: c.claim_text,
+      materiality: c.materiality,
+      status: c.final_status,
+      status_label: CLAIM_STATUS[c.final_status] ?? c.final_status.replace(/_/g, " "),
+      why: c.why_unsupported,
+      quotes: c.quotes,
+    })),
+    metrics: report.metric_table.map((m) => ({
+      claim_id: m.claim_id,
+      headline: m.headline,
+      status: m.metric_status,
+      parts: m.parts,
+    })),
+    patterns: report.pattern_summary.map((p) => ({
+      label: label(PATTERN_LABELS, p.pattern),
+      occurrences: p.occurrences,
+      example: p.example_quotes[0] ?? "",
+    })),
+    pressure: {
+      narrative: report.pressure_response_summary.narrative,
+      by_question: report.pressure_response_summary.specificity_trend_by_question.map((q) => ({
+        question_id: q.question_id,
+        direction: q.direction,
+      })),
+    },
   };
 }
 
@@ -188,7 +262,7 @@ export function buildPracticeReview(
 ): PracticeReview {
   const names = competencyNames(session);
   const transcript = session.transcript;
-  const speechByAnswer: SpeechMetrics[] = [];
+  const speechByAnswer: NonNullable<ReviewAnswer["speech"]>[] = [];
   const answers: ReviewAnswer[] = [];
   const presenceEnabled =
     session.consent.behavioral_analysis_consent &&
@@ -207,7 +281,7 @@ export function buildPracticeReview(
     const evaluation = queues.get(entry.answer_id)?.shift();
     // A candidate turn with no evaluation (repeat/rephrase request, empty answer) is not an answer.
     if (!evaluation || entry.text === "[no answer]") return;
-    const speech = speechMetrics(entry.text, durationFor(session, entry));
+    const speech = speechFor(entry.text, mediaFor(session, entry));
     speechByAnswer.push(speech);
     answers.push({
       answer_id: entry.answer_id,
@@ -287,6 +361,26 @@ export function buildPracticeReview(
               )
             : 0,
           notes: speechNotes(speechByAnswer),
+          filler_words: speechByAnswer.reduce<Record<string, number>>((acc, m) => {
+            for (const [w, n] of Object.entries(m.filler_words)) acc[w] = (acc[w] ?? 0) + n;
+            return acc;
+          }, {}),
+          repetition_count: speechByAnswer.reduce((s, m) => s + m.repetitions.length, 0),
+          long_pauses: speechByAnswer.reduce((s, m) => s + m.long_pauses, 0),
+          longest_pause_sec: Math.max(0, ...speechByAnswer.map((m) => m.longest_pause_sec)),
+          fluency_score: (() => {
+            const scored = speechByAnswer.filter((m) => m.fluency_score !== null);
+            return scored.length
+              ? Number(
+                  (scored.reduce((s, m) => s + (m.fluency_score ?? 0), 0) / scored.length).toFixed(
+                    1,
+                  ),
+                )
+              : null;
+          })(),
+          source: speechByAnswer.some((m) => m.fluency_score !== null)
+            ? "Team 4 speech analysis (fillers, repetitions, pauses, fluency)"
+            : null,
         }
       : null,
     presence_summary: presenceBase

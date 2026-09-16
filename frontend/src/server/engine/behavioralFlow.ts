@@ -8,6 +8,7 @@ import {
   type FlagInfluence,
 } from "../behavioralStore";
 import { audit, type RealSession } from "../store";
+import type { Team4Speech } from "../whisper";
 import { behavioralToAttention, buildEnvelope, type AttentionFlagItem } from "./behavioral";
 
 /**
@@ -44,12 +45,18 @@ export function releaseCapture(session: RealSession): void {
  */
 export async function ingestAnswerSignals(
   session: RealSession,
-  answer: { answer_id: string; question_id: string; turn_index: number },
+  answer: {
+    answer_id: string;
+    question_id: string;
+    turn_index: number;
+    speech?: Team4Speech | null;
+  },
 ): Promise<void> {
   const record = loadBehavioral(session.session_id);
   record.pending = null;
   const result = await finalizeTurn(session.session_id, answer.turn_index);
-  if (!result || result.derived.frames_total === 0) {
+  const cameraResult = result && result.derived.frames_total > 0 ? result : null;
+  if (!cameraResult && !answer.speech) {
     record.answers_without_signals.push(answer.answer_id);
     saveBehavioral(record);
     return;
@@ -65,7 +72,8 @@ export async function ingestAnswerSignals(
       question_id: answer.question_id,
       turn_index: answer.turn_index,
       calibration,
-      result,
+      result: cameraResult,
+      speech: answer.speech ?? null,
       baseline,
     });
     const { flags, availability } = behavioralToAttention(envelope, baseline);
@@ -78,7 +86,9 @@ export async function ingestAnswerSignals(
       availability,
       influenced: "none",
       attention_flag_use: null,
-      team3: { report: result.report, percentages: result.percentages },
+      team3: cameraResult
+        ? { report: cameraResult.report, percentages: cameraResult.percentages }
+        : { report: {}, percentages: {} },
     };
     if (calibration && availability !== "none") record.baseline_answer_id = answer.answer_id;
     record.pending = { answer_id: answer.answer_id, flags };

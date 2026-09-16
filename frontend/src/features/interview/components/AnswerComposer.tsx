@@ -58,7 +58,8 @@ export function AnswerComposer({
     stream: media.stream,
     enabled: behavioralCapture,
     turnIndex: turn.turn_index,
-    active: turn.requires_answer && !busy,
+    // Camera frames belong to the answer, not to the reading time before it.
+    active: turn.requires_answer && !busy && (effectiveModality !== "voice" || media.recording),
   });
 
   const submit = useCallback(
@@ -132,12 +133,12 @@ export function AnswerComposer({
     onExpire: () => void submit(true),
   });
 
-  // Voice: start recording as soon as a question that requires an answer is on screen.
-  useEffect(() => {
-    if (effectiveModality !== "voice" || !turn.requires_answer || !media.stream) return;
+  // Voice: recording starts only when the candidate presses "Start answering". Auto-starting
+  // made the microphone capture the question being read aloud, which then landed in the transcript.
+  const startAnswer = () => {
+    if (typeof speechSynthesis !== "undefined") speechSynthesis.cancel();
     media.startRecording(turn.turn_index);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [turn.turn_index, effectiveModality, media.stream]);
+  };
 
   // Optional live captions of the candidate's own speech (never the record of the answer).
   useEffect(() => {
@@ -226,9 +227,16 @@ export function AnswerComposer({
               </div>
             ) : null}
             {!media.recording ? (
-              <Button variant="secondary" onClick={() => media.startRecording(turn.turn_index)}>
-                {t.interview.startRecording}
-              </Button>
+              <div className="flex flex-col gap-2">
+                <Button size="lg" onClick={startAnswer} disabled={busy}>
+                  <span
+                    aria-hidden
+                    className="bg-bad mr-1 inline-block size-2.5 rounded-full"
+                  />
+                  {t.interview.startRecording}
+                </Button>
+                <p className="text-ink-muted text-xs">{t.interview.startHint}</p>
+              </div>
             ) : null}
           </div>
         ) : (

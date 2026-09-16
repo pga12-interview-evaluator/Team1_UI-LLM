@@ -5,6 +5,7 @@ import { Alert, Button } from "@/components/ui";
 import { Icon } from "@/components/ui/Icon";
 import { recordingFilename } from "@/features/recordings/storage";
 import type { useMediaCapture } from "../hooks/useMediaCapture";
+import { InterviewClock } from "./InterviewClock";
 import { useSessionRecording } from "../hooks/useSessionRecording";
 export function StudioMedia({
   media,
@@ -14,6 +15,8 @@ export function StudioMedia({
   consent,
   title,
   question,
+  elapsedSeconds,
+  durationMinutes,
 }: {
   media: ReturnType<typeof useMediaCapture>;
   active: boolean;
@@ -22,6 +25,8 @@ export function StudioMedia({
   consent: boolean;
   title: string;
   question: string;
+  elapsedSeconds: number;
+  durationMinutes: number;
 }) {
   const recording = useSessionRecording({ stream: media.stream, title, question });
   const { start, pause, resume, stop, stopSharing, status } = recording;
@@ -69,6 +74,11 @@ export function StudioMedia({
   return (
     <aside className="studio-side">
       <h2>Your studio</h2>
+      <InterviewClock
+        elapsedSeconds={elapsedSeconds}
+        durationMinutes={durationMinutes}
+        running={active && !paused && !finished}
+      />
       {hasCamera ? (
         <video
           className="studio-video"

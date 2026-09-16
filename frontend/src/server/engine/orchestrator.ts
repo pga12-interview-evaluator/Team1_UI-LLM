@@ -5,6 +5,7 @@ import { callGemini, GeminiError } from "../gemini";
 import { promptVersions, renderPrompt } from "../prompts";
 import { audit, db, save, type RealSession } from "../store";
 import { transcribeWav } from "../whisper";
+import { stripQuestionEcho } from "./echo";
 import {
   captureEnabled,
   disableCapture,
@@ -629,6 +630,7 @@ export async function transcribeMedia(session: RealSession, mediaRef: string): P
     turn_index: stored?.turn_index ?? session.turn_index,
     transcript: result.text,
     duration_sec: Number.isFinite(result.duration_sec) ? result.duration_sec : null,
+    speech: result.speech ?? null,
   };
   db().audio.delete(mediaRef);
   return result.text;
@@ -642,7 +644,20 @@ export async function answer(
   let text = payload.text.trim();
   if (payload.media_ref) {
     try {
-      const transcript = await transcribeMedia(session, payload.media_ref);
+      let transcript = await transcribeMedia(session, payload.media_ref);
+      // The mic often hears the question being read aloud before the answer starts.
+      const asked = session.current_turn?.candidate_message ?? session.pending_question_text ?? "";
+      if (asked) {
+        const cleaned = stripQuestionEcho(transcript, asked);
+        if (cleaned.removed_words > 0) {
+          transcript = cleaned.text;
+          audit(
+            "schema_repair",
+            `question echo removed from voice answer (${cleaned.removed_words} words)`,
+            session.session_id,
+          );
+        }
+      }
       text = [transcript, text].filter(Boolean).join(" ").trim();
     } catch (caught) {
       audit(
@@ -681,6 +696,7 @@ export async function answer(
       answer_id: answerId,
       question_id: session.current_question_id,
       turn_index: payload.turn_index,
+      speech: payload.media_ref ? (session.media_refs[payload.media_ref]?.speech ?? null) : null,
     });
 
   try {
@@ -1057,7 +1073,8 @@ export function versionBundle(): Record<string, string> {
     prompt_versions: `blueprint ${versions["01"]} · interviewer ${versions["02"]} · evaluator ${versions["03"]} · final ${versions["04"]}`,
     contracts_version: versions.contracts,
     model_id: process.env.GEMINI_MODEL ?? "gemini-3.5-flash",
-    signal_schema_version: "behavioral_signals/1.0 · fusion_rules/1.0-gaze-body · producer team3 body language",
+    signal_schema_version:
+      "behavioral_signals/1.0 · fusion_rules/1.0-gaze-body · producer team3 body language",
     policy_version: "pl-2026-09",
   };
 }

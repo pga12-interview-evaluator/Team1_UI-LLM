@@ -128,6 +128,8 @@ export function InterviewShell({ token }: { token: string }) {
               consent={!!view?.consent.recording_consent}
               title={view?.job_title ?? "Interview"}
               question={view?.current_turn?.candidate_message ?? ""}
+              elapsedSeconds={view?.elapsed_seconds ?? 0}
+              durationMinutes={view?.duration_minutes ?? 0}
             />
           )}
         </div>

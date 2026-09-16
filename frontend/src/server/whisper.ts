@@ -1,11 +1,29 @@
 import "server-only";
 import { getServerEnv } from "@/lib/config/env";
 
+/** Team 4 speech analysis (voice_to_text/team4_speech.py), returned with every transcription. */
+export interface Team4Speech {
+  duration: number;
+  total_words: number;
+  wpm: number;
+  filler_count: number;
+  filler_words: Record<string, number>;
+  repetition_count: number;
+  repetitions: string[];
+  total_pauses: number;
+  long_pauses: number;
+  average_pause: number;
+  longest_pause: number;
+  fluency_score: number;
+  source: string;
+}
+
 export interface Transcription {
   text: string;
   language: string | null;
   duration_sec: number;
   segments: { start: number; end: number; text: string }[];
+  speech?: Team4Speech | null;
 }
 
 /**

@@ -59,7 +59,7 @@ resume + role ──▶ 01 blueprint ──▶ opening script ──▶ 02 live 
 │  ├─ src/mock/                 in-app mock backend for demos and e2e
 │  └─ docs/                     RUNBOOK · ARCHITECTURE · api-contract · FRONTEND-HANDOFF
 ├─ prompts_v2/                  CONTRACTS TRACK — 00 shared contracts (v2.1.1) + prompts 01–04 + live smoke tests
-├─ voice_to_text/               FastAPI wrapper over Whisper (16 kHz WAV in, transcript out); Team 2 source in team2/
+├─ voice_to_text/               FastAPI wrapper over Whisper (16 kHz WAV in, transcript + Team 4 speech analysis out); Team 2 source in team2/, Team 4 notebook in team4/
 ├─ body_language/               FastAPI wrapper over Team 3's body-language analysis (frames in, non-scored signals out)
 ├─ Team3_Body_language/         Team 3's script + models, untouched (imported by body_language/server.py)
 ├─ production_v2/               EXECUTABLE TRACK — Python runtime + composed prompt pack (reference only, not wired to UI)

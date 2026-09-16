@@ -11,7 +11,8 @@ Run:
 Endpoints:
     GET  /health                → {"ok": true, "model": "base"}
     POST /transcribe            multipart: file=<wav>, language=<hi|en|''>, hint=<vocab>
-                                → {"text", "language", "duration_sec", "transcribe_sec", "segments"}
+                                → {"text", "language", "duration_sec", "transcribe_sec", "segments",
+                                   "speech": Team 4 fillers / repetitions / pauses / wpm / fluency_score}
 """
 
 from __future__ import annotations
@@ -30,6 +31,7 @@ from scipy.io import wavfile
 from scipy.signal import resample_poly
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import team4_speech  # noqa: E402  (Team 4 fillers / pauses / fluency, loaded verbatim from their notebook)
 import voice_to_text as v2t  # noqa: E402
 
 MODEL_NAME = os.environ.get("WHISPER_MODEL", v2t.MODEL_NAME)
@@ -107,6 +109,11 @@ async def transcribe(
     t0 = time.time()
     result = v2t.transcribe(audio, language=lang, model_name=MODEL_NAME, vocab_hint=hint.strip())
     result["transcribe_sec"] = round(time.time() - t0, 2)
+    try:
+        result["speech"] = team4_speech.analyze(result["text"], result["segments"], result["duration_sec"])
+    except Exception as exc:  # noqa: BLE001 — coaching extras never fail a transcription
+        print(f"team4 speech analysis skipped: {exc}")
+        result["speech"] = None
     return result
 
 

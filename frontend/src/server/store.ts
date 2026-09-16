@@ -22,6 +22,7 @@ import type {
   CandidateSessionStatus,
   CandidateTurnDto,
 } from "@/lib/api/schemas/candidate";
+import type { Team4Speech } from "./whisper";
 
 /**
  * Real-mode session record. Persisted as JSON under DATA_DIR so a dev-server restart does not
@@ -85,7 +86,13 @@ export interface RealSession {
   answer_ids: Record<string, string>; // turn_index -> answer_id
   media_refs: Record<
     string,
-    { turn_index: number; transcript: string | null; duration_sec?: number | null }
+    {
+      turn_index: number;
+      transcript: string | null;
+      duration_sec?: number | null;
+      /** Team 4 fillers / pauses / fluency for this recording (coaching only). */
+      speech?: Team4Speech | null;
+    }
   >;
   report_raw: Record<string, unknown> | null;
   human_decision: HumanDecision | null;

@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 const { assertNoDenylistedKeys, behavioralToAttention, buildEnvelope, envelopeSchema } =
   await import("./behavioral");
-type Result = Parameters<typeof buildEnvelope>[0]["result"];
+type Result = NonNullable<Parameters<typeof buildEnvelope>[0]["result"]>;
 
 function result(over: Partial<Result["derived"]> = {}): Result {
   return {
@@ -127,5 +127,75 @@ describe("behavioralToAttention (00 §12.2)", () => {
     const { flags } = behavioralToAttention(env, base);
     expect(flags).toHaveLength(1);
     expect(Object.keys(flags[0]!)).toEqual(["flag", "strength", "span_hint_text"]);
+  });
+});
+
+describe("Team 4 speech producer (00 §12.1 speech/fluency)", () => {
+  const speech = (
+    over: Partial<NonNullable<Parameters<typeof buildEnvelope>[0]["speech"]>> = {},
+  ) => ({
+    duration: 40,
+    total_words: 90,
+    wpm: 135,
+    filler_count: 3,
+    filler_words: { um: 2, like: 1 },
+    repetition_count: 1,
+    repetitions: ["the"],
+    total_pauses: 2,
+    long_pauses: 1,
+    average_pause: 1.8,
+    longest_pause: 2.4,
+    fluency_score: 90.5,
+    source: "team4/team4_capstone.ipynb@0a96cd5",
+    ...over,
+  });
+  const withSpeech = (
+    over: Parameters<typeof speech>[0],
+    calibration: boolean,
+    baseline: ReturnType<typeof buildEnvelope> | null,
+  ) =>
+    buildEnvelope({
+      session_id: "S_1",
+      answer_id: calibration ? "A_Q1_0" : "A_Q3_0",
+      question_id: calibration ? "Q1" : "Q3",
+      turn_index: calibration ? 1 : 3,
+      calibration,
+      result: null,
+      speech: speech(over),
+      baseline,
+    });
+
+  it("builds a speech-only envelope for a typed-camera-off voice answer", () => {
+    const env = withSpeech({}, true, null);
+    expect(env.producers.map((p) => `${p.service}:${p.status}`)).toEqual([
+      "speech_features:ok",
+      "fluency:ok",
+      "gaze:missing",
+      "body:missing",
+    ]);
+    expect(env.speech?.words_per_minute.value).toBe(135);
+    expect(env.fluency?.hesitation_score.value).toBeCloseTo(0.095, 3);
+    expect(env.fluency?.events[0]?.type).toBe("long_pause");
+  });
+
+  it("flags long_pause and speech_rate_shift only against the candidate's own baseline", () => {
+    const base = withSpeech({}, true, null);
+    const paused = withSpeech({ longest_pause: 9, wpm: 60 }, false, base);
+    const { flags, availability } = behavioralToAttention(paused, base);
+    expect(availability).toBe("partial");
+    expect(flags).toEqual([
+      { flag: "long_pause", strength: "high", span_hint_text: null },
+      { flag: "speech_rate_shift", strength: "med", span_hint_text: null },
+    ]);
+    expect(
+      behavioralToAttention(withSpeech({ longest_pause: 2.6 }, false, base), base).flags,
+    ).toEqual([]);
+  });
+
+  it("degrades the producer on very short answers so nothing flags", () => {
+    const base = withSpeech({}, true, null);
+    const tiny = withSpeech({ total_words: 4, longest_pause: 12 }, false, base);
+    expect(tiny.producers[0]?.status).toBe("degraded");
+    expect(behavioralToAttention(tiny, base).flags).toEqual([]);
   });
 });
