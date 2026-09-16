@@ -726,7 +726,9 @@ function SpeechCard({
   summary: PracticeReview["speech_summary"];
   answers: ReviewAnswer[];
 }) {
-  const spoken = answers.filter((a) => a.speech && a.speech.segments.length);
+  const spoken = answers.filter(
+    (a) => a.speech && (a.speech.segments.length || (a.speech.duration_sec && a.speech.words)),
+  );
   return (
     <Card>
       <CardBody className="flex flex-col gap-5 text-sm">
@@ -741,9 +743,7 @@ function SpeechCard({
               </div>
             ) : (
               <Alert tone="info">
-                {answers.some((a) => a.speech?.duration_sec)
-                  ? "This interview was recorded before delivery analysis was switched on, so there is no pace curve or rhythm for it. Your next voice interview will have them."
-                  : "The pace curve, rhythm strips and filler chart appear when you answer by voice."}
+                The pace curve, rhythm strips and filler chart appear when you answer by voice.
               </Alert>
             )}
             <div className="grid gap-4 md:grid-cols-[1fr_auto]">
@@ -828,7 +828,11 @@ function SpeechCard({
                           {answers.indexOf(a) + 1}
                         </span>
                         <RhythmStrip
-                          segments={sp.segments}
+                          segments={
+                            sp.segments.length
+                              ? sp.segments
+                              : [{ start: 0, end: sp.duration_sec ?? 0, words: sp.words }]
+                          }
                           duration={sp.duration_sec}
                           wpm={sp.words_per_minute}
                         />
@@ -845,6 +849,9 @@ function SpeechCard({
                 <p className="text-ink-muted mt-1 text-xs">
                   Coloured blocks are you talking; gaps are silence. Green = comfortable pace, amber
                   = slow or rushed.
+                  {spoken.some((a) => !a.speech?.segments.length)
+                    ? " Answers recorded before pause detection show as one block."
+                    : ""}
                 </p>
               </div>
             ) : null}

@@ -166,7 +166,13 @@ function paceCurve(
   const marks: { at: number; label: string }[] = [];
   let offset = 0;
   for (const { speech, label } of answers) {
-    const segs = speech.segments.filter((s) => s.end > s.start);
+    // Recordings made before segment storage existed still have a duration and a word count:
+    // treat the whole answer as one speaking block so every voice interview gets a curve.
+    const segs = speech.segments.length
+      ? speech.segments.filter((s) => s.end > s.start)
+      : speech.duration_sec && speech.words
+        ? [{ start: 0, end: speech.duration_sec, words: speech.words }]
+        : [];
     if (!segs.length) continue;
     marks.push({ at: offset, label });
     const answerEnd = Math.max(...segs.map((s) => s.end));
