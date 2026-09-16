@@ -41,8 +41,9 @@ def fresh(folder: Path) -> Path:
 def voice() -> None:
     out = fresh(OUT / "voice")
     shutil.copy(ROOT / "deploy/hf/Dockerfile.voice", out / "Dockerfile")
-    for name in ("voice_to_text.py", "server.py", "team4_speech.py"):
+    for name in ("voice_to_text.py", "server.py", "team2_settings.py", "team4_speech.py"):
         shutil.copy(ROOT / "voice_to_text" / name, out / name)
+    shutil.copytree(ROOT / "voice_to_text" / "team2", out / "team2", ignore=shutil.ignore_patterns("*.wav"))
     shutil.copytree(ROOT / "voice_to_text" / "team4", out / "team4")
     (out / "README.md").write_text(
         README.format(

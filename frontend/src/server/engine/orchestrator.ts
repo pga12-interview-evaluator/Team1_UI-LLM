@@ -631,6 +631,11 @@ export async function transcribeMedia(session: RealSession, mediaRef: string): P
     transcript: result.text,
     duration_sec: Number.isFinite(result.duration_sec) ? result.duration_sec : null,
     speech: result.speech ?? null,
+    segments: (result.segments ?? []).map((s) => ({
+      start: Number(s.start.toFixed(2)),
+      end: Number(s.end.toFixed(2)),
+      words: s.text.split(/\s+/).filter(Boolean).length,
+    })),
   };
   db().audio.delete(mediaRef);
   return result.text;

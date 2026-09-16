@@ -122,6 +122,7 @@ function speechFor(
 ): NonNullable<ReviewAnswer["speech"]> {
   const base = speechMetrics(text, media?.duration_sec ?? null);
   const t4 = media?.speech ?? null;
+  const segments = media?.segments ?? [];
   if (!t4)
     return {
       ...base,
@@ -130,6 +131,7 @@ function speechFor(
       long_pauses: 0,
       longest_pause_sec: 0,
       fluency_score: null,
+      segments,
     };
   return {
     words: t4.total_words || base.words,
@@ -148,6 +150,56 @@ function speechFor(
     long_pauses: t4.long_pauses,
     longest_pause_sec: t4.longest_pause,
     fluency_score: t4.fluency_score,
+    segments,
+  };
+}
+
+/**
+ * Words-per-minute over the interview's speaking time, kernel-smoothed (a KDE-style curve of
+ * pace). Answers are laid end to end; each speaking block contributes its own rate.
+ */
+function paceCurve(
+  answers: { speech: NonNullable<ReviewAnswer["speech"]>; label: string }[],
+  samples = 72,
+): NonNullable<NonNullable<PracticeReview["speech_summary"]>["pace_curve"]> | null {
+  const blocks: { start: number; end: number; wpm: number }[] = [];
+  const marks: { at: number; label: string }[] = [];
+  let offset = 0;
+  for (const { speech, label } of answers) {
+    const segs = speech.segments.filter((s) => s.end > s.start);
+    if (!segs.length) continue;
+    marks.push({ at: offset, label });
+    const answerEnd = Math.max(...segs.map((s) => s.end));
+    for (const s of segs) {
+      const seconds = s.end - s.start;
+      blocks.push({ start: offset + s.start, end: offset + s.end, wpm: (s.words / seconds) * 60 });
+    }
+    offset += answerEnd + 1.5; // a short gap between answers on the shared timeline
+  }
+  if (!blocks.length) return null;
+  const total = offset;
+  const bandwidth = Math.max(2, total * 0.04);
+  const points: number[] = [];
+  for (let i = 0; i < samples; i += 1) {
+    const t = (i / (samples - 1)) * total;
+    let weight = 0;
+    let sum = 0;
+    for (const b of blocks) {
+      const mid = (b.start + b.end) / 2;
+      const w = Math.exp(-0.5 * ((t - mid) / bandwidth) ** 2) * (b.end - b.start);
+      weight += w;
+      sum += w * b.wpm;
+    }
+    points.push(weight > 0 ? Math.round(sum / weight) : 0);
+  }
+  const spoken = blocks.reduce((s, b) => s + (b.end - b.start), 0);
+  const words = blocks.reduce((s, b) => s + (b.wpm * (b.end - b.start)) / 60, 0);
+  return {
+    points,
+    average: spoken ? Math.round((words / spoken) * 60) : 0,
+    peak: Math.max(...points),
+    total_seconds: Number(total.toFixed(1)),
+    answer_marks: marks.map((m) => ({ at: Number((m.at / total).toFixed(4)), label: m.label })),
   };
 }
 
@@ -240,6 +292,23 @@ function reportSection(session: RealSession, report: FinalReport | null): Practi
       label: label(PATTERN_LABELS, p.pattern),
       occurrences: p.occurrences,
       example: p.example_quotes[0] ?? "",
+    })),
+    candid: report.candid_signals_summary.map((s) => ({
+      label: label(CANDID_LABELS, s.signal),
+      occurrences: s.occurrences,
+      example: s.example_quote,
+    })),
+    ownership: {
+      expected: report.ownership_profile.expected_for_seniority,
+      demonstrated: report.ownership_profile.demonstrated_summary,
+      down_scopes: report.ownership_profile.honest_down_scopes,
+    },
+    consistency: report.consistency_notes.map((n) => ({
+      status: n.status.replace(/_/g, " "),
+      quote_a: n.quote_a,
+      quote_b: n.quote_b,
+      resolution: n.resolution_status.replace(/_/g, " "),
+      question: n.neutral_resolution_question,
     })),
     pressure: {
       narrative: report.pressure_response_summary.narrative,
@@ -381,6 +450,9 @@ export function buildPracticeReview(
           source: speechByAnswer.some((m) => m.fluency_score !== null)
             ? "Team 4 speech analysis (fillers, repetitions, pauses, fluency)"
             : null,
+          pace_curve: paceCurve(
+            answers.flatMap((a, i) => (a.speech ? [{ speech: a.speech, label: `${i + 1}` }] : [])),
+          ),
         }
       : null,
     presence_summary: presenceBase

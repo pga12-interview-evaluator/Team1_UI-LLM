@@ -92,6 +92,8 @@ export interface RealSession {
       duration_sec?: number | null;
       /** Team 4 fillers / pauses / fluency for this recording (coaching only). */
       speech?: Team4Speech | null;
+      /** Whisper segments as speaking blocks (seconds + word count) for the rhythm visuals. */
+      segments?: { start: number; end: number; words: number }[];
     }
   >;
   report_raw: Record<string, unknown> | null;

@@ -55,16 +55,25 @@ LANGUAGE = None                # "hi", "en", or None = auto-detect
 VOCAB_HINT = ""                # e.g. "Chaitanya Rana, Vishwakarma College of Engineering, SQL, inner join"
 FP16 = False                   # must be False on CPU
 
-# Team 2 decoding settings (voice_to_text/team2/voice_to_textproject.ipynb).
-# Base prompt tells Whisper to expect Hinglish + data/tech vocabulary; the per-session
-# VOCAB_HINT (candidate name, JD terms) is appended to it.
-BASE_PROMPT = (
-    "This is a Hindi and English mixed voice transcription. "
-    "The speaker may talk about Python, machine learning, data analytics, Excel, SQL, "
-    "Power BI, Tableau, statistics, data science and technology."
-)
-BEAM_SIZE = int(os.environ.get("WHISPER_BEAM_SIZE", "5"))   # 5 = Team 2 default; 1 = fastest on CPU
-NO_SPEECH_THRESHOLD = 0.6      # drop segments Whisper thinks are silence
+# Team 2 decoding settings, read from their notebook (team2/voice_to_textproject.ipynb) by
+# team2_settings.py: initial_prompt (Hinglish + data/tech vocabulary), beam_size, fp16,
+# no_speech_threshold. The per-session VOCAB_HINT (candidate name, JD terms) is appended to
+# their prompt. WHISPER_BEAM_SIZE env can lower beam size on a slow CPU.
+try:
+    from team2_settings import transcribe_kwargs as _team2_kwargs
+    TEAM2 = _team2_kwargs()
+except Exception as exc:  # noqa: BLE001 — notebook missing/unparseable: fall back to their known values
+    print(f"team2 settings fallback: {exc}")
+    TEAM2 = {
+        "fp16": False,
+        "beam_size": 5,
+        "initial_prompt": "This is a Hindi and English mixed voice transcription. The speaker may talk about Python, machine learning, data analytics, Excel, SQL, Power BI, Tableau, statistics, data science and technology.",
+        "no_speech_threshold": 0.6,
+    }
+BASE_PROMPT = str(TEAM2.get("initial_prompt") or "")
+BEAM_SIZE = int(os.environ.get("WHISPER_BEAM_SIZE", str(TEAM2.get("beam_size", 5))))
+NO_SPEECH_THRESHOLD = float(TEAM2.get("no_speech_threshold", 0.6))
+FP16 = bool(TEAM2.get("fp16", False)) if not FP16 else FP16
 
 _MODEL_CACHE: dict = {}
 

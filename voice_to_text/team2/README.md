@@ -3,7 +3,9 @@
 Original notebook from `pga12-interview-evaluator/Team_2_Voice_to_text` (commit `07496c4`).
 Record mic until 4 s of silence → save `audio.wav` → Whisper `small` transcription.
 
-What the app takes from it (merged into `../voice_to_text.py`, served by `../server.py`):
+What the app takes from it: `../team2_settings.py` parses this notebook with `ast` at start-up and
+hands `model.transcribe(...)`'s keyword arguments verbatim to `../voice_to_text.py`, so Team 2's
+committed parameters are the ones in use (change the notebook, restart the service):
 
 | Team 2 setting | Where it lives now |
 |---|---|

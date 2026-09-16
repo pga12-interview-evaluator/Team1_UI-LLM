@@ -54,6 +54,10 @@ export const reviewSpeechSchema = z.object({
   long_pauses: z.number().int().default(0),
   longest_pause_sec: z.number().default(0),
   fluency_score: z.number().nullable().default(null),
+  /** Speaking blocks within the recording (seconds from the start of the answer). */
+  segments: z
+    .array(z.object({ start: z.number(), end: z.number(), words: z.number().int() }))
+    .default([]),
 });
 
 export const reviewAnswerSchema = z.object({
@@ -121,6 +125,24 @@ export const practiceReviewSchema = z.object({
       patterns: z.array(
         z.object({ label: z.string(), occurrences: z.number().int(), example: z.string() }),
       ),
+      /** Candid moves credited across the interview. */
+      candid: z.array(z.object({ label: z.string(), occurrences: z.number().int(), example: z.string() })),
+      /** Ownership: what the role expects vs what your answers showed. */
+      ownership: z.object({
+        expected: z.string(),
+        demonstrated: z.string(),
+        down_scopes: z.array(z.object({ claim_id: z.string(), quote: z.string() })),
+      }),
+      /** Places where two statements did not line up. */
+      consistency: z.array(
+        z.object({
+          status: z.string(),
+          quote_a: z.string(),
+          quote_b: z.string(),
+          resolution: z.string(),
+          question: z.string(),
+        }),
+      ),
       /** How specific your answers got as the interviewer pushed. */
       pressure: z.object({
         narrative: z.string(),
@@ -143,6 +165,18 @@ export const practiceReviewSchema = z.object({
       longest_pause_sec: z.number().default(0),
       fluency_score: z.number().nullable().default(null),
       source: z.string().nullable().default(null),
+      /** Kernel-smoothed words-per-minute over the whole interview's speaking time (for the pace curve). */
+      pace_curve: z
+        .object({
+          points: z.array(z.number()),
+          average: z.number(),
+          peak: z.number(),
+          total_seconds: z.number(),
+          /** Where each answer starts on the curve, 0–1. */
+          answer_marks: z.array(z.object({ at: z.number(), label: z.string() })),
+        })
+        .nullable()
+        .default(null),
     })
     .nullable(),
   presence_summary: z
