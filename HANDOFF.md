@@ -1,6 +1,8 @@
 # Team 1 (UI + LLM) — Handoff
 
-_Last updated 2026-09-16 · repo `pga12-interview-evaluator/Team1_UI-LLM` · `main` = `prod` @ `6f65584`_
+_Last updated 2026-09-16 · repo `pga12-interview-evaluator/Team1_UI-LLM` · `main` = `prod` @ `4f68bba`_
+
+**LIVE (free tiers):** app `https://interviewly-ow35.onrender.com` (Render, branch `prod`, manual deploy from the Render dashboard after each push — public-URL blueprints do not auto-deploy) · Whisper `https://chaitanya-2002--interviewly-services-voice.modal.run` + body language `https://chaitanya-2002--interviewly-services-body.modal.run` (Modal app `interviewly-services`, redeploy with `deploy/.venv/Scripts/python -m modal deploy deploy/modal/interviewly_services.py`) · Redis `interviewly` on Upstash. Reviewer console password is in Render → Environment. Full cloud run verified 2026-09-16: resume → blueprint → voice answer via Modal → 02 follow-up → stop → review. Details: `DEPLOY.md`.
 
 ## 1. What exists and works today
 
@@ -15,7 +17,7 @@ _Last updated 2026-09-16 · repo `pga12-interview-evaluator/Team1_UI-LLM` · `ma
 | Practice review (candidate-facing) | `GET /candidate/sessions/{token}/review`, `engine/review.ts`, `engine/speech.ts`, `features/review/` | Done. Generates 04 on first open. Sections: verdict + KPIs, competencies with quotes and per-answer columns, claims + numbers, habits/ownership/consistency/pressure, answers one by one, delivery (pace curve = kernel-smoothed wpm, words-per-answer, rhythm strips, filler chart, fluency), camera presence meters |
 | Interview UX | `features/interview/` | Recording starts only on **Start answering** (cancels read-aloud); `engine/echo.ts` strips an echoed question from the transcript as a safety net; whole-interview clock in the studio panel (`InterviewClock.tsx`) |
 | Mock backend for demos / e2e (no keys) | `frontend/src/mock/` | Done. `NEXT_PUBLIC_API_MODE=mock`; `review` and `frames` routes stubbed |
-| Free-tier cloud deployment | `DEPLOY.md`, `deploy/hf/`, `Dockerfile.frontend`, `render.yaml`, `src/server/kv.ts` | Ready, not yet deployed. Whisper + body language as HF Spaces (Docker), app on Render, sessions/audit/behavioral mirrored to Upstash Redis (write-behind + boot hydration; fs JSON locally). Docker images not build-tested locally (Docker Desktop would not start) |
+| Free-tier cloud deployment | `DEPLOY.md`, `deploy/modal/`, `Dockerfile.frontend`, `render.yaml`, `src/server/kv.ts` | **Deployed.** Python services on Modal (HF Docker Spaces went PRO-only), app on Render, sessions/audit/behavioral mirrored to Upstash Redis (write-behind + boot hydration; fs JSON locally). `deploy/hf/` kept for anyone with HF PRO |
 | Reference material | `production_v2/`, `legacy_v1/`, `*.html` guides | Reference only |
 
 ## 2. Run it (3 terminals, repo root)
@@ -52,7 +54,7 @@ Note: behavioral capture (and therefore Team 4 flags) is off whenever the camera
 
 ## 5. Known gaps / next steps (priority order)
 
-1. **Deploy** — follow `DEPLOY.md`; first HF Space build may need one fix iteration (Dockerfiles untested locally). Rotate the Gemini key (it was pasted in chat).
+1. **Cloud hygiene** — Render free sleeps after 15 min (first load ~50 s); Modal cold start ~10 s; Gemini free-tier 429s under load. Render deploys are manual (Manual Deploy → Deploy latest commit) because the blueprint was created from the public repo URL; connecting the GitHub org in Render would enable auto-deploy. Rotate the Gemini key if it was ever pasted in chat.
 2. **Ladders, callbacks, reconciliation** — orchestrator still sends `ladder_instruction: null`, `callback_due: null`, `reconciliation_due: null` (00 §9–§11, §15).
 3. **Behavioral remaining** — `span_hint_text` always null; `resolved_by_probe` never filled; Team 3 ships no trained `.pkl` models (service runs rule-based; drop models in `task3_models/` to switch); thresholds in `engine/behavioral.ts` (`GAZE_SHIFT_*`, `LONG_PAUSE_*`, `RATE_SHIFT_*`) tuned on one real run only.
 4. **Team 3 gaze rule reads low** (5–15 % camera-facing on real runs) — likely their `GAZE_HORIZONTAL/VERTICAL` bands vs laptop webcam placement; not ours to change, but the review's "facing camera" numbers will look harsh until they tune it.
