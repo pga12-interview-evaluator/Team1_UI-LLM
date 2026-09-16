@@ -24,3 +24,4 @@ Team3_Body_language/task3_data/
 body_language/.venv/
 body_language/reports/
 body_language/server.log
+deploy/.venv/

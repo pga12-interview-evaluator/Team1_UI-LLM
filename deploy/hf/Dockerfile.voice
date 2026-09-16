@@ -9,9 +9,10 @@ WORKDIR /app
 RUN pip install --index-url https://download.pytorch.org/whl/cpu torch==2.5.1 \
  && pip install "openai-whisper>=20250625" "numpy<2" "scipy>=1.11" "fastapi>=0.115" "uvicorn[standard]>=0.30" "python-multipart>=0.0.9"
 
+# Space repo is flat (web upload); rebuild the folder layout the loaders expect.
 COPY voice_to_text.py server.py team2_settings.py team4_speech.py ./
-COPY team2 ./team2
-COPY team4 ./team4
+COPY voice_to_textproject.ipynb ./team2/voice_to_textproject.ipynb
+COPY team4_capstone.ipynb ./team4/team4_capstone.ipynb
 # Pre-download the model into the image (HF Spaces have no persistent disk).
 RUN python -c "import whisper; whisper.load_model('base')"
 

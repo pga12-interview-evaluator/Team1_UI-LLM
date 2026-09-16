@@ -2,9 +2,9 @@
 
     python deploy/hf/prepare.py            # writes deploy/hf/out/voice and deploy/hf/out/body
 
-Each output folder is a complete Space repo: Dockerfile + README front matter + code. Push it
-to your Space with `huggingface-cli upload <user>/<space> deploy/hf/out/voice . --repo-type space`
-or drag-and-drop in the Space's Files tab. See DEPLOY.md.
+Each output folder is a complete, FLAT Space repo (Dockerfile + README front matter + code) so it
+can be uploaded through the Space's "Upload files" page; the Dockerfile recreates the subfolders.
+Or: `huggingface-cli upload <user>/<space> deploy/hf/out/voice . --repo-type space`. See DEPLOY.md.
 """
 
 from __future__ import annotations
@@ -43,8 +43,9 @@ def voice() -> None:
     shutil.copy(ROOT / "deploy/hf/Dockerfile.voice", out / "Dockerfile")
     for name in ("voice_to_text.py", "server.py", "team2_settings.py", "team4_speech.py"):
         shutil.copy(ROOT / "voice_to_text" / name, out / name)
-    shutil.copytree(ROOT / "voice_to_text" / "team2", out / "team2", ignore=shutil.ignore_patterns("*.wav"))
-    shutil.copytree(ROOT / "voice_to_text" / "team4", out / "team4")
+    # flat: the Dockerfile moves the notebooks back under team2/ and team4/
+    shutil.copy(ROOT / "voice_to_text/team2/voice_to_textproject.ipynb", out)
+    shutil.copy(ROOT / "voice_to_text/team4/team4_capstone.ipynb", out)
     (out / "README.md").write_text(
         README.format(
             title="Interviewly Voice",
@@ -58,13 +59,10 @@ def voice() -> None:
 def body() -> None:
     out = fresh(OUT / "body")
     shutil.copy(ROOT / "deploy/hf/Dockerfile.body", out / "Dockerfile")
-    (out / "body_language").mkdir()
-    shutil.copy(ROOT / "body_language/server.py", out / "body_language/server.py")
-    shutil.copy(ROOT / "body_language/requirements.txt", out / "body_language/requirements.txt")
-    team3 = out / "Team3_Body_language"
-    team3.mkdir()
-    shutil.copy(ROOT / "Team3_Body_language/task31_body_language_percentage_json.py", team3)
-    shutil.copy(ROOT / "Team3_Body_language/requirements.txt", team3)
+    # flat: the Dockerfile moves files back under body_language/ and Team3_Body_language/
+    shutil.copy(ROOT / "body_language/server.py", out / "server.py")
+    shutil.copy(ROOT / "body_language/requirements.txt", out / "requirements.txt")
+    shutil.copy(ROOT / "Team3_Body_language/task31_body_language_percentage_json.py", out)
     (out / "README.md").write_text(
         README.format(
             title="Interviewly Body Language",
