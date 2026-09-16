@@ -1,82 +1,81 @@
 # Team 1 (UI + LLM) — Handoff
 
-_Last updated 2026-09-15 · repo `pga12-interview-evaluator/Team1_UI-LLM` · main @ `97d1c17`_
+_Last updated 2026-09-16 · repo `pga12-interview-evaluator/Team1_UI-LLM` · `main` = `prod` @ `6f65584`_
 
 ## 1. What exists and works today
 
 | Piece | Where | State |
 |---|---|---|
-| Cross-examination prompt pack (01 blueprint → 02 interviewer → 03 evaluator → 04 report) + contracts | `prompts_v2/` | Done. `contracts_version 2.1.1`. Live smoke 33/33 on `gemini-3.5-flash` (`prompts_v2/tests/`) |
-| Frontend: candidate interview studio, practice workspace, recruiter console | `frontend/` (Next.js 16) | Done. Light professional theme, animations, a11y, e2e |
-| **Real backend inside the app** (`/api/v1`): resume ingest → Gemini 01/02/03/04 → report | `frontend/src/server/` | Done, verified end to end with a real resume |
-| Voice answers → Whisper | `frontend/src/lib/media/wav.ts` + `voice_to_text/server.py` | Done. Browser sends 16 kHz WAV; FastAPI wrapper over `voice_to_text.py`. Team 2's `model.transcribe(...)` keywords are parsed from their notebook at start-up by `voice_to_text/team2_settings.py` and used verbatim (prompt, beam, fp16, no-speech; see `voice_to_text/team2/README.md`) |
-| Speech delivery: fillers, repetitions, pauses, fluency (Team 4) | `voice_to_text/team4_speech.py` loads `voice_to_text/team4/team4_capstone.ipynb` verbatim (AST: definitions only) and runs it on every transcription; `speech` block in `/transcribe` → `media_refs[].speech` → review + `behavioral_signals.speech/fluency` producers → `long_pause` / `speech_rate_shift` flags | Done. Team 4 notebook untouched |
-| Body language → non-scored attention flags (Team 3) | `body_language/server.py` (wraps `Team3_Body_language/`, unmodified) + `frontend/src/server/engine/behavioral*.ts` + `hooks/useFrameCapture.ts` | Done. Browser streams JPEG frames per answer; service returns Team 3 report + derived metrics; BFF builds `behavioral_signals/1.0`, fuses vs warm-up baseline, feeds `attention_flags` to 02 only, §14 attention boost, report block |
-| Practice review for the candidate | `frontend/src/server/engine/review.ts` + `speech.ts`, `features/review/`, `GET /candidate/sessions/{token}/review` | Done. Mock-practice sessions only; generates the 04 report on first open; per-answer 03 scores, pattern → plain-language watch-outs, candid signals, speech metrics (WPM needs `duration_sec` from Whisper — stored from now on), Team 3 presence coaching |
-| Mock backend for demos / e2e (no keys) | `frontend/src/mock/` (`/api/mock`) | Done. `NEXT_PUBLIC_API_MODE=mock` |
-| Executable Python runtime from the parallel track | `production_v2/` | Reference only; different payload shapes, not wired to the UI |
-| Guides | `AI_Interview_System_Guide_v2.html`, `AI_Interview_Production_Playbook_v2.html`, `legacy_v1/` | Reference |
+| Prompt pack 01 blueprint → 02 interviewer → 03 evaluator → 04 report + contracts | `prompts_v2/` | Done. `contracts_version 2.1.1`. Live smoke 33/33 |
+| Frontend: candidate studio, practice workspace, reviewer console, practice review | `frontend/` (Next.js 16) | Done |
+| Real backend inside the app (`/api/v1`): resume → Gemini 01–04 → report | `frontend/src/server/` | Done, proven end to end with real Gemini + Whisper + camera |
+| Voice → Whisper (**Team 2** settings) + **Team 4** delivery analysis | `voice_to_text/` | Done. `team2_settings.py` parses Team 2's notebook (`team2/`) with `ast` and uses their `model.transcribe()` kwargs verbatim; `team4_speech.py` executes only the definitions of Team 4's notebook (`team4/`) on every transcription → fillers, repetitions, pauses, wpm, fluency. Neither notebook is edited |
+| Body language (**Team 3**) → non-scored attention flags + presence coaching | `body_language/server.py` wraps `Team3_Body_language/` unmodified; `frontend/src/server/engine/behavioral*.ts`; `hooks/useFrameCapture.ts` | Done. Own venv (`body_language/.venv`, numpy 2). Browser streams JPEG frames only while an answer is being recorded |
+| Behavioral envelope + fusion (00 §12) | `engine/behavioral.ts`, `behavioralFlow.ts`, `behavioralStore.ts`, `behavioralReport.ts` | Done. Producers: gaze/body (Team 3), speech_features/fluency (Team 4). Flags: `gaze_shift`, `long_pause`, `speech_rate_shift`, always vs the candidate's own warm-up baseline. 02 only; 03/04 never see it; §14 attention boost; purge on any accommodation |
+| Practice review (candidate-facing) | `GET /candidate/sessions/{token}/review`, `engine/review.ts`, `engine/speech.ts`, `features/review/` | Done. Generates 04 on first open. Sections: verdict + KPIs, competencies with quotes and per-answer columns, claims + numbers, habits/ownership/consistency/pressure, answers one by one, delivery (pace curve = kernel-smoothed wpm, words-per-answer, rhythm strips, filler chart, fluency), camera presence meters |
+| Interview UX | `features/interview/` | Recording starts only on **Start answering** (cancels read-aloud); `engine/echo.ts` strips an echoed question from the transcript as a safety net; whole-interview clock in the studio panel (`InterviewClock.tsx`) |
+| Mock backend for demos / e2e (no keys) | `frontend/src/mock/` | Done. `NEXT_PUBLIC_API_MODE=mock`; `review` and `frames` routes stubbed |
+| Free-tier cloud deployment | `DEPLOY.md`, `deploy/hf/`, `Dockerfile.frontend`, `render.yaml`, `src/server/kv.ts` | Ready, not yet deployed. Whisper + body language as HF Spaces (Docker), app on Render, sessions/audit/behavioral mirrored to Upstash Redis (write-behind + boot hydration; fs JSON locally). Docker images not build-tested locally (Docker Desktop would not start) |
+| Reference material | `production_v2/`, `legacy_v1/`, `*.html` guides | Reference only |
 
-**Candidate UX (2026-09-16):** voice recording starts only on "Start answering" (the mic no longer captures the question being read aloud; a fuzzy question-echo strip in `engine/echo.ts` is the safety net); whole-interview clock in the studio panel; practice review with score ring, per-answer score chart, competency quotes, claims, numbers, patterns, Team 4 delivery, Team 3 presence.
-
-**Proven flow (2026-09-15, real Gemini + Whisper):** resume → blueprint (≈2–3 min) → warm-up → resume-verification question → bluff answer → 03 flags the dodge → PIN follow-up → voice answer transcribed → honest answer scored 4 → case scenario generated → stop → 04 report (`insufficient_evidence` for the early stop, `honest_down_scope` credited, practice feedback).
-
-## 2. Run it
+## 2. Run it (3 terminals, repo root)
 
 ```bash
-# terminal 1 — Whisper (loads model once)
-cd voice_to_text && pip install -r requirements.txt && python server.py        # :8008
-
-# terminal 2 — body language (own venv; optional)
-cd body_language && .venv/Scripts/python server.py                            # :8009
-
-# terminal 3 — app
-cd frontend && npm install && npm run dev                                     # :3000
+cd voice_to_text && python server.py                       # :8008  Whisper + Team 2 settings + Team 4 analysis
+cd body_language && .venv\Scripts\python server.py         # :8009  Team 3 (own venv!)
+cd frontend && npm run dev                                 # :3000
 ```
 
-`frontend/.env.local` (git-ignored) must contain `GEMINI_API_KEY`. Full details, health check, troubleshooting: **`frontend/docs/RUNBOOK.md`**.
+`frontend/.env.local` (git-ignored): `GEMINI_API_KEY`, `GEMINI_MODEL=gemini-3.5-flash-lite`, `CONSOLE_DEV_PASSWORD`, `CONSOLE_COOKIE_SECRET`, `WHISPER_URL`, `BODY_LANGUAGE_URL`. Cloud extras: `SERVICE_TOKEN`, `UPSTASH_REDIS_REST_URL/TOKEN` (see `DEPLOY.md`).
 
-Routes: `/setup` (create interview from resume) · `/i/<token>` (candidate) · `/console` (reviewer; any work email + `CONSOLE_DEV_PASSWORD`) · `/api/v1/console/health`.
+Routes: `/setup` · `/i/<token>` · `/i/<token>/review` · `/review` (all practice sessions on this server) · `/console` (any work email + `CONSOLE_DEV_PASSWORD`) · `/api/v1/console/health` (Gemini key, Whisper, body-language reachability).
 
-## 3. Where things live (start here when reading code)
+First start of each Python service ≈ 20 s (model load). Body-language service must use its venv, never global `python` (numpy 1 vs 2 conflict — global numpy was broken once by a stray `pip install mediapipe`, repaired).
 
-- `frontend/docs/RUNBOOK.md` — key location, startup, per-answer flow, **code map of `src/server/`**, implemented-vs-simplified table, troubleshooting.
-- `frontend/docs/ARCHITECTURE.md` — full directory map, UI state machine, the 8 UI invariants (DTO whitelist, no praise, rights bar, non-scored behavioral block…).
-- `frontend/docs/api-contract.md` — HTTP contract between UI and BFF (mirrors `lib/api/schemas/*`).
-- `frontend/docs/FRONTEND-HANDOFF.md` — the studio/recordings/workspace features and their caveats.
-- `prompts_v2/00_shared_contracts.md` — source of truth for every field name, enum, quota, script.
-- `prompts_v2/tests/README.md` — prompt-level live smoke test.
+## 3. Where things live
 
-## 4. Secrets & safety
+- `frontend/docs/RUNBOOK.md` — keys, startup, per-answer flow, **code map of `src/server/`**, troubleshooting.
+- `frontend/docs/ARCHITECTURE.md` — directory map, UI state machine, the 8 UI invariants.
+- `frontend/docs/api-contract.md` — HTTP contract (incl. `review`, `frames`, `GET /candidate/sessions`).
+- `body_language/README.md`, `voice_to_text/team2/README.md`, `voice_to_text/team4/README.md` — what each team's code provides and exactly where it is consumed.
+- `prompts_v2/00_shared_contracts.md` — source of truth for every field, enum, quota, script.
+- `DEPLOY.md` — cloud steps.
 
-- Gemini key: **only** `frontend/.env.local` → `GEMINI_API_KEY` (server-only). Root `.env` is used by the Python tools; both git-ignored.
-- **Rotate the current key**: it was printed into `test.ipynb` (now git-ignored, never pushed — GitHub push protection blocked it).
-- Candidate channel returns a strict 7-key DTO; console is cookie-gated (dev-grade signed cookie — replace with the org IdP before any external deployment).
-- Sessions persist as JSON in `frontend/.data/` (git-ignored). Audio lives in memory until transcribed.
+## 4. Per-answer data flow (real mode)
+
+1. Candidate presses Start answering → `useMediaCapture` records WAV; `useFrameCapture` posts JPEG batches to `…/frames` (→ Team 3 service) while recording.
+2. Submit → `…/media` (WAV) then `…/answers`.
+3. `engine/orchestrator.answer()`: `transcribeMedia()` (Whisper → text + `duration_sec` + `segments` + Team 4 `speech`, stored on `session.media_refs[ref]`) → `stripQuestionEcho()` → transcript entry → `ingestAnswerSignals()` (finalize Team 3 window + Team 4 speech → envelope → flags, separate behavioral store) → 03 evaluator → budget rules (§14, attention boost) → 02 next turn (with `attention_flags` when capture is on).
+4. Close → `/review` builds `PracticeReview` (04 report + 03 evaluations + speech + presence); console gets the reviewer report with the non-scored block.
+
+Note: behavioral capture (and therefore Team 4 flags) is off whenever the camera is off or any accommodation is applied (00 §12.2) — speech metrics still reach the review.
 
 ## 5. Known gaps / next steps (priority order)
 
-1. **Ladders, callbacks, reconciliation** — designed in prompts_v2 and expected by 02, but the orchestrator always sends `ladder_instruction: null`, `callback_due: null`, `reconciliation_due: null`. Implement in `src/server/engine/orchestrator.ts` + `state.ts` (00 §9–§11, §15). Ladder plan items are currently skipped.
-2. **Behavioral signals — remaining pieces** — Team 3 (gaze/body) is wired end to end (`body_language/README.md`). Still open: speech/fluency producers (Team 2 delivers transcripts only, so `long_pause`, `speech_rate_shift` etc. never fire); `span_hint_text` is always null; `resolved_by_probe` is never filled; Team 3 ships no trained models so the service runs rule-based (drop `gaze/posture/movement` model `.pkl`s in `task3_models/` to switch). Needs a real camera run to tune `GAZE_SHIFT_*` thresholds in `engine/behavioral.ts`.
-3. **Auth + persistence for production** — swap mock cookie for SSO; rate-limit `/setup` and the candidate channel. Persistence: `.data/` JSON locally, Upstash Redis mirror in the cloud (`src/server/kv.ts`, write-behind + boot hydration); a relational DB is still the long-term answer. Cloud deployment on free tiers: `DEPLOY.md`.
-4. **Latency** — blueprint 1–3 min (starts at `/setup` submit, hidden behind consent/device steps). Options: `gemini-3.5-flash-lite` for 01 only, or requisition-mode pre-generation per role (already supported by Prompt 01 `mode: requisition`).
-5. **Hindi** — scripts translated (`policy.ts`), UI chrome partial (`lib/i18n`); Whisper hint + `language=hi` passed; needs a real Hindi test run.
-6. **Recording upload** — studio recordings stay in the browser (IndexedDB); no server upload defined yet.
-7. **Quota** — free-tier 429s appear under load; `GEMINI_MODEL` switch in env; consider a paid project for demos.
+1. **Deploy** — follow `DEPLOY.md`; first HF Space build may need one fix iteration (Dockerfiles untested locally). Rotate the Gemini key (it was pasted in chat).
+2. **Ladders, callbacks, reconciliation** — orchestrator still sends `ladder_instruction: null`, `callback_due: null`, `reconciliation_due: null` (00 §9–§11, §15).
+3. **Behavioral remaining** — `span_hint_text` always null; `resolved_by_probe` never filled; Team 3 ships no trained `.pkl` models (service runs rule-based; drop models in `task3_models/` to switch); thresholds in `engine/behavioral.ts` (`GAZE_SHIFT_*`, `LONG_PAUSE_*`, `RATE_SHIFT_*`) tuned on one real run only.
+4. **Team 3 gaze rule reads low** (5–15 % camera-facing on real runs) — likely their `GAZE_HORIZONTAL/VERTICAL` bands vs laptop webcam placement; not ours to change, but the review's "facing camera" numbers will look harsh until they tune it.
+5. **Auth + persistence for production** — SSO instead of the dev cookie; Upstash mirror is a stopgap, a relational DB is the real answer; rate-limit `/setup` and the candidate channel. `/review` lists every practice session on the server (no accounts) — fine for testing, not for real candidates.
+6. **Latency / quota** — blueprint 30–90 s on flash-lite; free-tier 429s under load; a paid Gemini project for demos.
+7. **Hindi** — scripts translated, UI chrome partial, Whisper `language=hi` passed; needs a real Hindi run.
+8. **Recording upload** — studio recordings stay in the browser (IndexedDB).
+9. **Answer timer** starts when the question renders, not when Start answering is pressed (server-authoritative `max_answer_seconds`); revisit if candidates run out of time while reading.
 
-## 6. Quality gates (all green at handoff)
+## 6. Quality gates (green at handoff)
 
 ```bash
 cd frontend
-npm run check        # tsc + eslint + 29 unit tests (state machine, DTO whitelist, mock engine, redaction, §14 budget rules)
+npm run check        # tsc + eslint + 51 unit tests (state machine, DTO whitelist, budget rules incl. attention boost, behavioral fusion + firewall, echo strip, speech metrics, resume redaction)
 npm run build
-PLAYWRIGHT_BASE_URL=http://localhost:3000 npm run e2e   # against a MOCK-mode dev server only (never real — burns quota)
+PLAYWRIGHT_BASE_URL=http://localhost:3000 npm run e2e   # against a MOCK-mode dev server only
 ```
 
-CI: `.github/workflows/frontend-ci.yml` (typecheck, lint, format, unit+coverage, e2e on mock, Docker build).
+CI: `.github/workflows/frontend-ci.yml`.
 
-## 7. Contacts / ownership
+## 7. Working agreements
 
-- Team 1 (this repo): UI, LLM layer, integration, prompts.
-- ML teammates: body-language / fumble / hesitation models → deliver the `behavioral_signals` envelope (`00 §12.1`); they are consumed as **non-scored** attention flags only.
-- Backend/infra (if split later): implement `frontend/docs/api-contract.md` as a separate service and set `NEXT_PUBLIC_API_BASE_URL` to it; `src/server/` is the reference implementation.
+- Never edit `Team3_Body_language/`, `voice_to_text/team2/`, `voice_to_text/team4/` — wrap, parse or import; if a team changes their file, re-copy it and restart the service.
+- Git identity: `CHAITANYA-2002 <72995227+CHAITANYA-2002@users.noreply.github.com>` (repo + global). Older commits still carry a different email; rewriting them needs `git filter-branch` + force-push (commands were given, not run).
+- `prod` tracks `main` by fast-forward: `git checkout prod && git merge --ff-only main && git push && git checkout main`.
+- `study_material/` and `tmp/` at repo root are personal, untracked — leave them.
