@@ -23,6 +23,7 @@ employability. The BFF enforces the non-scored contract; this service just measu
 
 from __future__ import annotations
 
+import hmac
 import json
 import os
 import sys
@@ -36,6 +37,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.responses import JSONResponse
 
 HERE = Path(__file__).resolve().parent
 TEAM3_DIR = HERE.parent / "Team3_Body_language"
@@ -52,6 +54,20 @@ MAX_FRAMES_PER_REQUEST = 16
 SERVICE_VERSION = "1.0.0"
 
 app = FastAPI(title="body_language", version=SERVICE_VERSION)
+
+# Optional shared secret: when SERVICE_TOKEN is set (cloud), every request except /health must carry
+# "Authorization: Bearer <token>". Unset locally, so nothing changes on a laptop.
+SERVICE_TOKEN = os.environ.get("SERVICE_TOKEN", "").strip()
+
+
+@app.middleware("http")
+async def require_service_token(request, call_next):
+    if SERVICE_TOKEN and request.url.path != "/health":
+        header = request.headers.get("authorization", "")
+        if not (header.startswith("Bearer ") and hmac.compare_digest(header[7:].strip(), SERVICE_TOKEN)):
+            return JSONResponse({"detail": "unauthorized"}, status_code=401)
+    return await call_next(request)
+
 
 
 # ------------------------------------------------------------------ per-turn accumulation
@@ -406,4 +422,4 @@ def delete_session(session_id: str) -> dict:
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="127.0.0.1", port=PORT, log_level="info")
+    uvicorn.run(app, host=os.environ.get("HOST", "127.0.0.1"), port=PORT, log_level="info")

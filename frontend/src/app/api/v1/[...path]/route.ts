@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { candidateRoute, consoleRoute, error } from "@/server/handlers";
+import { ensureLoaded } from "@/server/store";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,6 +17,7 @@ async function handle(
   const { path } = await context.params;
   const [channel] = path;
   try {
+    await ensureLoaded(); // no-op locally; hydrates from Redis in the cloud
     if (channel === "candidate") return await candidateRoute(request, path);
     if (channel === "console") return await consoleRoute(request, path);
     return error(404, "not_found", "Unknown route.");

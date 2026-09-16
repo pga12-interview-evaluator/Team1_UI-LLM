@@ -1,5 +1,6 @@
 import "server-only";
 import { getServerEnv } from "@/lib/config/env";
+import { serviceAuth } from "./whisper";
 
 /**
  * Client for body_language/server.py (Team 3's body-language analysis behind HTTP).
@@ -63,6 +64,7 @@ export async function pushFrames(
     const response = await fetch(`${base()}/sessions/${encodeURIComponent(sessionId)}/frames`, {
       method: "POST",
       body: form,
+      headers: serviceAuth(),
       signal: AbortSignal.timeout(FRAMES_TIMEOUT_MS),
     });
     if (!response.ok) return null;
@@ -80,7 +82,7 @@ export async function finalizeTurn(
   try {
     const response = await fetch(
       `${base()}/sessions/${encodeURIComponent(sessionId)}/turns/${turnIndex}/finalize`,
-      { method: "POST", signal: AbortSignal.timeout(FINALIZE_TIMEOUT_MS) },
+      { method: "POST", headers: serviceAuth(), signal: AbortSignal.timeout(FINALIZE_TIMEOUT_MS) },
     );
     if (!response.ok) return null;
     return (await response.json()) as BodyLanguageResult;
@@ -94,6 +96,7 @@ export async function releaseSession(sessionId: string): Promise<void> {
   try {
     await fetch(`${base()}/sessions/${encodeURIComponent(sessionId)}`, {
       method: "DELETE",
+      headers: serviceAuth(),
       signal: AbortSignal.timeout(2000),
     });
   } catch {

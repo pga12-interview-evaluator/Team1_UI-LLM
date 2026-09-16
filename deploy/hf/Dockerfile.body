@@ -1,0 +1,22 @@
+# Hugging Face Space (Docker) — Team 3 body-language analysis behind body_language/server.py.
+FROM python:3.11-slim
+
+ENV PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 BODY_LANGUAGE_PORT=7860 HOST=0.0.0.0 \
+    BODY_LANGUAGE_REPORTS=/tmp/reports
+
+RUN apt-get update && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 \
+ && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY body_language/requirements.txt ./requirements.txt
+RUN pip install -r requirements.txt
+
+COPY Team3_Body_language ./Team3_Body_language
+COPY body_language/server.py ./body_language/server.py
+# Team 3's script downloads the two landmarker models on first import; do it at build time.
+RUN cd Team3_Body_language && python -c "import task31_body_language_percentage_json as t3; t3.ensure_model(t3.FACE_MODEL, t3.FACE_MODEL_URL, 'face'); t3.ensure_model(t3.POSE_MODEL, t3.POSE_MODEL_URL, 'pose')"
+
+RUN useradd -m -u 1000 user && chown -R user:user /app
+USER user
+EXPOSE 7860
+CMD ["python", "body_language/server.py"]

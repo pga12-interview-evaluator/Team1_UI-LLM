@@ -113,11 +113,16 @@ PLAYWRIGHT_BASE_URL=http://localhost:3000 npm run e2e   # against a MOCK-mode de
 
 CI: [`.github/workflows/frontend-ci.yml`](.github/workflows/frontend-ci.yml) — typecheck, lint, format, unit + coverage, e2e on mock, Docker build.
 
+## Deploy (free tiers)
+
+Whisper + body language on Hugging Face Spaces, the app on Render, sessions in Upstash Redis — step by step in [DEPLOY.md](DEPLOY.md).
+
 ## Docs
 
 | Doc | Read it for |
 |---|---|
 | [HANDOFF.md](HANDOFF.md) | State of the project, run steps, gaps in priority order, ownership |
+| [DEPLOY.md](DEPLOY.md) | Cloud deployment on free tiers (HF Spaces + Render + Upstash) |
 | [frontend/docs/RUNBOOK.md](frontend/docs/RUNBOOK.md) | Keys, startup, per-answer flow, code map of `src/server/`, troubleshooting |
 | [frontend/docs/ARCHITECTURE.md](frontend/docs/ARCHITECTURE.md) | Directory map, UI state machine, the 8 UI invariants |
 | [frontend/docs/api-contract.md](frontend/docs/api-contract.md) | HTTP contract between UI and backend |

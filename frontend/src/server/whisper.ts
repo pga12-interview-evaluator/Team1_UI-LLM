@@ -21,11 +21,21 @@ export async function transcribeWav(
   form.set("file", new Blob([new Uint8Array(wav)], { type: "audio/wav" }), "answer.wav");
   if (options.language) form.set("language", options.language);
   if (options.hint) form.set("hint", options.hint.slice(0, 500));
-  const response = await fetch(`${base}/transcribe`, { method: "POST", body: form });
+  const response = await fetch(`${base}/transcribe`, {
+    method: "POST",
+    body: form,
+    headers: serviceAuth(),
+  });
   if (!response.ok) {
     throw new Error(`Whisper service ${response.status}: ${(await response.text()).slice(0, 200)}`);
   }
   return (await response.json()) as Transcription;
+}
+
+/** Bearer token for the Python services when SERVICE_TOKEN is set (public Space URLs). */
+export function serviceAuth(): Record<string, string> {
+  const token = getServerEnv().SERVICE_TOKEN;
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 export async function whisperHealthy(): Promise<boolean> {

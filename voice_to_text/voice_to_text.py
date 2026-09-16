@@ -24,8 +24,12 @@ import time
 import wave
 
 import numpy as np
-import pyaudio
 import whisper
+
+try:  # Mic capture is CLI-only; the HTTP service runs where no audio device (or portaudio) exists.
+    import pyaudio
+except ImportError:  # pragma: no cover
+    pyaudio = None
 
 # ---------------------------------------------------------------------------
 # Settings
@@ -132,6 +136,8 @@ def record_until_silence(
 
     Returns raw int16 PCM bytes; empty bytes if no voice detected in time.
     """
+    if pyaudio is None:
+        raise RuntimeError("pyaudio is not installed; microphone capture is unavailable here")
     audio = pyaudio.PyAudio()
     stream = audio.open(
         format=pyaudio.paInt16,
@@ -327,6 +333,8 @@ def realtime_transcribe(
 
     threading.Thread(target=worker, daemon=True).start()
 
+    if pyaudio is None:
+        raise RuntimeError("pyaudio is not installed; microphone capture is unavailable here")
     audio = pyaudio.PyAudio()
     stream = audio.open(
         format=pyaudio.paInt16, channels=CHANNELS, rate=SAMPLE_RATE, input=True, frames_per_buffer=CHUNK

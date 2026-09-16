@@ -16,6 +16,7 @@ Endpoints:
 
 from __future__ import annotations
 
+import hmac
 import io
 import os
 import sys
@@ -23,6 +24,7 @@ import time
 
 import numpy as np
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from scipy.io import wavfile
 from scipy.signal import resample_poly
@@ -34,6 +36,20 @@ MODEL_NAME = os.environ.get("WHISPER_MODEL", v2t.MODEL_NAME)
 PORT = int(os.environ.get("WHISPER_PORT", "8008"))
 
 app = FastAPI(title="voice_to_text", version="1.0")
+
+# Optional shared secret: when SERVICE_TOKEN is set (cloud), every request except /health must carry
+# "Authorization: Bearer <token>". Unset locally, so nothing changes on a laptop.
+SERVICE_TOKEN = os.environ.get("SERVICE_TOKEN", "").strip()
+
+
+@app.middleware("http")
+async def require_service_token(request, call_next):
+    if SERVICE_TOKEN and request.url.path != "/health":
+        header = request.headers.get("authorization", "")
+        if not (header.startswith("Bearer ") and hmac.compare_digest(header[7:].strip(), SERVICE_TOKEN)):
+            return JSONResponse({"detail": "unauthorized"}, status_code=401)
+    return await call_next(request)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=os.environ.get("WHISPER_CORS", "http://localhost:3000").split(","),
@@ -97,4 +113,4 @@ async def transcribe(
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="127.0.0.1", port=PORT, log_level="info")
+    uvicorn.run(app, host=os.environ.get("HOST", "127.0.0.1"), port=PORT, log_level="info")

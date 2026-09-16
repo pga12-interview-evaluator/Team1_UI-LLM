@@ -44,6 +44,8 @@ const serverSchema = z.object({
   WHISPER_URL: z.string().url().default("http://127.0.0.1:8008"),
   /** Body-language signal service (body_language/server.py wrapping Team 3). */
   BODY_LANGUAGE_URL: z.string().url().default("http://127.0.0.1:8009"),
+  /** Shared secret sent as a bearer token to the Whisper / body-language services (cloud only). */
+  SERVICE_TOKEN: z.string().optional(),
   /** Directory holding prompts_v2/*.md. Defaults to ../prompts_v2 relative to the app. */
   PROMPTS_DIR: z.string().optional(),
   /** Where real-mode sessions are persisted as JSON. */
@@ -59,6 +61,7 @@ export function getServerEnv() {
     GEMINI_MODEL: process.env.GEMINI_MODEL || undefined,
     WHISPER_URL: process.env.WHISPER_URL || undefined,
     BODY_LANGUAGE_URL: process.env.BODY_LANGUAGE_URL || undefined,
+    SERVICE_TOKEN: process.env.SERVICE_TOKEN || undefined,
     PROMPTS_DIR: process.env.PROMPTS_DIR || undefined,
     DATA_DIR: process.env.DATA_DIR || undefined,
   });

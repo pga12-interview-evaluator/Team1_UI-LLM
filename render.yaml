@@ -1,0 +1,33 @@
+# Render Blueprint — free web service for the Next.js app (UI + BFF).
+# The Python services run on Hugging Face Spaces; sessions persist in Upstash Redis. See DEPLOY.md.
+services:
+  - type: web
+    name: interviewly
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile.frontend
+    dockerContext: .
+    healthCheckPath: /
+    envVars:
+      - key: NEXT_PUBLIC_API_MODE
+        value: real
+      - key: NEXT_PUBLIC_API_BASE_URL
+        value: /api/v1
+      - key: GEMINI_MODEL
+        value: gemini-3.5-flash-lite
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: WHISPER_URL
+        sync: false
+      - key: BODY_LANGUAGE_URL
+        sync: false
+      - key: SERVICE_TOKEN
+        sync: false
+      - key: UPSTASH_REDIS_REST_URL
+        sync: false
+      - key: UPSTASH_REDIS_REST_TOKEN
+        sync: false
+      - key: CONSOLE_DEV_PASSWORD
+        sync: false
+      - key: CONSOLE_COOKIE_SECRET
+        generateValue: true

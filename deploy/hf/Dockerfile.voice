@@ -1,0 +1,20 @@
+# Hugging Face Space (Docker) — Whisper transcription service (voice_to_text/server.py).
+# CPU-only torch wheels keep the image ~2 GB; the base model is baked in so cold starts skip the download.
+FROM python:3.11-slim
+
+ENV PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 WHISPER_MODEL=base WHISPER_PORT=7860 HOST=0.0.0.0 \
+    WHISPER_CORS=* XDG_CACHE_HOME=/app/.cache
+
+WORKDIR /app
+RUN pip install --index-url https://download.pytorch.org/whl/cpu torch==2.5.1 \
+ && pip install "openai-whisper>=20250625" "numpy<2" "scipy>=1.11" "fastapi>=0.115" "uvicorn[standard]>=0.30" "python-multipart>=0.0.9"
+
+COPY voice_to_text.py server.py ./
+# Pre-download the model into the image (HF Spaces have no persistent disk).
+RUN python -c "import whisper; whisper.load_model('base')"
+
+# HF Spaces run as uid 1000; the cache must be writable for any later model switch.
+RUN useradd -m -u 1000 user && chown -R user:user /app
+USER user
+EXPOSE 7860
+CMD ["python", "server.py"]

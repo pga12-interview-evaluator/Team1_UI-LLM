@@ -9,6 +9,8 @@ import {
 } from "node:fs";
 import path from "node:path";
 import { getServerEnv } from "@/lib/config/env";
+import { hydrateBehavioral } from "./behavioralStore";
+import { kv, kvEnabled } from "./kv";
 import type {
   AuditEvent,
   EvaluationSummary,
@@ -106,7 +108,12 @@ interface RealDb {
   audit: AuditEvent[];
   listeners: Map<string, Set<(s: RealSession) => void>>;
   loaded: boolean;
+  /** Cloud mode: one-time hydration from Redis, awaited by the API route before any handler runs. */
+  hydrated: Promise<void> | null;
 }
+
+const KV_SESSIONS = "index:sessions";
+const KV_AUDIT = "audit";
 
 declare global {
   // eslint-disable-next-line no-var
@@ -131,9 +138,11 @@ export function db(): RealDb {
       audit: [],
       listeners: new Map(),
       loaded: false,
+      hydrated: null,
     };
   }
   const store = globalThis.__interviewRealDb;
+  if (kvEnabled()) return store; // filled by ensureLoaded(); no disk in cloud mode
   if (!store.loaded) {
     store.loaded = true;
     const dir = path.join(dataDir(), "sessions");
@@ -165,11 +174,48 @@ export function db(): RealDb {
   return store;
 }
 
+/**
+ * Cloud mode (Upstash configured): pull every session and the audit log into memory once. The
+ * API route awaits this before dispatching, so the synchronous `db()` readers stay unchanged.
+ */
+export async function ensureLoaded(): Promise<void> {
+  if (!kvEnabled()) return;
+  const store = db();
+  if (!store.hydrated) {
+    store.hydrated = (async () => {
+      const sessions = await kv.allJson<RealSession>(KV_SESSIONS);
+      for (const session of sessions) {
+        if (session.evaluating) session.evaluating = false;
+        store.sessions.set(session.session_id, session);
+        store.tokens.set(session.invite_token, session.session_id);
+      }
+      store.audit = (await kv.getJson<AuditEvent[]>(KV_AUDIT)) ?? [];
+      await hydrateBehavioral();
+      store.loaded = true;
+    })().catch((caught) => {
+      store.hydrated = null; // retry on the next request
+      throw caught;
+    });
+  }
+  await store.hydrated;
+}
+
+/** Write-behind mirror to Redis; a failed mirror is logged, never surfaced to the candidate. */
+function mirror(task: Promise<void>, what: string): void {
+  task.catch((caught) => console.error(`[store] ${what} not persisted:`, caught));
+}
+
 export function save(session: RealSession): void {
-  const file = path.join(dataDir(), "sessions", `${session.session_id}.json`);
-  const tmp = `${file}.tmp`;
-  writeFileSync(/*turbopackIgnore: true*/ tmp, JSON.stringify(session), "utf8");
-  renameSync(/*turbopackIgnore: true*/ tmp, file);
+  db().sessions.set(session.session_id, session);
+  db().tokens.set(session.invite_token, session.session_id);
+  if (kvEnabled()) {
+    mirror(kv.putJson(KV_SESSIONS, `session:${session.session_id}`, session), session.session_id);
+  } else {
+    const file = path.join(dataDir(), "sessions", `${session.session_id}.json`);
+    const tmp = `${file}.tmp`;
+    writeFileSync(/*turbopackIgnore: true*/ tmp, JSON.stringify(session), "utf8");
+    renameSync(/*turbopackIgnore: true*/ tmp, file);
+  }
   db()
     .listeners.get(session.session_id)
     ?.forEach((listener) => listener(session));
@@ -189,6 +235,10 @@ export function audit(
     detail,
   });
   if (store.audit.length > 1000) store.audit.length = 1000;
+  if (kvEnabled()) {
+    mirror(kv.setJson(KV_AUDIT, store.audit), "audit");
+    return;
+  }
   writeFileSync(
     /*turbopackIgnore: true*/ path.join(dataDir(), "audit.json"),
     JSON.stringify(store.audit),
