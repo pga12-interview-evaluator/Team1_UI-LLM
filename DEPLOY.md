@@ -95,7 +95,7 @@ Camera and microphone need HTTPS — Render and Spaces give it, so voice + camer
 
 ## Updating
 
-Push to `prod`; Render redeploys automatically. Spaces: re-run `prepare.py` and upload again
+Push to `prod`, then Render dashboard → `interviewly` → **Manual Deploy → Deploy latest commit** (the blueprint was created from the public repo URL, so there is no auto-deploy; connect the GitHub org in Render to enable it). Modal: re-run `modal deploy` (HF Spaces: re-run `prepare.py` and upload again)
 only when `voice_to_text/`, `body_language/` or `Team3_Body_language/` change.
 
 ## Limits to expect

@@ -171,7 +171,7 @@ export function useMediaCapture({
       setState((s) => ({ ...s, recording: true }));
       return true;
     },
-    [state.stream, token, uploadEnabled],
+    [state.stream],
   );
 
   const stopRecording = useCallback((): Promise<string | null> => {

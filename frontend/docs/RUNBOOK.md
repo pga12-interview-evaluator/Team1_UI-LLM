@@ -116,9 +116,9 @@ AnswerComposer.submit → stopRecording() → blobToWav16k() → POST /media (me
 | 04 report + console mapping, human decision, audit log                                              | ✅                                                                                                                         |
 | Repeat / Break / Resume / Stop / Adjustment handled server-side from fixed scripts; Rephrase via 02 | ✅                                                                                                                         |
 | Ladders (L1–L3), callbacks queue, reconciliation turns                                              | ⛔ not run yet — `ladder_instruction`, `callback_due`, `reconciliation_due` are always null; ladder plan items are skipped |
-| Behavioral signals / attention flags                                                                | ⛔ not wired — report block says `disabled_by_consent` / `none`                                                            |
+| Behavioral signals / attention flags (Team 3 gaze/body + Team 4 speech → 00 §12 envelope → `attention_flags` for 02 only) | ✅ `engine/behavioral*.ts`; off when camera is off or any accommodation applies; 03/04 never see it |
 | Requisition lifecycle in console (create/freeze/invite)                                             | read-only in real mode; interviews start from `/setup`                                                                     |
-| Persistence                                                                                         | JSON files; fine for testing, replace with a DB for multi-instance deployment                                              |
+| Persistence                                                                                         | JSON files locally; mirrored to Upstash Redis when `UPSTASH_REDIS_REST_URL/TOKEN` are set (`src/server/kv.ts`); replace with a DB for multi-instance |
 | Gemini failure handling                                                                             | 02 fails → next verbatim main question; 03 fails → advance; 01 fails → error at Begin with the message                     |
 
 ## 6. Troubleshooting

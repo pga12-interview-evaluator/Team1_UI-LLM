@@ -125,7 +125,6 @@ const KV_SESSIONS = "index:sessions";
 const KV_AUDIT = "audit";
 
 declare global {
-  // eslint-disable-next-line no-var
   var __interviewRealDb: RealDb | undefined;
 }
 
