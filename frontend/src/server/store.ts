@@ -130,7 +130,7 @@ declare global {
 }
 
 function dataDir(): string {
-  const dir = path.resolve(process.cwd(), getServerEnv().DATA_DIR);
+  const dir = path.resolve(/*turbopackIgnore: true*/ process.cwd(), getServerEnv().DATA_DIR);
   const sessions = path.join(dir, "sessions");
   if (!existsSync(/*turbopackIgnore: true*/ sessions))
     mkdirSync(/*turbopackIgnore: true*/ sessions, { recursive: true });

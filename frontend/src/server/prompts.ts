@@ -30,7 +30,7 @@ export function promptsDir(): string {
     path.resolve(process.cwd(), "..", "..", "prompts_v2"),
   ].filter((p): p is string => !!p);
   const found = candidates.find((p) =>
-    existsSync(/*turbopackIgnore: true*/ path.join(p, FILES["02"].file)),
+    existsSync(path.join(/*turbopackIgnore: true*/ p, FILES["02"].file)),
   );
   if (!found) {
     throw new Error(
@@ -44,7 +44,7 @@ function systemInstruction(stage: Stage): string {
   const cached = cache.get(stage);
   if (cached) return cached;
   const source = readFileSync(
-    /*turbopackIgnore: true*/ path.join(promptsDir(), FILES[stage].file),
+    path.join(/*turbopackIgnore: true*/ promptsDir(), FILES[stage].file),
     "utf8",
   );
   const match = /```text\r?\n([\s\S]*?)\r?\n```/.exec(source);

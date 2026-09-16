@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   typedRoutes: true,
   serverExternalPackages: ["pdf-parse", "mammoth"],
+  // Small build machines (Render free): fewer parallel page-data workers.
+  experimental: { cpus: 2 },
   // Dev only: lets a phone/laptop on the LAN load HMR assets when the app is opened via the network URL.
   allowedDevOrigins: ["192.168.1.3"],
   images: { remotePatterns: [] },

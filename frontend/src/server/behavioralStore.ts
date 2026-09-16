@@ -49,7 +49,11 @@ declare global {
 }
 
 function dir(): string {
-  const folder = path.resolve(process.cwd(), getServerEnv().DATA_DIR, "behavioral");
+  const folder = path.resolve(
+    /*turbopackIgnore: true*/ process.cwd(),
+    getServerEnv().DATA_DIR,
+    "behavioral",
+  );
   if (!existsSync(/*turbopackIgnore: true*/ folder))
     mkdirSync(/*turbopackIgnore: true*/ folder, { recursive: true });
   return folder;
