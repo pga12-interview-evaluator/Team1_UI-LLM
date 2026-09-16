@@ -16,8 +16,9 @@ const publicSchema = z.object({
 
 const parsedPublic = publicSchema.safeParse({
   NEXT_PUBLIC_API_MODE: process.env.NEXT_PUBLIC_API_MODE,
-  NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
-  NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+  NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || undefined,
+  // An empty string (unset Docker build arg) must fall through to the default, not fail the build.
+  NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || undefined,
 });
 
 if (!parsedPublic.success) {
