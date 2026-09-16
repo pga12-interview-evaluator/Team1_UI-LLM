@@ -106,7 +106,7 @@ export async function releaseSession(sessionId: string): Promise<void> {
 
 export async function bodyLanguageHealthy(): Promise<boolean> {
   try {
-    const response = await fetch(`${base()}/health`, { signal: AbortSignal.timeout(2000) });
+    const response = await fetch(`${base()}/health`, { signal: AbortSignal.timeout(20000) });
     return response.ok;
   } catch {
     return false;

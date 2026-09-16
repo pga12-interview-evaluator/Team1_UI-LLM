@@ -1,13 +1,31 @@
 # Deploy — everything in the cloud, on free tiers
 
-Four pieces, three accounts, no credit card:
+**Live (2026-09-16):** app `https://interviewly-ow35.onrender.com` · Whisper
+`https://chaitanya-2002--interviewly-services-voice.modal.run` · body language
+`https://chaitanya-2002--interviewly-services-body.modal.run` · Redis `interviewly` on Upstash.
+
+Four pieces, three accounts, no credit card. (Hugging Face Docker Spaces became PRO-only in
+2026, so the Python services run on Modal instead; the HF files under `deploy/hf/` still work if
+you have PRO.)
 
 | Piece | Host | Free tier | URL you get |
 |---|---|---|---|
-| Whisper (Team 2) | Hugging Face Space, Docker | 2 vCPU · 16 GB, sleeps after 48 h idle | `https://<user>-interviewly-voice.hf.space` |
-| Body language (Team 3) | Hugging Face Space, Docker | same | `https://<user>-interviewly-body.hf.space` |
-| App (UI + BFF + Gemini) | Render web service, Docker | 512 MB, sleeps after 15 min idle | `https://interviewly.onrender.com` |
+| Whisper + Team 2 settings + Team 4 analysis | Modal, `deploy/modal/interviewly_services.py` | $30/month credits, no card; scales to zero | `https://<workspace>--interviewly-services-voice.modal.run` |
+| Body language (Team 3) | Modal, same app | same | `https://<workspace>--interviewly-services-body.modal.run` |
+| App (UI + BFF + Gemini) | Render web service, Docker (`render.yaml`) | 512 MB, sleeps after 15 min idle | `https://interviewly-<hash>.onrender.com` |
 | Sessions + reports | Upstash Redis | 256 MB, 500k commands/month | REST URL + token |
+
+## Modal (replaces the HF Space steps below)
+
+```bash
+cd deploy && python -m venv .venv && .venv/Scripts/pip install modal
+.venv/Scripts/python -m modal setup                                   # browser login, once
+.venv/Scripts/python -m modal secret create interviewly SERVICE_TOKEN=<random hex>
+.venv/Scripts/python -m modal deploy modal/interviewly_services.py    # prints both URLs
+```
+
+Redeploy after changing `voice_to_text/`, `body_language/` or `Team3_Body_language/`: run the
+last command again (images are cached; ~30 s).
 
 Render has no disk on the free plan, so the app mirrors every session, audit event and behavioral
 record to Redis and rehydrates on boot. Locally nothing changes — no Upstash env → JSON files in

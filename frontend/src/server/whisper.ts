@@ -59,7 +59,8 @@ export function serviceAuth(): Record<string, string> {
 export async function whisperHealthy(): Promise<boolean> {
   try {
     const base = getServerEnv().WHISPER_URL.replace(/\/$/, "");
-    const response = await fetch(`${base}/health`, { signal: AbortSignal.timeout(2000) });
+    // Cloud services scale to zero; a cold start takes ~10 s, so the health probe waits longer.
+    const response = await fetch(`${base}/health`, { signal: AbortSignal.timeout(20000) });
     return response.ok;
   } catch {
     return false;
