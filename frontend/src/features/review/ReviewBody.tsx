@@ -740,7 +740,11 @@ function SpeechCard({
                 <PaceCurve curve={summary.pace_curve} />
               </div>
             ) : (
-              <p className="text-ink-muted">The pace curve appears once you answer by voice.</p>
+              <Alert tone="info">
+                {answers.some((a) => a.speech?.duration_sec)
+                  ? "This interview was recorded before delivery analysis was switched on, so there is no pace curve or rhythm for it. Your next voice interview will have them."
+                  : "The pace curve, rhythm strips and filler chart appear when you answer by voice."}
+              </Alert>
             )}
             <div className="grid gap-4 md:grid-cols-[1fr_auto]">
               <div className="flex flex-col gap-3">
